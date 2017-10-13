@@ -1,0 +1,80 @@
+else { //NOVO
+            this.$http.post(ENDPOINT + `api/comp/novoCab`,this.selected,
+            ).then(
+            response=>{
+              this.$set('selected',{})
+              this.$set('showModalNew',false)
+              this.err = JSON.stringify(response.json())
+              
+              swal({
+              html: '<b>' + this.err + '</b>',
+              confirmButtonText:
+                '<i class="fa fa-thumbs-up"></i> Ok!',
+              })
+            },
+            error=>{
+              console.log(response.json())
+            }).finally(function () {
+              this.loadCompromissos()
+            })
+            
+          }
+  
+======================================================================================
+
+exepctativa:
+
+else { //NOVO
+            this.$http.post(ENDPOINT + `api/comp/novoCab`,this.selected,
+            ).then(
+            response=>{
+              this.err = JSON.stringify(response.json())
+              function (response) {
+                if(response.body.status = 'error') {
+                  
+                  // alert(this.err)
+                  swal({
+                  html: '<b>' + this.err + '</b>',
+                  confirmButtonText:
+                    '<i class="fa fa-thumbs-up"></i> Ok!',
+                  })
+                }else {
+                  this.$set('selected',{})
+                  this.$set('showModalNew',false)
+                  console.log(response.json()) 
+                }
+              }
+            
+             
+            }).catch(error => {
+              console.log(error)
+            }).finally(function () {
+              this.loadCompromissos()
+            })
+            
+          }        
+
+
+======================================================================
+
+.then((response) => {
+                this.err = JSON.stringify(response.data)
+                if(response.data = 'erro') {
+                  // alert(this.err)
+                  swal({
+                  html: '<strong>' + this.err + '</strong>',
+                  confirmButtonText:
+                    '<i class="fa fa-thumbs-up"></i> Ok!',
+                  })
+                }else {
+                  this.$set('selected',{})
+                  this.$set('showModalNew',false)
+                  console.log(response.json()) 
+                }
+             console.log(response.data)
+           })
+           .catch((erro) => {
+            console.log(erro);
+           });
+          }
+          
