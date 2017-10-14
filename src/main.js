@@ -9,6 +9,7 @@ import money from 'v-money'*/
 import axios from 'axios'
 // import lodash from 'lodash'
 import VueClip from 'vue-clip'
+import JSZip from 'jszip'
 
 var moment = require('moment');
 require("moment/min/locales.min");
@@ -51,6 +52,7 @@ Vue.use(money, {
 })
 Vue.use(lodash)*/
 Vue.use(VueClip)
+Vue.use(JSZip)
 
 const router = new VueRouter({
   mode: 'history'

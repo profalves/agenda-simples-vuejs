@@ -107,7 +107,7 @@
                             </div>
                             
                         </div>
-                        <hr>
+                        
                         <strong>idCompDet:{{ compromisso.idCompDet }}</strong>
                         <hr style="margin-top: 5px;">
 
@@ -162,7 +162,7 @@
 
                             </div>
                         </div>
-                        <hr>
+                        
                         <strong>idCompDet:{{ compromisso.idCompDet }}</strong>
                         <hr style="margin-top: 5px;">
 
@@ -216,7 +216,7 @@
 
                             </div>
                         </div>
-                        <hr>
+                        
                         <strong>idCompDet:{{ compromisso.idCompDet }}</strong>
                         <hr style="margin-top: 5px;">
 
@@ -409,7 +409,7 @@
   //Calendário
   import myDatepicker from 'vue-datepicker'
 
-  //produção:
+  //dev:
   const ENDPOINT = 'http://192.168.0.200/helpdesk/'
 
   // ao descomentar abaixo tem que comentar a const acima
@@ -449,9 +449,9 @@ export default {
         primeiroDet: '',
         imgDet: {
             
-            "idCompDet": '',
+            "idCompDet": 317,
             "imgFile": this.image,
-            "extFile": this.ext
+            "extFile": 'jpg'
             
         },  
         
@@ -748,17 +748,29 @@ export default {
       },
         
       enviarImg(){
-        
-       this.imgDet.imgFile = this.image
-       // this.imgDet.extFile = this.ext
-        
+       
+       ext = this.image.split(';').shift().split('/').pop()
+         if ( ext == 'jpeg' ) {
+            ext = 'jpg'
+            this.imgDet.extFile = ext
+         }
+         else {
+            this.imgDet.extFile = ext
+       }
+       this.imgDet.imgFile = this.image.split(',').pop()
+       this.imgDet.idCompDet = this.idResposta
+       
+         
+      
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
+                this.$set('showAnexo',false)
                 console.log(response.json)
                 console.log(response.body)
              })
              .catch((error) => {
                 console.log(response.json)
+                console.log(response.body)
              })
              .finally(function () {
                 this.loadDetahes()
