@@ -107,7 +107,8 @@
                             </div>
                             
                         </div>
-
+                        <hr>
+                        <strong>idCompDet:{{ compromisso.idCompDet }}</strong>
                         <hr style="margin-top: 5px;">
 
                         <div class="columns">
@@ -121,7 +122,7 @@
                         <div class="columns">
                             <div class="column">
                                 <label class="label">Anexo</label>
-                                <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo()"></i> 
+                                <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo(compromisso)"></i> 
                             </div> 
                             <div class="column">
                                 <span v-if="compromisso.extensao=='jpg'"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
@@ -161,7 +162,8 @@
 
                             </div>
                         </div>
-
+                        <hr>
+                        <strong>idCompDet:{{ compromisso.idCompDet }}</strong>
                         <hr style="margin-top: 5px;">
 
                         <div class="columns">
@@ -175,7 +177,7 @@
                         <div class="columns">
                             <div class="column">
                                 <label class="label">Anexo</label>
-                                <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo()"></i> 
+                                <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo(compromisso)"></i> 
                             </div>
                             <div class="column">
                                 <span v-if="compromisso.extensao=='jpg'"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
@@ -214,7 +216,8 @@
 
                             </div>
                         </div>
-
+                        <hr>
+                        <strong>idCompDet:{{ compromisso.idCompDet }}</strong>
                         <hr style="margin-top: 5px;">
 
                         <div class="columns">
@@ -228,7 +231,7 @@
                         <div class="columns">
                             <div class="column">
                                 <label class="label">Anexo</label>
-                                <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo()"></i> 
+                                <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo(compromisso)"></i> 
                             </div>
                             <div class="column">
                                 <span v-if="compromisso.extensao=='jpg'"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
@@ -251,7 +254,7 @@
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
-          <p class="modal-card-title">Comentando</p> <!-- {{ nivelResposta }} -->
+          <p class="modal-card-title">Comentando</p>
           <button class="delete" @click.prevent="showModal=false"></button>
         </header>
         <section class="modal-card-body">
@@ -306,6 +309,7 @@
           <div class="modal-background"></div>
           <div class="modal-content">
             <div class="box is-narrow">
+                
                 <div v-if="!image">
                     <label class="label">Selecione uma imagem:</label>
                     <input type="file" @change="onFileChange">
@@ -313,8 +317,9 @@
                 <div v-else>
                     <img :src="image" />
                     <center>
-                        <button class="button is-danger" @click="removeImage">Remover imagem</button>
-                        <button class="button is-primary" @click="enviarImg()">Enviar</button>
+                        <button class="button is-danger" @click="removeImage">Remover</button>
+                        <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
+                        <strong>Arquivo: {{ image | extensao }}</strong>
                     </center>
 
                 </div>
@@ -342,9 +347,16 @@
                     </div>
                     <div class="column">
                             <div class="column">
-                                <label class="label">Anexo:</label>
-                                <i class="button fa fa-upload is-primary" @click.prevent="showAnexo()"></i> 
-                            </div>    
+                        <div v-if="!image">
+                            <label class="label">Selecione uma imagem:</label>
+                            <input type="file" @change="onFileChange">
+                        </div>
+
+                        <div v-else>
+                            <img :src="image">
+                            <center><button @click="removeImage">Remove image</button></center>
+                        </div>
+                    </div>   
                     </div>
                     <span></span>
                     <!-- <div class="column">
@@ -417,8 +429,8 @@ export default {
         compromissosDet: [],
         visivel: true,
         image: '',
+        ext: '',
 
-        contador: [0],
         compDet: {
             "detalhes": '',
             "idComp": this.$route.query.q,
@@ -432,12 +444,14 @@ export default {
           { text: 'KEL', value: 4}
         ],
         nivelResposta: '',
+        idResposta: '',
         ultimoDet: '',
         primeiroDet: '',
         imgDet: {
-            "extFile": 'jpg',
-            "idCompDet": 140,
+            
+            "idCompDet": '',
             "imgFile": this.image,
+            "extFile": this.ext
             
         },  
         
@@ -503,30 +517,38 @@ export default {
       }
     },
     
-    
-    
     components: {
       'date-picker': myDatepicker
     },
+    
     filters: {
       dataFormat: function (value) {  
 
-          if (value == '' || value == null){
+         if (value == '' || value == null){
             return null
-          }
-          else {
+         }
+         else {
             return moment(value).format('lll')
-          }
+         }
 
+      },
+      extensao: function (ext) {
+        ext = this.image.split(';').shift().split('/').pop();
+        if ( ext == 'jpeg' ) {
+            return ext = 'jpg'
+        }
+        else {
+            return ext
+        }
+         
+         
       }
     },
 
     // METODOS ======================================
 
     methods: {
-      formatDatas(){
-
-      },
+      
       responder(){
         let x = 0
         let y = 999999
@@ -570,11 +592,13 @@ export default {
         })
       },
       showResposta(compromisso){
+        this.idResposta = compromisso.idCompDet
         this.nivelResposta = compromisso.nivel
         this.showModal = true
         this.image = ''
       },
       showAnexo(compromisso){
+        this.idResposta = compromisso.idCompDet
         this.showUpload = true
         this.image = ''
       },
@@ -712,11 +736,12 @@ export default {
           var image = new Image();
           var reader = new FileReader();
           var vm = this;
-
+          
           reader.onload = (e) => {
             vm.image = e.target.result;
           };
           reader.readAsDataURL(file);
+          
       },
       removeImage: function (e) {
           this.image = '';
@@ -725,6 +750,7 @@ export default {
       enviarImg(){
         
        this.imgDet.imgFile = this.image
+       // this.imgDet.extFile = this.ext
         
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
