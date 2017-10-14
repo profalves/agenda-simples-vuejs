@@ -125,8 +125,9 @@
                                 <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo(compromisso)"></i> 
                             </div> 
                             <div class="column">
+                                <a href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" target="_blank">
                                 <span v-if="compromisso.extensao=='jpg'"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
-                                <strong>{{ compromisso.extensao }}</strong>
+                                <strong>{{ compromisso.extensao }}</strong></a>
                             </div>
                         </div>
 
@@ -180,8 +181,9 @@
                                 <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo(compromisso)"></i> 
                             </div>
                             <div class="column">
+                                <a href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" target="_blank">
                                 <span v-if="compromisso.extensao=='jpg'"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
-                                <strong>{{ compromisso.extensao }}</strong>
+                                <strong>{{ compromisso.extensao }}</strong></a>
                             </div>
                             
                         </div>
@@ -234,8 +236,9 @@
                                 <i class="button fa fa-upload is-primary is-large" @click.prevent="showAnexo(compromisso)"></i> 
                             </div>
                             <div class="column">
+                                <a href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" target="_blank">
                                 <span v-if="compromisso.extensao=='jpg'"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
-                                <strong>{{ compromisso.extensao }}</strong>
+                                <strong>{{ compromisso.extensao }}</strong></a>
                             </div>
                             
                         </div>
@@ -415,6 +418,7 @@
   // ao descomentar abaixo tem que comentar a const acima
   //debug:
   //const ENDPOINT = 'http://192.168.0.115:32688/'
+  
 
 export default {
     name: 'CompromissosDet',
@@ -449,14 +453,12 @@ export default {
         primeiroDet: '',
         imgDet: {
             
-            "idCompDet": 317,
-            "imgFile": this.image,
-            "extFile": 'jpg'
+            "idCompDet": '',
+            "imgFile": '',
+            "extFile": ''
             
         },  
         
-
-
         // datapicker
         startTime: {
             time: moment().format('YYYY-MM-DD HH:mm')
@@ -764,12 +766,16 @@ export default {
       
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
-                this.$set('showAnexo',false)
-                console.log(response.json)
+                this.$set('showUpload',false)
+                this.$set('imgDet',{
+                    "idCompDet": '',
+                    "extFile": '',
+                    "imgFile": ''
+                })
+                this.$set('image','')
                 console.log(response.body)
              })
              .catch((error) => {
-                console.log(response.json)
                 console.log(response.body)
              })
              .finally(function () {
