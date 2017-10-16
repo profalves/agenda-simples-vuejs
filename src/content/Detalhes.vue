@@ -124,7 +124,7 @@
                                    v-if="compromisso.extensao!=null"
                                    >
                                     <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
-                                    <i v-if="compromisso.extensao=='pdf'" class="fa fa-file-text-o" aria-hidden="true"></i>
+                                    <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
                                     <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
                                 </a>
                             </div>
@@ -186,7 +186,7 @@
                                    v-if="compromisso.extensao!=null"
                                    >
                                     <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
-                                    <i v-if="compromisso.extensao=='pdf'" class="fa fa-file-text-o" aria-hidden="true"></i>
+                                    <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
                                     <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
                                 </a>
                             </div>
@@ -242,7 +242,6 @@
                             <div class="column">
                                 <a 
                                    class="button"
-                                   
                                    href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
                                    target="_blank"
                                    v-if="compromisso.extensao!=null"
@@ -251,7 +250,7 @@
                                      <!-- @click="showExibir(compromisso)"-->
                                     
                                     <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
-                                    <i v-if="compromisso.extensao=='pdf'" class="fa fa-file-text-o" aria-hidden="true"></i>
+                                    <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
                                     <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
                                 </a>
                             </div>
@@ -296,6 +295,7 @@
                         </div>
                         <!-- <span>{{ startTime.time }}</span> -->
                     </div>
+                    
                     <div class="column">
                         <div v-if="!image">
                             <label class="label">Selecione uma imagem:</label>
@@ -335,17 +335,44 @@
           <div class="modal-background"></div>
           <div class="modal-content">
             <div class="box is-narrow">
+                <div class="columns">
+                    <div class="column is-4">
+                        
+                    </div>
+                    <div class="column is-2">
+                        <input type="radio" id="one" value="1" v-model="picked">
+                        <label for="one">Imagem</label>
+                    </div>
                 
-                <div v-if="!image">
-                    <label class="label">Selecione uma imagem:</label>
-                    <input type="file" @change="onFileChange">
+                    <div class="column is-2">
+                        <input type="radio" id="two" value="2" v-model="picked" @click="image=''">
+                        <label for="two">Arquivo</label>
+                    </div>
+                    
                 </div>
-                <div v-else>
+                
+                <div v-if="!image && picked=='1'">
+                    <center>
+                        <label class="label">Selecione uma imagem:</label>
+                        <input type="file" @change="onFileChange">
+                    </center>
+                </div>
+                
+                <div v-if="image">
                     <img :src="image" />
                     <center>
                         <button class="button is-danger" @click="removeImage">Remover</button>
                         <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
                         <strong>Arquivo: {{ image | extensao }}</strong>
+                    </center>
+
+                </div>
+                
+                <div v-if="picked=='2'">
+                    
+                    <center>
+                        <label class="label">Selecione um Arquivo (o mesmo será zipado):</label>
+                        <input type="file" v-model="arquivo" @change="zipFile()">
                     </center>
 
                 </div>
@@ -371,7 +398,8 @@
     <!-- fim modal -->
     
 
-    <!-- RESPOSTA GERAL -->    
+    <!-- RESPOSTA GERAL -->
+      
       <div id="resposta" class="box" style="margin-top: 20px;">
           <label class="label">Resposta:</label>
                 <textarea @click="responder()" class="textarea" v-model.trim="compDet.detalhes" placeholder="Digite a sua resposta" style="width: 100%;"></textarea>
@@ -394,7 +422,8 @@
 
                         <div v-else>
                             <img :src="image">
-                            <center><button @click="removeImage">Remove image</button></center>
+                            <center><button @click="removeImage">Remove image</button><br>
+                            <strong>Arquivo: {{ image | extensao }}</strong></center>
                         </div>
                     </div>   
                     </div>
@@ -452,6 +481,12 @@
   //Repositório:
   const REPO = 'files/'
   
+  //zipar Arquivos
+  import FileSaver from 'file-saver'
+  import JSZip from 'jszip'
+    
+  var zip = new JSZip()
+  
   //dev:
   const ENDPOINT = 'http://192.168.0.200/helpdesk/'
 
@@ -472,9 +507,12 @@ export default {
         selected: {},
         compromissos: [],
         compromissosDet: [],
-        visivel: true,
+        visivel: false,
         image: '',
         ext: '',
+        arquivo: [],
+        url: 'http://192.168.0.200/helpdesk/files/',
+        picked: '',
 
         compDet: {
             "detalhes": '',
@@ -561,7 +599,8 @@ export default {
     },
     
     components: {
-      'date-picker': myDatepicker
+      'date-picker': myDatepicker,
+      JSZip
     },
     
     filters: {
@@ -839,6 +878,12 @@ export default {
             ext = 'jpg'
             this.imgDet.extFile = ext
          }
+         else if(ext == 'data:'){
+            ext = 'zip'
+            this.imgDet.extFile = ext
+            
+            
+         }
          else {
             this.imgDet.extFile = ext
        }
@@ -865,6 +910,22 @@ export default {
                 this.loadDetahes()
              })
       },
+        
+      //zipando arquivos
+      zipFile(a){  
+        return this.ext = this.arquivo.split('.').pop()
+        
+        var zip = new JSZip();
+        
+        zip.file(this.arquivo);
+        
+       /* zip.generateAsync({type:"blob"}).then(function(content) {
+            // see FileSaver.js
+            saveAs(content, "example.zip");
+        });*/
+      },
+      
+      
 
 
     },
@@ -907,6 +968,8 @@ export default {
         margin-top: 5px;
     }
     a {
-        margin: 5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
     }
+    
 </style>

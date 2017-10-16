@@ -11,6 +11,7 @@ import axios from 'axios'
 import VueClip from 'vue-clip'
 import JSZip from 'jszip'
 import VModal from 'vue-js-modal'
+
  
 var moment = require('moment');
 require("moment/min/locales.min");
