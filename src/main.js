@@ -10,7 +10,8 @@ import axios from 'axios'
 // import lodash from 'lodash'
 import VueClip from 'vue-clip'
 import JSZip from 'jszip'
-
+import VModal from 'vue-js-modal'
+ 
 var moment = require('moment');
 require("moment/min/locales.min");
 moment.locale('pt-br');
@@ -53,6 +54,7 @@ Vue.use(money, {
 Vue.use(lodash)*/
 Vue.use(VueClip)
 Vue.use(JSZip)
+Vue.use(VModal)
 
 const router = new VueRouter({
   mode: 'history'
