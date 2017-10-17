@@ -335,21 +335,16 @@
           <div class="modal-background"></div>
           <div class="modal-content">
             <div class="box is-narrow">
-                <div class="columns">
-                    <div class="column is-4">
-                        
-                    </div>
-                    <div class="column is-2">
-                        <input type="radio" id="one" value="1" v-model="picked">
-                        <label for="one">Imagem</label>
-                    </div>
                 
-                    <div class="column is-2">
-                        <input type="radio" id="two" value="2" v-model="picked" @click="image=''">
-                        <label for="two">Arquivo</label>
-                    </div>
-                    
-                </div>
+                <center>
+
+                    <input class="fa fa-file-image-o" type="radio" id="one" value="1" v-model="picked">
+                    &nbsp; Imagem &nbsp;
+
+                    <input class="fa fa-file" type="radio" id="two" value="2" v-model="picked" @click="image=''">
+                    &nbsp; Arquivo &nbsp;
+                </center>
+                <br>
                 
                 <div v-if="!image && picked=='1'">
                     <center>
@@ -373,6 +368,7 @@
                     <center>
                         <label class="label">Selecione um Arquivo (o mesmo será zipado):</label>
                         <input type="file" v-model="arquivo" @change="zipFile()">
+                        <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
                     </center>
 
                 </div>
@@ -482,7 +478,7 @@
   const REPO = 'files/'
   
   //zipar Arquivos
-  import FileSaver from 'file-saver'
+  
   import JSZip from 'jszip'
     
   var zip = new JSZip()
@@ -618,6 +614,9 @@ export default {
         ext = this.image.split(';').shift().split('/').pop();
         if ( ext == 'jpeg' ) {
             return ext = 'jpg'
+        }
+        else if ( ext == 'data:'){
+            return ext = 'ARQUIVO INVÁLIDO (adicione marcando em "arquivo" acima)'
         }
         else {
             return ext
@@ -851,6 +850,7 @@ export default {
         
       // envio de imagem
       onFileChange(e) {
+          
           var files = e.target.files || e.dataTransfer.files;
           if (!files.length)
             return;
@@ -912,17 +912,20 @@ export default {
       },
         
       //zipando arquivos
-      zipFile(a){  
-        return this.ext = this.arquivo.split('.').pop()
+      zipFile(){  
+        this.ext = this.arquivo.split('.').pop()
         
-        var zip = new JSZip();
+        var nome = this.arquivo.split('fakepath\\').pop()
+        this.image = nome
+                
+        zip.file(nome, "teste novo")
         
-        zip.file(this.arquivo);
-        
-       /* zip.generateAsync({type:"blob"}).then(function(content) {
+        zip.generateAsync({type:"blob"})
+        .then(function(content) {
             // see FileSaver.js
-            saveAs(content, "example.zip");
-        });*/
+            saveAs(content, "test.zip");
+        });
+         
       },
       
       

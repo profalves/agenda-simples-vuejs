@@ -46,6 +46,7 @@
 </template>
 <script>
 import store from './vuex/store'
+import FileSaver from './FileSaver.js'
 var moment = require('moment');
 require("moment/min/locales.min");
 moment.locale('pt-br');
