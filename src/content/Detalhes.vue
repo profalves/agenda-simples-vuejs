@@ -349,7 +349,7 @@
                 <div v-if="!image && picked=='1'">
                     <center>
                         <label class="label">Selecione uma imagem:</label>
-                        <input type="file" @change="onFileChange">
+                        <input id="file" type="file" @change="onFileChange" value="">
                     </center>
                 </div>
                 
@@ -357,6 +357,7 @@
                     <img :src="image" />
                     <center>
                         <button class="button is-danger" @click="removeImage">Remover</button>
+                        <button class="button is-grey" @click="zipar()">Zipar</button><br><br>
                         <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
                         <strong>Arquivo: {{ image | extensao }}</strong>
                     </center>
@@ -367,10 +368,11 @@
                     
                     <center>
                         <label class="label">Selecione um Arquivo (o mesmo será zipado):</label>
-                        <input type="file" v-model="arquivo" @change="zipFile()">
+                        <input type="file" id="file" v-model="arquivo" @change="zipFile()">
+                        <button class="button" @click="zipFile()">Enviar</button><br><br>
                         <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
                     </center>
-
+                    
                 </div>
             </div>
           </div>
@@ -850,7 +852,7 @@ export default {
         
       // envio de imagem
       onFileChange(e) {
-          
+                    
           var files = e.target.files || e.dataTransfer.files;
           if (!files.length)
             return;
@@ -879,14 +881,17 @@ export default {
             this.imgDet.extFile = ext
          }
          else if(ext == 'data:'){
-            ext = 'zip'
-            this.imgDet.extFile = ext
-            
-            
+            this.ext = this.arquivo
+            this.imgDet.extFile = this.ext   
+         }
+         else if(ext == 'plain'){
+            ext = 'txt'
+            this.imgDet.extFile = ext   
          }
          else {
             this.imgDet.extFile = ext
        }
+       
        this.imgDet.imgFile = this.image.split(',').pop()
        this.imgDet.idCompDet = this.idResposta
        
@@ -912,20 +917,59 @@ export default {
       },
         
       //zipando arquivos
+      zipar(){
+        return this.arquivo = document.getElementById('input')
+        this.ext = "." + this.image.split(';').shift().split('/').pop()
+        if (this.ext == '.data:') {
+            this.ext = null
+        }
+        
+        this.arquivo = this.image.split(',').pop()
+        
+        zip.file("new" + this.ext, this.arquivo, {base64: true});
+
+        // Generate the zip file asynchronously
+        zip.generateAsync({type:"blob"})
+        .then(function(content) {
+            // Force down of the Zip file
+            saveAs(content, "archive.zip");
+        });
+        
+        
+      },
+        
+      // criar arquivos zipados
       zipFile(){  
         this.ext = this.arquivo.split('.').pop()
         
-        var nome = this.arquivo.split('fakepath\\').pop()
-        this.image = nome
-                
-        zip.file(nome, "teste novo")
+        this.image = window.btoa(this.arquivo)
         
+        var nome = this.arquivo.split('fakepath\\').pop()
+        
+        zip.file(nome, this.image, {base64: true});
+
+        // Generate the zip file asynchronously
         zip.generateAsync({type:"blob"})
         .then(function(content) {
-            // see FileSaver.js
-            saveAs(content, "test.zip");
+            // Force down of the Zip file
+            saveAs(content, "archive.zip");
         });
-         
+        
+        /*zip.file(nome, this.arquivo, {type:"file"});
+
+        // Generate the zip file asynchronously
+        zip.generateAsync({type:"blob"})
+        .then(function(content) {
+            // Force down of the Zip file
+            saveAs(content, "archive.zip");
+        });*/
+        
+        var zipData = zip.generateAsync({ type: "base64" });
+
+        var formData = new FormData();
+        this.arquivo = formData.append('zipData', zipData);
+
+         saveAs(this.arquivo, "archive.zip")
       },
       
       
