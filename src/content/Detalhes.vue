@@ -336,44 +336,29 @@
           <div class="modal-content">
             <div class="box is-narrow">
                 
-                <center>
-
-                    <input class="fa fa-file-image-o" type="radio" id="one" value="1" v-model="picked">
-                    &nbsp; Imagem &nbsp;
-
-                    <input class="fa fa-file" type="radio" id="two" value="2" v-model="picked" @click="image=''">
-                    &nbsp; Arquivo &nbsp;
-                </center>
-                <br>
                 
-                <div v-if="!image && picked=='1'">
+                
+                <div v-if="!image">
                     <center>
                         <label class="label">Selecione uma imagem:</label>
-                        <input id="file" type="file" @change="onFileChange" value="">
+                        <input id="file" type="file" @change="onFileChange">
                     </center>
                 </div>
                 
-                <div v-if="image">
+                <div v-else>
                     <img :src="image" />
+                    <center><strong>Arquivo: {{ image | extensao }}</strong></center>
+                    <br>
                     <center>
                         <button class="button is-danger" @click="removeImage">Remover</button>
                         <button class="button is-grey" @click="zipar()">Zipar</button><br><br>
                         <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
-                        <strong>Arquivo: {{ image | extensao }}</strong>
+                        
                     </center>
 
                 </div>
                 
-                <div v-if="picked=='2'">
-                    
-                    <center>
-                        <label class="label">Selecione um Arquivo (o mesmo será zipado):</label>
-                        <input type="file" id="file" v-model="arquivo" @change="zipFile()">
-                        <button class="button" @click="zipFile()">Enviar</button><br><br>
-                        <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
-                    </center>
-                    
-                </div>
+                
             </div>
           </div>
           <button class="modal-close is-large" aria-label="close" @click.prevent="showUpload=false"></button>
@@ -415,7 +400,7 @@
                             <div class="column">
                         <div v-if="!image">
                             <label class="label">Selecione uma imagem:</label>
-                            <input type="file" @change="onFileChange">
+                            <input id="file2" type="file" @change="onFileChange">
                         </div>
 
                         <div v-else>
@@ -464,18 +449,14 @@
 </template>
 
 <script>
-
   //plugin para requisições
   import axios from 'axios'
-
   //captura hora e data
   var moment = require('moment');
   require("moment/min/locales.min");
   moment.locale('pt-br');
-
   //Calendário
   import myDatepicker from 'vue-datepicker'
-
   //Repositório:
   const REPO = 'files/'
   
@@ -487,12 +468,10 @@
   
   //dev:
   const ENDPOINT = 'http://192.168.0.200/helpdesk/'
-
   // ao descomentar abaixo tem que comentar a const acima
   //debug:
   //const ENDPOINT = 'http://192.168.0.115:32688/'
   
-
 export default {
     name: 'CompromissosDet',
     data () {
@@ -509,9 +488,9 @@ export default {
         image: '',
         ext: '',
         arquivo: [],
+        arqZip: [],
         url: 'http://192.168.0.200/helpdesk/files/',
         picked: '',
-
         compDet: {
             "detalhes": '',
             "idComp": this.$route.query.q,
@@ -603,33 +582,20 @@ export default {
     
     filters: {
       dataFormat: function (value) {  
-
          if (value == '' || value == null){
             return null
          }
          else {
             return moment(value).format('DD/MMM HH:mm')
          }
-
       },
       extensao: function (ext) {
-        ext = this.image.split(';').shift().split('/').pop();
-        if ( ext == 'jpeg' ) {
-            return ext = 'jpg'
-        }
-        else if ( ext == 'data:'){
-            return ext = 'ARQUIVO INVÁLIDO (adicione marcando em "arquivo" acima)'
-        }
-        else {
-            return ext
-        }
+        return ext = this.ext
          
          
       }
     },
-
     // METODOS ======================================
-
     methods: {
       
       responder(){
@@ -666,7 +632,6 @@ export default {
       selectStatus(){
         axios.get(ENDPOINT + 'api/comp/obterStatus')
         .then(response => {
-
           this.status = response.data
           console.log()
         })
@@ -714,7 +679,6 @@ export default {
         let t = this
         this.showLoading()
         let q = t.compDet.idComp;
-
         this.$http.get(ENDPOINT + `api/comp/obterCompdet?idComp=${q}`).then(
          response=>{
            t.compromissosDet = response.json()
@@ -732,8 +696,6 @@ export default {
           t.compDet.idUsuario = 4
           t.compDet.nivel = t.ultimoDet.nivel
           t.compDet.nivel++
-
-
              this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
              .then((response) => {
                 
@@ -767,7 +729,6 @@ export default {
                 this.loadDetahes()
              }) 
           this.enviarAposSalvar()
-
       },
       salvarSubDet(){
           this.validar()
@@ -775,8 +736,6 @@ export default {
           this.compDet.dataHoraAgend = this.startTime.time
           this.compDet.idUsuario = 4
           this.compDet.nivel = this.nivelResposta
-
-
              this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
              .then((response) => {
                 this.$set('compDet',{
@@ -787,7 +746,6 @@ export default {
                     "nivel": this.compDet.nivel,
                     "dataHoraAgend": '',
                     "startTime.time": '',
-
                 })
                 this.$set('showModal',false)
                 console.log(response.body)
@@ -811,24 +769,15 @@ export default {
              })
              
           this.enviarAposSalvar()
-
       },
       enviarAposSalvar(){
         
         ultimoDet = this.compromissosDet.slice(-1)[0] 
-        ext = this.image.split(';').shift().split('/').pop()
-         if ( ext == 'jpeg' ) {
-            ext = 'jpg'
-            this.imgDet.extFile = ext
-         }
-         else {
-            this.imgDet.extFile = ext
-         }
-         this.imgDet.imgFile = this.image.split(',').pop()
-         this.imgDet.idCompDet = ultimoDet.idCompDet+1
-
-
-
+        
+        this.imgDet.extFile = this.ext
+        this.imgDet.imgFile = this.image.split(',').pop()
+        this.imgDet.idCompDet = ultimoDet.idCompDet+1
+          
         this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
                 this.$set('showUpload',false)
@@ -852,7 +801,11 @@ export default {
         
       // envio de imagem
       onFileChange(e) {
-                    
+          // pegar o caminho do arquivo e a extensão
+          caminho = document.getElementById('file').value || document.getElementById('file2').value
+          this.arquivo = caminho
+          this.ext = this.arquivo.split('.').pop()
+          
           var files = e.target.files || e.dataTransfer.files;
           if (!files.length)
             return;
@@ -875,23 +828,7 @@ export default {
         
       enviarImg(){
        
-       ext = this.image.split(';').shift().split('/').pop()
-         if ( ext == 'jpeg' ) {
-            ext = 'jpg'
-            this.imgDet.extFile = ext
-         }
-         else if(ext == 'data:'){
-            this.ext = this.arquivo
-            this.imgDet.extFile = this.ext   
-         }
-         else if(ext == 'plain'){
-            ext = 'txt'
-            this.imgDet.extFile = ext   
-         }
-         else {
-            this.imgDet.extFile = ext
-       }
-       
+       this.imgDet.extFile = this.ext
        this.imgDet.imgFile = this.image.split(',').pop()
        this.imgDet.idCompDet = this.idResposta
        
@@ -900,11 +837,11 @@ export default {
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
                 this.$set('showUpload',false)
-                this.$set('imgDet',{
+                /*this.$set('imgDet',{
                     "idCompDet": '',
                     "extFile": '',
                     "imgFile": ''
-                })
+                })*/
                 this.$set('image','')
                 console.log(response.body)
              })
@@ -918,27 +855,19 @@ export default {
         
       //zipando arquivos
       zipar(){
-        return this.arquivo = document.getElementById('input')
-        this.ext = "." + this.image.split(';').shift().split('/').pop()
-        if (this.ext == '.data:') {
-            this.ext = null
-        }
-        
+          
         this.arquivo = this.image.split(',').pop()
         
-        zip.file("new" + this.ext, this.arquivo, {base64: true});
-
-        // Generate the zip file asynchronously
-        zip.generateAsync({type:"blob"})
-        .then(function(content) {
-            // Force down of the Zip file
-            saveAs(content, "archive.zip");
-        });
+        zip.file("new." + this.ext, this.arquivo, {base64: true});
         
+        
+        // Gerar o arquivo zip de forma assíncrona
+        this.arqZip = zip.generateAsync({type:"base64"}).then(
+            );
         
       },
         
-      // criar arquivos zipados
+      /*// criar arquivos zipados
       zipFile(){  
         this.ext = this.arquivo.split('.').pop()
         
@@ -947,7 +876,6 @@ export default {
         var nome = this.arquivo.split('fakepath\\').pop()
         
         zip.file(nome, this.image, {base64: true});
-
         // Generate the zip file asynchronously
         zip.generateAsync({type:"blob"})
         .then(function(content) {
@@ -956,25 +884,20 @@ export default {
         });
         
         /*zip.file(nome, this.arquivo, {type:"file"});
-
         // Generate the zip file asynchronously
         zip.generateAsync({type:"blob"})
         .then(function(content) {
             // Force down of the Zip file
             saveAs(content, "archive.zip");
-        });*/
+        });
         
         var zipData = zip.generateAsync({ type: "base64" });
-
         var formData = new FormData();
         this.arquivo = formData.append('zipData', zipData);
-
          saveAs(this.arquivo, "archive.zip")
       },
+      */
       
-      
-
-
     },
     created(){
       let t = this
@@ -999,7 +922,6 @@ export default {
         width: 50%;
         margin: 10px auto 5px;
         display: block;
-
     }
     .alinD {
         margin-left: 15%;
