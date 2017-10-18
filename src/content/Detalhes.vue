@@ -112,7 +112,7 @@
                             <div class="column is-3">
                                  
                             </div>
-                            <div class="column is-1" style="margin-top: 5px;">
+                            <div v-if="compromisso.extensao==null" class="column is-1" style="margin-top: 5px;">
                                 <!--<label class="label">Anexo</label>-->
                                 <i class="button fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i> 
                             </div>
@@ -124,7 +124,8 @@
                                    v-if="compromisso.extensao!=null"
                                    >
                                     <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
-                                    <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
+                                    
+                                    <i v-else class="fa fa-file-o" aria-hidden="true"></i>
                                     <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
                                 </a>
                             </div>
@@ -174,7 +175,7 @@
                             <div class="column is-3">
                                  
                             </div>
-                            <div class="column is-1" style="margin-top: 5px;">
+                            <div v-if="compromisso.extensao==null" class="column is-1" style="margin-top: 5px;">
                                 <!--<label class="label">Anexo</label>-->
                                 <i class="button fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i> 
                             </div>
@@ -235,7 +236,7 @@
                             <div class="column is-3">
                                  
                             </div>
-                            <div class="column is-1" style="margin-top: 5px;">
+                            <div v-if="compromisso.extensao==null" class="column is-1" style="margin-top: 5px;">
                                 <!--<label class="label">Anexo</label>-->
                                 <i class="button fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i> 
                             </div>
@@ -299,7 +300,7 @@
                     <div class="column">
                         <div v-if="!image">
                             <label class="label">Selecione uma imagem:</label>
-                            <input type="file" @change="onFileChange">
+                            <input id="file3" type="file" @change="onFileChange">
                         </div>
 
                         <div v-else>
@@ -490,7 +491,7 @@ export default {
         arquivo: [],
         arqZip: [],
         url: 'http://192.168.0.200/helpdesk/files/',
-        picked: '',
+        alterar: false,
         compDet: {
             "detalhes": '',
             "idComp": this.$route.query.q,
@@ -646,10 +647,43 @@ export default {
         this.image = ''
       },
       showAnexo(compromisso){
-        this.idResposta = compromisso.idCompDet
-        this.showUpload = true
-        this.image = ''
+        
+        if (compromisso.extensao != null){
+            swal({
+              title: 'Deseja mudar a imagem?',
+              text: "Já possui uma imagem vinculada a essa resposta ",
+              type: 'question',
+              showCancelButton: true,
+              confirmButtonColor: '#09c41c',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'sim',
+              cancelButtonText: 'não'
+            }).then(function () {
+                //não está funcionando...
+                //está com v-if nos botôes para bloquear caso já tenha uma imagem vinculada
+                this.alterar = true
+                //mas isso executa:
+                /*swal(
+                    'Deleted!',
+                    'Your file has been deleted.',
+                    'success'
+                )*/
+            })
+        }
+        else{
+              this.idResposta = compromisso.idCompDet
+              this.showUpload = true
+              this.image = ''
+        }
+        
+        if(this.alterar==true){
+           this.idResposta = compromisso.idCompDet
+           this.showUpload = true
+           this.image = '' 
+        }
+        
       },
+      
       showExibir(compromisso){
         this.idResposta = compromisso.idCompDet.toString()
         this.ext = compromisso.extensao
@@ -728,7 +762,10 @@ export default {
              .finally(function () {
                 this.loadDetahes()
              }) 
-          this.enviarAposSalvar()
+          if(this.image!=''){
+            this.enviarAposSalvar()
+          }
+          
       },
       salvarSubDet(){
           this.validar()
@@ -767,8 +804,11 @@ export default {
              .finally(function () {
                 this.loadDetahes()
              })
-             
-          this.enviarAposSalvar()
+          
+          if(this.image!=''){
+            this.enviarAposSalvar()
+          }
+          
       },
       enviarAposSalvar(){
         
@@ -802,7 +842,7 @@ export default {
       // envio de imagem
       onFileChange(e) {
           // pegar o caminho do arquivo e a extensão
-          caminho = document.getElementById('file').value || document.getElementById('file2').value
+          caminho = document.getElementById('file').value || document.getElementById('file2').value || document.getElementById('file3').value
           this.arquivo = caminho
           this.ext = this.arquivo.split('.').pop()
           
@@ -828,8 +868,31 @@ export default {
         
       enviarImg(){
        
-       this.imgDet.extFile = this.ext
-       this.imgDet.imgFile = this.image.split(',').pop()
+       //if(this.ext!='jpg'){
+            this.arquivo = this.image.split(',').pop()
+        
+            zip.file("new." + this.ext, this.arquivo, {base64: true});
+
+
+            // Gerar o arquivo zip de forma assíncrona
+
+            zip.generateAsync({
+                type: "base64"
+            }).then(
+            res => {
+                this.$set('arqZip', res)
+                console.log(res)
+            });
+          
+           this.imgDet.imgFile = this.arqZip
+       /*}
+       else{
+           this.imgDet.imgFile = this.image.split(',').pop()
+       
+       }*/
+          
+       this.imgDet.extFile = 'zip'
+       // this.imgDet.imgFile = this.image.split(',').pop()
        this.imgDet.idCompDet = this.idResposta
        
          
@@ -862,9 +925,22 @@ export default {
         
         
         // Gerar o arquivo zip de forma assíncrona
-        this.arqZip = zip.generateAsync({type:"base64"}).then(
-            );
         
+        zip.generateAsync({
+            type: "base64"
+        }).then(
+            res => {
+                this.$set('image', res)
+                console.log(res)
+            });
+
+        //var fd = new Array(this.arqZip)
+        
+        //fd.append('zip', this.arqZip[], 'zipado.zip');
+          
+        //this.arquivo = atob(this.arqZip);
+        
+
       },
         
       /*// criar arquivos zipados
