@@ -4,7 +4,7 @@
   
     
   <div class="container">
-    <h1 class="title">{{title}}</h1>
+    <!--<h1 class="title">{{title}}</h1>-->
     
     <div class="column">
       <a class="button is-info" @click.prevent="newCompromissos">Novo Compromisso</a> 
@@ -56,8 +56,10 @@
               <span class="button" @click="limparFiltros()" v-if="filtroBtn" id="btn-limpFiltros">Limpar Filtros</span>
           </span>
       </div>
-          
+        <br>
+    </div>     
         <!-- tabela -->
+    <div id="table">
         <table class="table is-narrow-mobile is-bordered tg">
             
               <thead>
@@ -890,6 +892,31 @@
     .closebtn:hover {
         color: #000;
     }
-    
+    #table{
+      max-width: 100%;
+      max-height: 400px;
+      overflow: scroll;
+    }
+    table {
+      border-collapse: collapse;
+      width: 50em;
+      border: 1px solid #666;
+    }
+    tr:nth-child(even) {
+      background-color: #edf5ff;
+    }
+    th {
+      font-weight: normal;
+      text-align: left;
+    }
+    th, td {
+      padding: 0.1em 1em;
+    }
+    span.column {
+        margin-bottom: 5px;
+    }
+    #btn-limpFiltros {
+        margin: 0 10px
+    }
     .fixo{float: right; margin-right: 10px; margin-top: 0px; z-index: 1000;}
 </style>

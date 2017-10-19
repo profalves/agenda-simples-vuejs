@@ -1,12 +1,7 @@
 <template>
     <div id="app">
-        <nav class="navbar">
-          <div class="navbar-brand">
-            <!-- navbar items, navbar burger... -->
-            <span class="nav-item">
-                <!--<button class="button navbar-burger" v-on:click.native="toggleLeftSidenav">
-                    <i class="fa fa-bars" aria-hidden="true"></i>
-                </button>-->
+        <div class="topo">
+            
                 <a v-link="{ path: '/' }" class="button is-primary">
                     <span class="icon">
                     <i class="fa fa-home"></i>
@@ -19,10 +14,8 @@
                     </span>
                     <span>Agenda</span>
                 </a>
-            </span>
-          </div>
-          
-        </nav>
+             
+        </div>
         
         
  
@@ -77,6 +70,8 @@ export default {
 <style>
     body {
         font-family: Helvetica, sans-serif;
+        margin:0; 
+        padding:60px 0 0;
     }
     h1 {
         font-size: 50px;
@@ -100,4 +95,15 @@ export default {
         position: absolute;
         z-index: 5;
     }
+	.topo {
+		box-shadow: 0 0 5px 2px rgba(0,0,0,0.6);
+		padding: 10px 0;
+		width: 100%; 
+		position: fixed;
+		top: 0; 
+        left: 0;
+		background: #fff;
+		text-align: center;
+        z-index: 5;
+	}
 </style>
