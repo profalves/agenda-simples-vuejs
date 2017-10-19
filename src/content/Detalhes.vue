@@ -14,9 +14,9 @@
 
         <section>
 
-          <div class="columns">
+          <div class="columns is-mobile">
 
-            <div class="column">
+            <div class="column is-3-mobile">
               <label class="label">Data/Hora:</label>
                 {{compromissos.dataHora | dataFormat}}
             </div>
@@ -38,15 +38,16 @@
               <label class="label">Assunto:</label>
                 {{compromissos.titulo}}
             </div>
-            <div class="column is-4">
-              <label class="label">Projeto:</label>
-                {{compromissos.projeto}}
-            </div>
+            
           </div>
 
 
-          <div class="columns">
-            <div class="column">
+          <div class="columns is-mobile">
+            <div class="column is-4-desktop is-4-tablet is-4-mobile">
+              <label class="label">Projeto:</label>
+                {{compromissos.projeto}}
+            </div>
+            <div class="column is-4-tablet">
               <label class="label">Plataforma:</label>
                 {{compromissos.plataforma}}
             </div>
@@ -214,56 +215,59 @@
                 <div class="alinC">
 
                     <div class="box" id="coment">
-                        <div class="columns">
-                            <div class="column is-3">
-                                <a class="button is-primary" @click="showResposta(compromisso)">Comentar</a>
-                            </div>
-                            <div class="column is-3">
+                        
+                        <div class="columns is-mobile" id="barraTit">
+                            
+                            <div class="column is-4">
                                 <strong>Abertura:</strong><br>
                                 {{compromisso.dataHoraAgend | dataFormat}}
                             </div>    
-                            <div class="column is-3">
+                            <div class="column is-4">
                                 <strong>Atendimento:</strong><br>
                                 {{compromisso.dataHoraAtend | dataFormat}}
                             </div>
-                            <div class="column is-3">
+                            <div class="column is-4">
                                 <strong  style="color: red">{{compromisso.usuario}}</strong>
 
                             </div>
                         </div>
                         
                         <div class="columns">
-                            <div class="column is-3">
-                                 
-                            </div>
-                            <div v-if="compromisso.extensao==null" class="column is-1" style="margin-top: 5px;">
-                                <!--<label class="label">Anexo</label>-->
-                                <i class="button fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i> 
-                            </div>
                             <div class="column">
-                                <a 
-                                   class="button"
-                                   href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
-                                   target="_blank"
-                                   v-if="compromisso.extensao!=null"
-                                   >
-                                    
-                                     <!-- @click="showExibir(compromisso)"-->
-                                    
-                                    <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
-                                    <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
-                                    <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
-                                </a>
+                                <div id="det">{{compromisso.detalhes}}</div>
                             </div>
-                            
                         </div>
-                        {{ compromisso.idCompDet }}
-                        <hr style="margin-top: 5px;">
+                        <div class="columns is-mobile" id="btns">
+                                
+                                <div class="column is-1-desktop is-offset-9-desktop is-2-tablet is-offset-8-tablet is-offset-5-mobile">
+                                    <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
+                                        <!--<label class="label">Anexo</label>-->
+                                        <button class="button is-primary" @click.prevent="showAnexo(compromisso)"><i class="fa fa-upload is-primary" ></i>&nbsp;&nbsp;Anexo</button>
 
-                        <div class="columns">
-                            <div class="column">
-                            <div style="font-size: 30px;">{{compromisso.detalhes}}</div>
-                            </div>
+                                    </span>
+                                    <span class="span">
+                                        <a 
+                                           class="button"
+                                           href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                           target="_blank"
+                                           v-if="compromisso.extensao!=null"
+                                           >
+
+                                             <!-- @click="showExibir(compromisso)"-->
+
+                                            <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
+                                            <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
+                                            <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
+                                        </a>
+                                    </span>
+                                </div>
+                                
+                                <div class="column is-2-desktop">
+                                    <a class="button is-primary" v-if="compromisso.botao == true" @click="showResposta(compromisso)" id="btnSubResp">Comentar</a>
+                                    
+                                </div>
+                            
+                            
                         </div>
                        
                     </div>
@@ -352,7 +356,7 @@
                     <br>
                     <center>
                         <button class="button is-danger" @click="removeImage">Remover</button>
-                        <button class="button is-grey" @click="zipar()">Zipar</button><br><br>
+                        <button class="button" @click="zipar">Zipar</button>
                         <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
                         
                     </center>
@@ -488,8 +492,8 @@ export default {
         visivel: false,
         image: '',
         ext: '',
-        arquivo: [],
-        arqZip: [],
+        arquivo: '',
+        arqZip: '',
         url: 'http://192.168.0.200/helpdesk/files/',
         alterar: false,
         compDet: {
@@ -869,22 +873,9 @@ export default {
       enviarImg(){
        
        //if(this.ext!='jpg'){
-            this.arquivo = this.image.split(',').pop()
-        
-            zip.file("new." + this.ext, this.arquivo, {base64: true});
-
-
-            // Gerar o arquivo zip de forma assíncrona
-
-            zip.generateAsync({
-                type: "base64"
-            }).then(
-            res => {
-                this.$set('arqZip', res)
-                console.log(res)
-            });
+           //this.zipar()
           
-           this.imgDet.imgFile = this.arqZip
+           
        /*}
        else{
            this.imgDet.imgFile = this.image.split(',').pop()
@@ -900,11 +891,11 @@ export default {
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
                 this.$set('showUpload',false)
-                /*this.$set('imgDet',{
+                this.$set('imgDet',{
                     "idCompDet": '',
                     "extFile": '',
                     "imgFile": ''
-                })*/
+                })
                 this.$set('image','')
                 console.log(response.body)
              })
@@ -920,20 +911,21 @@ export default {
       zipar(){
           
         this.arquivo = this.image.split(',').pop()
-        
+
         zip.file("new." + this.ext, this.arquivo, {base64: true});
-        
-        
+
+
         // Gerar o arquivo zip de forma assíncrona
-        
+
         zip.generateAsync({
             type: "base64"
         }).then(
-            res => {
-                this.$set('image', res)
-                console.log(res)
-            });
-
+        res => {
+            this.$set('arqZip', res)
+            console.log(res)
+        });
+        
+        this.imgDet.imgFile = this.arqZip
         //var fd = new Array(this.arqZip)
         
         //fd.append('zip', this.arqZip[], 'zipado.zip');
@@ -985,6 +977,7 @@ export default {
 </script>
 
 <style scoped>
+    
     h2 {
         font-size: 35px;
     }
@@ -1012,9 +1005,26 @@ export default {
     label {
         margin-top: 5px;
     }
-    a {
-        margin-top: 5px;
-        margin-bottom: 5px;
+    a#btnSubResp {
+        margin: 0 5px;   
     }
+    #barraTit {
+        background-color: #c0c5ce;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        padding: 10px 5px 10px;
+    }
+    div#coment.box {
+        padding: 10px;
+        
+    }
+    #det {
+        font-size: 30px;
+        margin: 10px 10px;
+    }
+    #btns {
+        padding-bottom: 10px;
+    }
+    
     
 </style>

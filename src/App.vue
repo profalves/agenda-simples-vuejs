@@ -21,9 +21,7 @@
                 </a>
             </span>
           </div>
-          <div class="navbar-menu">
-            <!-- navbar start, navbar end -->
-          </div>
+          
         </nav>
         
         
@@ -97,5 +95,9 @@ export default {
     }
     .container{
         margin: 0;
+    }
+    nav.navbar{
+        position: absolute;
+        z-index: 5;
     }
 </style>
