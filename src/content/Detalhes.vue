@@ -567,6 +567,8 @@ export default {
         caminho: '',
         url: 'http://192.168.0.200/helpdesk/files/',
         alterar: false,
+        aJSZip: '',
+        
         compDet: {
             "detalhes": '',
             "idComp": this.$route.query.q,
@@ -921,6 +923,7 @@ export default {
           this.caminho = caminho
           this.ext = this.caminho.split('.').pop()
           
+          // começa a geração do base64 e renderiza uma miniatura se for uma imagem
           var files = e.target.files || e.dataTransfer.files;
           if (!files.length)
             return;
@@ -943,47 +946,66 @@ export default {
       
       //zipando arquivos
       zipar(){
-            this.arquivo = this.image.split(',').pop()
+        this.arquivo = this.image.split(',').pop()
         
-        do {
+        
+        this.aJSZip = []
+        
+        
+        x = zip.file("new." + this.ext, this.arquivo, { base64: true, compression: "STORE" });    
+        console.log(x)
+        
+        //zip.file("new." + this.ext, this.arquivo, {base64: true, compression: "STORE"});
+                  
+        // Gerar o arquivo zip de forma assíncrona
+        zip.generateAsync({
+            type: "base64",
+            compression: "DEFLATE"
             
-            zip.file("new." + this.ext, this.arquivo, {base64: true});
-
-
-            // Gerar o arquivo zip de forma assíncrona
-
-            zip.generateAsync({
-                type: "base64"
-            }).then(
+        }).then(
             res => {
-                this.$set('arqZip', res)
-                console.log(res)
-            });
+            this.$set('arqZip',res)
+            console.log(res)
             
-            
-        } while (this.arqZip=='');
-        //var fd = new Array(this.arqZip)
+        });
         
-        //fd.append('zip', this.arqZip[], 'zipado.zip');
-          
-        //this.arquivo = atob(this.arqZip);
         
-
-      },  
+        /*promise = zip.generateAsync({type:"blob"})
+        .then(function (res) {
+            saveAs(res, "hello.zip");
+        });
+        console.log(promise)
+        promisse = []  */
+        /*var promise = null;
+        if (JSZip.support.uint8array) {
+          promise = zip.generateAsync({type : "uint8array"});
+        } else {
+          promise = zip.generateAsync({type : "string"});
+        }
+        console.log(promise)
+        */
+      }, 
+      
+        
+        
       enviarImg(){
        
-       if(this.ext!=='jpg'){
-           this.zipar()
-           this.ext = 'zip'
-           this.imgDet.imgFile = this.arqZip
+       if(this.ext=='jpg' || this.ext=='png' || this.ext=='pdf'){
+           this.imgDet.imgFile = this.image.split(',').pop()
        }
        else{
+           this.zipar()
+           this.imgDet.imgFile = this.arqZip
+           this.ext = 'zip'
            
-           this.imgDet.imgFile = this.image.split(',').pop()
-       
+           
        }
+       
+       //this.imgDet.imgFile = this.arqZip
        this.imgDet.extFile = this.ext   
        this.imgDet.idCompDet = this.idResposta
+          
+       /*
        
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
@@ -994,7 +1016,7 @@ export default {
                     "imgFile": ''
                 })
                 this.$set('image','')
-                this.$set('arqZip','')
+                //this.$set('arqZip','')
                 console.log(response.body)
              })
              .catch((error) => {
@@ -1002,7 +1024,7 @@ export default {
              })
              .finally(function () {
                 this.loadDetahes()
-             })
+             })*/
       },
         
       
