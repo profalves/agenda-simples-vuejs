@@ -964,7 +964,8 @@ export default {
             
         }).then(
             res => {
-            this.$set('arqZip',res)
+            //this.$set('arqZip',res)
+            this.arqZip = res
             console.log(res)
             
         });
@@ -1061,6 +1062,7 @@ export default {
       */
       
     },
+    
     created(){
       let t = this
       t.loadCompromissos()
