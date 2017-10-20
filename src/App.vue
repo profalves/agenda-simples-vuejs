@@ -2,31 +2,25 @@
     <div id="app">
         <div class="topo">
             
-                <a v-link="{ path: '/' }" class="button is-primary">
-                    <span class="icon">
-                    <i class="fa fa-home"></i>
-                    </span>
-                    <span>Início</span>
-                </a>
-                <a v-link="{ path: '/ccompromissos' }" class="button is-dark">
-                    <span class="icon">
-                    <i class="fa fa-user"></i>
-                    </span>
-                    <span>Agenda</span>
-                </a>
-             
+            <a v-link="{ path: '/' }" class="button is-primary">
+                <span class="icon">
+                <i class="fa fa-home"></i>
+                </span>
+                <span>Início</span>
+            </a>
+            <a v-link="{ path: '/ccompromissos' }" class="button is-dark">
+                <span class="icon">
+                <i class="fa fa-user"></i>
+                </span>
+                <span>Agenda</span>
+            </a>
+            
         </div>
         
-        
- 
-        <div class="container">
-            <div style="margin: 10px;">
+        <div class="conteudo">
             <router-view></router-view>
-            </div>
         </div>
         
-       
-
         <!--<footer>
             @ 2017. <a href="http://www.7virtual.com.br/" target="_blank" class="link">7Virtual</a>
         </footer>-->
@@ -61,7 +55,8 @@ export default {
     },
     close (ref) {
       console.log('Menu fechado: ' + ref)
-    }
+    },
+    
   }
 }
 
@@ -72,6 +67,7 @@ export default {
         font-family: Helvetica, sans-serif;
         margin:0; 
         padding:60px 0 0;
+        max-height: 100%;
     }
     h1 {
         font-size: 50px;
@@ -106,4 +102,7 @@ export default {
 		text-align: center;
         z-index: 5;
 	}
+    .conteudo {
+        margin: 10px;
+    }
 </style>

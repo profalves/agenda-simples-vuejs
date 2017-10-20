@@ -2,21 +2,14 @@
   <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
   <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   
-    
-  <div class="container">
-    <!--<h1 class="title">{{title}}</h1>-->
-    
-    <div class="column">
-      <a class="button is-info" @click.prevent="newCompromissos">Novo Compromisso</a> 
-    </div>
-    <br>
-    
-      
-    <div>
-      <label class="label">Status</label>
+    <div id="compromissos">
       <div class="columns">
-        
-          <span class="column">
+          
+          
+          <span class="column is-10">
+              
+              <a class="button is-info" @click.prevent="newCompromissos"><i class="fa fa-plus"></i></a>
+              
               <div class="select" id="status">
                   <select v-model="filtroStatus" style="width: 100%; font-size: 12px">
                       <option v-for="stat in status" :value="stat.nome">
@@ -52,11 +45,11 @@
               
           </span>
           
-          <span class="is-9">
+          <span class="column">
               <span class="button" @click="limparFiltros()" v-if="filtroBtn" id="btn-limpFiltros">Limpar Filtros</span>
           </span>
       </div>
-        <br>
+        
     </div>     
         <!-- tabela -->
     <div id="table">
@@ -146,7 +139,7 @@
       <Pagination :total="total" :page="page" :itens-per-page="itensPerPage" @change-page="onChangePage"></Pagination> -->
       </div>
     
-    </div>
+    
 
     
     <!-- novo compromisso -->
@@ -261,17 +254,6 @@
       </div>
     </div>
     
-    <span class="nav-item">
-        <a v-link="{ path: '/' }" class="button is-primary">
-            <span class="icon">
-            <i class="fa fa-home"></i>
-            </span>
-            <span>Início</span>
-        </a>
-        <button class="button navbar-burger" @click="backtoTop">
-            <i class="fa fa-arrow-up" aria-hidden="true"></i>
-        </button>
-    </span>
     
 </template>
 
@@ -828,36 +810,32 @@
 </script>
 <style>
     input#id {
-      width: 50px;
+        width: 50px;
     }
     
     ul {
-      padding: 0;
+        padding: 0;
     }
 
     .user {
-      height: 30px;
-      line-height: 30px;
-      padding: 10px;
-      border-top: 1px solid #eee;
-      overflow: hidden;
-      transition: all .25s ease;
+        height: 30px;
+        line-height: 30px;
+        padding: 10px;
+        border-top: 1px solid #eee;
+        overflow: hidden;
+        transition: all .25s ease;
     }
 
     .user:last-child {
-      border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #eee;
     }
 
     .v-enter, .v-leave-active {
-      height: 0;
-      padding-top: 0;
-      padding-bottom: 0;
-      border-top-width: 0;
-      border-bottom-width: 0;
-    }
-    
-    table {
-      width: 100%;
+        height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-top-width: 0;
+        border-bottom-width: 0;
     }
     
     .chip {
@@ -892,25 +870,56 @@
     .closebtn:hover {
         color: #000;
     }
-    #table{
-      max-width: 100%;
-      max-height: 400px;
-      overflow: scroll;
+    @media (max-height: 600px) {
+      #table {
+        margin-top: 10px;
+        max-width: 100%;
+        max-height: 400px;
+        line-height: 100%;
+        overflow: scroll;
+        }
     }
+    @media (min-height: 610px ) {
+      #table {
+        margin-top: 10px;
+        max-width: 100%;
+        max-height: 490px;
+        line-height: 100%;
+        overflow: scroll;
+        }
+    }
+    @media (min-height: 730px) {
+      #table {
+        margin-top: 10px;
+        max-width: 100%;
+        max-height: 600px;
+        line-height: 100%;
+        overflow: scroll;
+        }
+    }
+    
+    #table {
+        margin-top: 10px;
+        max-width: 100%;
+        max-height: auto;
+        line-height: 100%;
+        overflow: scroll;
+    }
+    
     table {
-      border-collapse: collapse;
-      width: 50em;
-      border: 1px solid #666;
+        border-collapse: collapse;
+        border: 1px solid #666;
+        width: 100%;    
     }
     tr:nth-child(even) {
-      background-color: #edf5ff;
+        background-color: #edf5ff;
     }
     th {
-      font-weight: normal;
-      text-align: left;
+        font-weight: normal;
+        text-align: left;
     }
     th, td {
-      padding: 0.1em 1em;
+        padding: 0.1em 1em;
     }
     span.column {
         margin-bottom: 5px;
@@ -919,4 +928,5 @@
         margin: 0 10px
     }
     .fixo{float: right; margin-right: 10px; margin-top: 0px; z-index: 1000;}
+    
 </style>

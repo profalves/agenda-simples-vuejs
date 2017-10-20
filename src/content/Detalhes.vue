@@ -1,7 +1,7 @@
 ﻿<template>
   <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
     <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
-  <div class="container">
+  <div>
       <!-- cabeçario -->
     <div class="card" style="width: 100%;">
       
@@ -101,11 +101,9 @@
                             </div>
                             
                                 
-                            <div class="column is-2-mobile">
-                                <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
-                            </div>
+                            
 
-                            <div class="column">
+                            <div class="column" id="btns">
 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
@@ -128,9 +126,12 @@
                                     </a>
                                 </span>
                             </div>
-                            
+                            <div class="column is-2-mobile" id="btns">
+                                <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
+                            </div>
                             
                         </div>
+                        
                         <div v-else class="columns is-mobile" id="barraTit">
                             
                             <div class="column is-4">
@@ -141,12 +142,12 @@
                                 <strong>Atendimento:</strong><br>
                                 {{compromisso.dataHoraAtend | dataFormat}}
                             </div>-->
-                            <div id="user" class="column is-6">
+                            <div id="user" class="column is-6-desktop is-5-tablet is-3-mobile">
                                 <div>{{compromisso.usuario}}</div>
                             </div>
                            
                                                             
-                            <div class="column" id="btns">
+                            <div class="column is-3-mobile is-1-desktop" id="btns">
 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
@@ -205,14 +206,12 @@
                                 <strong>Atendimento:</strong><br>
                                 {{compromisso.dataHoraAtend | dataFormat}}
                             </div>-->
-                            <div id="user" class="column is-6-desktop is-6-tablet">
+                            <div id="user" class="column is-6-desktop is-5-tablet is-3-mobile">
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                             </div>
                             
                                 
-                            <div class="column is-1">
-                                <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
-                            </div>
+                            
 
                             <div class="column" id="btns">
 
@@ -237,9 +236,12 @@
                                     </a>
                                 </span>
                             </div>
-                            
+                            <div class="column is-2-mobile" id="btns">
+                                <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
+                            </div>
                             
                         </div>
+                        
                         <div v-else class="columns is-mobile" id="barraTit">
                             
                             <div class="column is-4">
@@ -250,12 +252,12 @@
                                 <strong>Atendimento:</strong><br>
                                 {{compromisso.dataHoraAtend | dataFormat}}
                             </div>-->
-                            <div id="user" class="column is-7">
+                            <div id="user" class="column is-6-desktop is-5-tablet is-3-mobile">
                                 <div>{{compromisso.usuario}}</div>
                             </div>
                            
                                                             
-                            <div class="column">
+                            <div class="column is-3-mobile is-1-desktop" id="btns">
 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
@@ -302,7 +304,7 @@
                 <div class="alinC">
 
                     <div class="box" id="coment">
-                        <div v-if="compromisso.botao == true" class="columns is-mobile" id="barraNivel">
+                        <div class="columns is-mobile" id="barraNivel">
                             
                             <div class="column is-4">
                                 
@@ -312,83 +314,40 @@
                                 <strong>Atendimento:</strong><br>
                                 {{compromisso.dataHoraAtend | dataFormat}}
                             </div>-->
-                            <div id="user" class="column is-6-desktop is-6-tablet is-5-mobile">
+                            <div id="user" class="column is-6-desktop is-6-tablet is-4-mobile">
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                             </div>
                             
-                                
-                            <div class="column is-1-dektop is-1-tablet is-2-mobile">
+                            <div class="column" id="btns">
+
+                                <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
+                                    <!--<label class="label">Anexo</label>-->
+                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
+
+                                </span>
+                                <span class="span">
+                                    <a 
+                                       class="button"
+                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                       target="_blank"
+                                       v-if="compromisso.extensao!=null"
+                                       >
+
+                                         <!-- @click="showExibir(compromisso)"-->
+
+                                        <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
+                                        <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
+                                        <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
+                                    </a>
+                                </span>
+                            </div>
+                            <div class="column" id="btns">
                                 <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
                             </div>
-
-                            <div class="column">
-
-                                <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
-                                    <!--<label class="label">Anexo</label>-->
-                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
-
-                                </span>
-                                <span class="span">
-                                    <a 
-                                       class="button"
-                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
-                                       target="_blank"
-                                       v-if="compromisso.extensao!=null"
-                                       >
-
-                                         <!-- @click="showExibir(compromisso)"-->
-
-                                        <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
-                                        <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
-                                        <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
-                                    </a>
-                                </span>
-                            </div>
                             
                             
                         </div>
-                        <div v-else class="columns is-mobile" id="barraTit">
-                            
-                            <div class="column is-4">
-                                
-                                {{compromisso.dataHoraAgend | dataFormat}}
-                            </div>    
-                            <!--<div class="column is-4">
-                                <strong>Atendimento:</strong><br>
-                                {{compromisso.dataHoraAtend | dataFormat}}
-                            </div>-->
-                            <div id="user" class="column is-7">
-                                <div>{{compromisso.usuario}}</div>
-                            </div>
-                           
-                                                            
-                            <div class="column">
-
-                                <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
-                                    <!--<label class="label">Anexo</label>-->
-                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
-
-                                </span>
-                                <span class="span">
-                                    <a 
-                                       class="button"
-                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
-                                       target="_blank"
-                                       v-if="compromisso.extensao!=null"
-                                       >
-
-                                         <!-- @click="showExibir(compromisso)"-->
-
-                                        <i v-if="compromisso.extensao=='jpg' || compromisso.extensao=='png'" class="fa fa-picture-o" aria-hidden="true"></i>
-                                        <i v-else class="fa fa-file-text-o" aria-hidden="true"></i>
-                                        <strong id="ext" style="margin-left: 5px;">{{ compromisso.extensao }}</strong>
-                                    </a>
-                                </span>
-                            </div>
-                            
-                            
                         
-                        </div>
                         
                         <div class="columns">
                             <div class="column">
@@ -561,23 +520,7 @@
 
       </div> 
     </div>
-    <span class="nav-item">
-        <a v-link="{ path: '/' }" class="button is-primary">
-            <span class="icon">
-            <i class="fa fa-home"></i>
-            </span>
-            <span>Início</span>
-        </a>
-        <a v-link="{ path: '/ccompromissos' }" class="button is-dark">
-            <span class="icon">
-            <i class="fa fa-user"></i>
-            </span>
-            <span>Agenda</span>
-        </a>
-        <button class="button navbar-burger" @click="backtoTop">
-            <i class="fa fa-arrow-up" aria-hidden="true"></i>
-        </button>
-    </span>
+    
 </template>
 
 <script>
@@ -1158,12 +1101,10 @@ export default {
         margin: 10px 10px;
     }
     #btns {
-        padding-bottom: 10px;
-        text-align: right;
+        
+        text-align: center;
     }
     #user {
         text-align: center;
-    }
-    
-    
+    }    
 </style>
