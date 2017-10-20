@@ -564,6 +564,7 @@ export default {
         ext: '',
         arquivo: '',
         arqZip: '',
+        caminho: '',
         url: 'http://192.168.0.200/helpdesk/files/',
         alterar: false,
         compDet: {
@@ -917,8 +918,8 @@ export default {
       onFileChange(e) {
           // pegar o caminho do arquivo e a extensão
           caminho = document.getElementById('file').value || document.getElementById('file2').value || document.getElementById('file3').value
-          this.arquivo = caminho
-          this.ext = this.arquivo.split('.').pop()
+          this.caminho = caminho
+          this.ext = this.caminho.split('.').pop()
           
           var files = e.target.files || e.dataTransfer.files;
           if (!files.length)
@@ -939,25 +940,51 @@ export default {
       removeImage: function (e) {
           this.image = '';
       },
+      
+      //zipando arquivos
+      zipar(){
+            this.arquivo = this.image.split(',').pop()
         
+        do {
+            
+            zip.file("new." + this.ext, this.arquivo, {base64: true});
+
+
+            // Gerar o arquivo zip de forma assíncrona
+
+            zip.generateAsync({
+                type: "base64"
+            }).then(
+            res => {
+                this.$set('arqZip', res)
+                console.log(res)
+            });
+            
+            
+        } while (this.arqZip=='');
+        //var fd = new Array(this.arqZip)
+        
+        //fd.append('zip', this.arqZip[], 'zipado.zip');
+          
+        //this.arquivo = atob(this.arqZip);
+        
+
+      },  
       enviarImg(){
        
-       //if(this.ext!='jpg'){
-           //this.zipar()
-          
-           
-       /*}
+       if(this.ext!=='jpg'){
+           this.zipar()
+           this.ext = 'zip'
+           this.imgDet.imgFile = this.arqZip
+       }
        else{
+           
            this.imgDet.imgFile = this.image.split(',').pop()
        
-       }*/
-          
-       this.imgDet.extFile = this.ext
-       this.imgDet.imgFile = this.image.split(',').pop()
+       }
+       this.imgDet.extFile = this.ext   
        this.imgDet.idCompDet = this.idResposta
        
-         
-      
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
                 this.$set('showUpload',false)
@@ -967,6 +994,7 @@ export default {
                     "imgFile": ''
                 })
                 this.$set('image','')
+                this.$set('arqZip','')
                 console.log(response.body)
              })
              .catch((error) => {
@@ -977,34 +1005,7 @@ export default {
              })
       },
         
-      //zipando arquivos
-      zipar(){
-          
-        this.arquivo = this.image.split(',').pop()
-
-        zip.file("new." + this.ext, this.arquivo, {base64: true});
-
-
-        // Gerar o arquivo zip de forma assíncrona
-
-        zip.generateAsync({
-            type: "base64"
-        }).then(
-        res => {
-            this.$set('arqZip', res)
-            console.log(res)
-        });
-        
-        this.ext = 'zip'
-        this.imgDet.imgFile = this.arqZip
-        //var fd = new Array(this.arqZip)
-        
-        //fd.append('zip', this.arqZip[], 'zipado.zip');
-          
-        //this.arquivo = atob(this.arqZip);
-        
-
-      },
+      
         
       /*// criar arquivos zipados
       zipFile(){  
