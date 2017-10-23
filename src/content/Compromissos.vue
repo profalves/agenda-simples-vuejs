@@ -408,7 +408,7 @@
         // Filtros 
         
         filtroId: '',
-        filtroStatus: 'AGUARDANDO',
+        filtroStatus: 'EM ANDAMENTO',
         filtroPriori: '',
         filtroTipo: '',
         filtroProjeto: '',
