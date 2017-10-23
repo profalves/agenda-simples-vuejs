@@ -31,7 +31,7 @@
           <div class="columns">
             <div class="column">
               <label class="label">Assunto:</label>
-                {{compromissos.titulo}}
+                {{compromissos.titulo | uppercase}}
             </div>
             
           </div>
@@ -71,7 +71,7 @@
 
     <br>
 
-    <h2>Tópico: {{ compromissos.titulo }}</h2>
+    <h2>Tópico: {{ compromissos.titulo | uppercase }}</h2>
     <br>
 
      <!-- responder --> 
@@ -409,7 +409,7 @@
               <a class="button" @click.prevent="showModal=false">Cancelar</a>
                 </div>
               </div>
-              <div class="level-left">
+              <div class="level-right">
                   <div class="level-item">
                   <a class="button is-primary" @click.prevent="salvarSubDet()">Enviar</a>
                   </div>
@@ -948,14 +948,12 @@ export default {
       zipar(){
         this.arquivo = this.image.split(',').pop()
         
-        
         this.aJSZip = []
         
+        /*x = zip.file("new." + this.ext, this.arquivo, { base64: true, compression: "STORE" });    
+        console.log(x)*/
         
-        x = zip.file("new." + this.ext, this.arquivo, { base64: true, compression: "STORE" });    
-        console.log(x)
-        
-        //zip.file("new." + this.ext, this.arquivo, {base64: true, compression: "STORE"});
+        zip.file("new." + this.ext, this.arquivo, {base64: true, compression: "STORE"});
                   
         // Gerar o arquivo zip de forma assíncrona
         zip.generateAsync({
@@ -964,49 +962,41 @@ export default {
             
         }).then(
             res => {
-            //this.$set('arqZip',res)
             this.arqZip = res
-            console.log(res)
-            
+            this.$nextTick(function () {
+            this.imgDet.imgFile = this.arqZip // => 'atualizado'
+        })
+            console.log(this.imgDet.imgFile)
         });
+          
+        
+            this.imgDet.imgFile = this.arqZip
         
         
-        /*promise = zip.generateAsync({type:"blob"})
-        .then(function (res) {
-            saveAs(res, "hello.zip");
-        });
-        console.log(promise)
-        promisse = []  */
-        /*var promise = null;
-        if (JSZip.support.uint8array) {
-          promise = zip.generateAsync({type : "uint8array"});
-        } else {
-          promise = zip.generateAsync({type : "string"});
-        }
-        console.log(promise)
-        */
       }, 
       
         
         
       enviarImg(){
-       
+       /*
        if(this.ext=='jpg' || this.ext=='png' || this.ext=='pdf'){
            this.imgDet.imgFile = this.image.split(',').pop()
        }
        else{
            this.zipar()
-           this.imgDet.imgFile = this.arqZip
+           this.imgDet.extFile = this.arqZip  
            this.ext = 'zip'
-           
-           
-       }
-       
-       //this.imgDet.imgFile = this.arqZip
+           this.$nextTick(function () {
+            this.imgDet.extFile = this.arqZip  
+            console.log(this.imgDet.extFile) // => 'atualizado'
+            })
+       }*/
+          
+       this.imgDet.imgFile = this.image.split(',').pop()
        this.imgDet.extFile = this.ext   
        this.imgDet.idCompDet = this.idResposta
           
-       /*
+       
        
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
@@ -1025,41 +1015,11 @@ export default {
              })
              .finally(function () {
                 this.loadDetahes()
-             })*/
+             })
+          
       },
         
       
-        
-      /*// criar arquivos zipados
-      zipFile(){  
-        this.ext = this.arquivo.split('.').pop()
-        
-        this.image = window.btoa(this.arquivo)
-        
-        var nome = this.arquivo.split('fakepath\\').pop()
-        
-        zip.file(nome, this.image, {base64: true});
-        // Generate the zip file asynchronously
-        zip.generateAsync({type:"blob"})
-        .then(function(content) {
-            // Force down of the Zip file
-            saveAs(content, "archive.zip");
-        });
-        
-        /*zip.file(nome, this.arquivo, {type:"file"});
-        // Generate the zip file asynchronously
-        zip.generateAsync({type:"blob"})
-        .then(function(content) {
-            // Force down of the Zip file
-            saveAs(content, "archive.zip");
-        });
-        
-        var zipData = zip.generateAsync({ type: "base64" });
-        var formData = new FormData();
-        this.arquivo = formData.append('zipData', zipData);
-         saveAs(this.arquivo, "archive.zip")
-      },
-      */
       
     },
     

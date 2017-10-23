@@ -3,21 +3,35 @@
   <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   
     <div id="compromissos">
-      <div class="columns">
-          
-          
-          <span class="column is-10">
-              
+      
+      <div class="columns is-mobile">
+          <div class="column is-1-desktop is-1-tablet is-2-mobile">
+              <label class="label">Novo</label>
               <a class="button is-info" @click.prevent="newCompromissos"><i class="fa fa-plus"></i></a>
-              
+          </div>
+          <div class="column is-2-desktop is-3-tablet is-5-mobile">
+              <label class="label">Status</label>
               <div class="select" id="status">
-                  <select v-model="filtroStatus" style="width: 100%; font-size: 12px">
+                  <select v-model="filtroStatus">
                       <option v-for="stat in status" :value="stat.nome">
                         {{ stat.nome }}
                       </option>
                   </select>
               </div>
-          
+          </div>
+          <div class="column is-2-desktop is-5-mobile">
+              <label class="label">Tipo</label>
+              <div class="select" id="tipo">
+                  <select v-model="filtroTipo">
+                      <option v-for="tipo in tipos | orderBy 'nome'">
+                        {{ tipo.nome }}
+                      </option>
+                  </select>
+              </div>
+          </div>
+      </div>
+      <div class="columns"> 
+          <span class="column is-10">
             <div class="chip animated bounceInRight" v-if="chipTipo">
               {{ filtroTipo }}
               <span class="closebtn" @click="limparFiltroTipo()">&times;</span>
@@ -60,7 +74,7 @@
                   <input class="input" v-model="filtroId" id="id">
                 </th>
                 <th>Assunto</th>
-                <th v-if="colTipo">Tipo<br>
+                <!--<th v-if="colTipo">Tipo<br>
                   <div class="select">
                       <select v-model="filtroTipo" id="tipo">
                           <option v-for="tipo in tipos">
@@ -68,7 +82,7 @@
                           </option>
                       </select>
                   </div>
-                </th>
+                </th>-->
                 <!--<th>Status</th>-->
                   
                 <th v-if="colPriori">N.Prioridade<br>
@@ -115,14 +129,20 @@
             <tbody>
               <tr v-for="compromisso in compFiltrados | orderBy 'idComp'">
                
-                <td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}">{{compromisso.idComp}}</td>
-                <td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}">{{compromisso.titulo}}</td>
-                <td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}" v-if="colTipo">{{compromisso.tipoComp}}</td>
-                <!--<td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}">{{compromisso.status}}</td>-->
-                <td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}" v-if="colPriori">{{compromisso.numPrioridade}}</td>
-                <td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}" v-if="colProj">{{compromisso.projeto}}</td>
-                <td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}" v-if="colPlat">{{compromisso.plataforma}}</td>
-                <td @click="filtro = compromisso.idComp" v-link="{ path: '/cdetalhe', query: {q:filtro}}" v-if="colUser">{{compromisso.usuario}}</td>
+                <td 
+                    @click="filtro = compromisso.idComp" 
+                    v-link="{ path: '/cdetalhe', query: {q:filtro}}"
+                    style="cursor:pointer"
+                    >{{compromisso.idComp}}</td>
+                <td @click="filtro = compromisso.idComp" 
+                    v-link="{ path: '/cdetalhe', query: {q:filtro}}"
+                    style="cursor:pointer"
+                    >{{compromisso.titulo}}</td>
+                
+                <td @click="filtro = compromisso.idComp" v-if="colPriori">{{compromisso.numPrioridade}}</td>
+                <td @click="filtro = compromisso.idComp" v-if="colProj">{{compromisso.projeto}}</td>
+                <td @click="filtro = compromisso.idComp" v-if="colPlat">{{compromisso.plataforma}}</td>
+                <td @click="filtro = compromisso.idComp" v-if="colUser">{{compromisso.usuario}}</td>
                 <!-- <td class="is-icon">
                   <a href="#" @click.prevent="editarCompromisso(compromisso)">
                     <i class="fa fa-edit"></i>
@@ -162,7 +182,7 @@
                 <!-- <span>{{ startTime.time }}</span> -->
             </div>
               
-            <div class="column">
+            <!--<div class="column">
               <label class="label">Status</label>
               <div class="select">
                   <select v-model="comp.idStatus">
@@ -172,7 +192,7 @@
                   </select>
                   
               </div>
-            </div>
+            </div>-->
               
             <div class="column">
               <label class="label">Tipo</label>
@@ -220,7 +240,7 @@
                   </select>
               </div>
             </div>
-            <div class="column">
+            <!--<div class="column">
               <label class="label">Usuário</label>
               <div class="select">
                   <select v-model="comp.idUsuario">
@@ -229,7 +249,7 @@
                       </option>
                   </select>
               </div>
-            </div>
+            </div>-->
             
             
             
@@ -722,7 +742,7 @@
 
         let start = (this.page * this.itensPerPage) - (this.itensPerPage)
         let end = this.page * this.itensPerPage
-        let qString = "";
+        let qString = '';
 
         if (this.search){
           qString = `&q=${this.search}`
@@ -870,7 +890,7 @@
     .closebtn:hover {
         color: #000;
     }
-    @media (max-height: 600px) {
+    @media (max-height: 540px) {
       #table {
         margin-top: 10px;
         max-width: 100%;
@@ -879,11 +899,11 @@
         overflow: scroll;
         }
     }
-    @media (min-height: 610px ) {
+    @media (min-height: 550px ) {
       #table {
         margin-top: 10px;
         max-width: 100%;
-        max-height: 490px;
+        max-height: 420px;
         line-height: 100%;
         overflow: scroll;
         }
@@ -914,12 +934,11 @@
     tr:nth-child(even) {
         background-color: #edf5ff;
     }
-    th {
-        font-weight: normal;
-        text-align: left;
-    }
     th, td {
         padding: 0.1em 1em;
+    }
+    td {
+        cursor: default
     }
     span.column {
         margin-bottom: 5px;
