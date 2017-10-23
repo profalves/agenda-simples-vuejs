@@ -6,7 +6,7 @@
                 <span class="icon">
                 <i class="fa fa-home"></i>
                 </span>
-                <span>Início</span>
+                <span>Login</span>
             </a>
             <a v-link="{ path: '/ccompromissos' }" class="button is-dark">
                 <span class="icon">

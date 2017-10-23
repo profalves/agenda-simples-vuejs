@@ -70,8 +70,9 @@
     <!-- fim cabeçario --> 
 
     <br>
-
-    <h2>Tópico: {{ compromissos.titulo | uppercase }}</h2>
+      
+    <center><h2>{{ compromissos.titulo | uppercase }}</h2></center>
+    
     <br>
 
      <!-- responder --> 

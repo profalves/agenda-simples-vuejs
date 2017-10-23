@@ -4,12 +4,15 @@ import MainContent from './content/MainContent.vue'
 import Compromissos from './content/Compromissos.vue'
 import Detalhes from './content/Detalhes.vue'
 import Testes from './content/Test.vue'
+import Login from './content/login.vue'
 
 const RouterConfig = {
     '/': {
-        component: MainContent
+        name: 'login',
+        component: Login
     },
     '/ccompromissos': {
+        name: 'compromissos',
         component: Compromissos
     },
     '/cdetalhe': {
@@ -19,6 +22,10 @@ const RouterConfig = {
     '/testes': {
         name: 'testes',
         component: Testes
+    },
+    '/login': {
+        name: 'login',
+        component: Login
     }
 }
 

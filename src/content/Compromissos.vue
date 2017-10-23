@@ -73,7 +73,22 @@
                 <th>Cód<br>
                   <input class="input" v-model="filtroId" id="id">
                 </th>
-                <th>Assunto</th>
+                <th>Assunto<br>
+                    <div style="width: 200px"></div>
+                </th>
+                <th v-if="colUser">Criador<br>
+                  <div class="select">
+                      <select v-model="filtroUser" id="usuario">
+                          <option v-for="user in usuarios">
+                            {{ user.text }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                <th>Ultima postagem
+                    <div style="width: 80px"></div>
+                </th>
+                <th>Respostas</th>
                 <!--<th v-if="colTipo">Tipo<br>
                   <div class="select">
                       <select v-model="filtroTipo" id="tipo">
@@ -114,15 +129,7 @@
                       </select>
                   </div>
                 </th>
-                <th v-if="colUser">Usuário<br>
-                  <div class="select">
-                      <select v-model="filtroUser" id="usuario">
-                          <option v-for="user in usuarios">
-                            {{ user.text }}
-                          </option>
-                      </select>
-                  </div>
-                </th>
+                
                 <!-- <th>Ações</th> -->
 
             </thead>
@@ -132,25 +139,26 @@
                 <td 
                     @click="filtro = compromisso.idComp" 
                     v-link="{ path: '/cdetalhe', query: {q:filtro}}"
-                    style="cursor:pointer"
-                    >{{compromisso.idComp}}</td>
+                    style="cursor: pointer"
+                    >{{compromisso.idComp}}
+                </td>
+                  
                 <td @click="filtro = compromisso.idComp" 
                     v-link="{ path: '/cdetalhe', query: {q:filtro}}"
-                    style="cursor:pointer"
-                    >{{compromisso.titulo}}</td>
+                    style="cursor: pointer"
+                    >{{compromisso.titulo}}
+                </td>
+                <td v-if="colUser">
+                    <strong style="color:#4774bc">{{compromisso.usuario}}</strong></td>
+                <td>
+                    <strong style="color:orange">{{compromisso.ultResp}}</strong><br>
+                    {{compromisso.dataHoraUltResp | dataFormat}}</td>
+                <td>{{compromisso.qtdRespostas}}</td>
+                <td v-if="colPriori">{{compromisso.numPrioridade}}</td>
+                <td v-if="colProj">{{compromisso.projeto}}</td>
+                <td v-if="colPlat">{{compromisso.plataforma}}</td>
                 
-                <td @click="filtro = compromisso.idComp" v-if="colPriori">{{compromisso.numPrioridade}}</td>
-                <td @click="filtro = compromisso.idComp" v-if="colProj">{{compromisso.projeto}}</td>
-                <td @click="filtro = compromisso.idComp" v-if="colPlat">{{compromisso.plataforma}}</td>
-                <td @click="filtro = compromisso.idComp" v-if="colUser">{{compromisso.usuario}}</td>
-                <!-- <td class="is-icon">
-                  <a href="#" @click.prevent="editarCompromisso(compromisso)">
-                    <i class="fa fa-edit"></i>
-                  </a>
-                  <a href="#" @click.prevent="removerCompromisso(compromisso)">
-                    <i class="fa fa-trash"></i>
-                  </a>
-                </td> -->
+                
               </tr>
             </tbody>
         </table>
@@ -335,7 +343,7 @@
         comp: {
               
               "idCompTipo": '',
-              "idStatus": '',
+              "idStatus": 1,
               "idProjeto": '',
               "titulo": '',
               "numPrioridade": '',
@@ -452,53 +460,67 @@
             this.colTipo = false
             this.filtroBtn = true
             
-            if (this.filtroPriori != ''){
-                this.chipPriori = true
-                this.colPriori = false
+            if (this.filtroUser != '' ){
+                this.chipUser = true
+                this.colUser = false
                 this.filtroBtn = true
-                
-                if (this.filtroProjeto != ''){
-                    this.chipProj = true
-                    this.colProj = false
+            
+                if (this.filtroPriori != ''){
+                    this.chipPriori = true
+                    this.colPriori = false
                     this.filtroBtn = true
-                    
-                    if (this.filtroPlat != ''){
-                        this.chipPlat = true
-                        this.colPlat = false
+
+                    if (this.filtroProjeto != ''){
+                        this.chipProj = true
+                        this.colProj = false
                         this.filtroBtn = true
-                        
-                        if (this.filtroUser != '' ){
-                            this.chipUser = true
-                            this.colUser = false
+
+                        if (this.filtroPlat != ''){
+                            this.chipPlat = true
+                            this.colPlat = false
                             this.filtroBtn = true
-                            
+
+                            if (this.filtroUser != '' ){
+                                this.chipUser = true
+                                this.colUser = false
+                                this.filtroBtn = true
+
+                                return response = this.compromissos.filter(this.filtrarPorStatus())
+                                                                   .filter(this.filtrarPorTipo())
+                                                                   .filter(this.filtrarPorUsuario())
+                                                                   .filter(this.filtrarPorPrioridade())
+                                                                   .filter(this.filtrarPorProJeto())
+                                                                   .filter(this.filtrarPorPlataforma())
+                                                                   .filter(this.filtrarPorUsuario())
+
+                            }
+
                             return response = this.compromissos.filter(this.filtrarPorStatus())
                                                                .filter(this.filtrarPorTipo())
+                                                               .filter(this.filtrarPorUsuario())
                                                                .filter(this.filtrarPorPrioridade())
                                                                .filter(this.filtrarPorProJeto())
                                                                .filter(this.filtrarPorPlataforma())
-                                                               .filter(this.filtrarPorUsuario())
                         }
-                        
+
                         return response = this.compromissos.filter(this.filtrarPorStatus())
                                                            .filter(this.filtrarPorTipo())
+                                                           .filter(this.filtrarPorUsuario())
                                                            .filter(this.filtrarPorPrioridade())
                                                            .filter(this.filtrarPorProJeto())
-                                                           .filter(this.filtrarPorPlataforma())
                     }
-                    
+
+
                     return response = this.compromissos.filter(this.filtrarPorStatus())
                                                        .filter(this.filtrarPorTipo())
+                                                       .filter(this.filtrarPorUsuario())
                                                        .filter(this.filtrarPorPrioridade())
-                                                       .filter(this.filtrarPorProJeto())
-                }
-                
-                
-                return response = this.compromissos.filter(this.filtrarPorStatus())
-                                                   .filter(this.filtrarPorTipo())
-                                                   .filter(this.filtrarPorPrioridade())
-            }
+                  }
             
+                return response = this.compromissos.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorTipo())
+                                               .filter(this.filtrarPorUsuario())
+            }
             return response = this.compromissos.filter(this.filtrarPorStatus())
                                                .filter(this.filtrarPorTipo())                                        
         }
@@ -549,7 +571,21 @@
       }
       
     },
-      
+    
+    filters: {
+      dataFormat: function (value) {  
+         if (value == '' || value == null){
+            return null
+         }
+         else {
+            return moment(value).format('DD/MMM HH:mm')
+         }
+      },
+      extensao: function (ext) {
+        return ext = this.ext  
+      }
+    },
+    
     // METODOS ======================================
       
     methods: {
@@ -640,7 +676,7 @@
           this.comp.idCompTipo.focus();
           return false
         }
-        if (this.comp.idStatus==null || this.comp.idStatus=='') {
+        /*if (this.comp.idStatus==null || this.comp.idStatus=='') {
           swal(
             'Por favor, preencha o status!',
             'Ahh vamos lá, vamos fazer o serviço direito!',
@@ -648,7 +684,7 @@
           )
           this.comp.idStatus.focus();
           return false
-        }
+        }*/
         if (this.comp.titulo==null || this.comp.titulo=='') {
           swal(
             'Por favor, deixe de má vontade... preencher o assunto é imprescindível!',
@@ -685,7 +721,7 @@
           this.comp.idUsuario.focus();
           return false
         }
-        /*if (this.comp.compromissosDet.detalhes==null || this.comp.compromissosDet.detalhes=='') {
+        if (this.msg==null || this.msg=='') {
           swal(
             'Por favor, preencha o detalhamento',
             'Só falta isso pra terminar, vai lá',
@@ -693,7 +729,7 @@
           )
           this.comp.compromissosDet.focus();
           return false
-        }*/
+        }
           
       },
       selectTipo(){
@@ -938,7 +974,7 @@
         padding: 0.1em 1em;
     }
     td {
-        cursor: default
+        cursor: default;
     }
     span.column {
         margin-bottom: 5px;
