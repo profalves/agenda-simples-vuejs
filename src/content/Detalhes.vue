@@ -1,4 +1,5 @@
 ﻿<template>
+  <app-header></app-header>
   <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
     <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   <div>

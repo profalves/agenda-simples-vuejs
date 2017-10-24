@@ -1,4 +1,5 @@
 <template>
+    <app-header></app-header>
     <center>
         <h3>Bem vindo</h3>
         <p v-text="today"></p>

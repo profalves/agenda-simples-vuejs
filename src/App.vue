@@ -1,33 +1,10 @@
 <template>
-    <div id="app">
-        <div class="topo">
-            
-            <a v-link="{ path: '/' }" class="button is-primary">
-                <span class="icon">
-                <i class="fa fa-home"></i>
-                </span>
-                <span>Login</span>
-            </a>
-            <a v-link="{ path: '/ccompromissos' }" class="button is-dark">
-                <span class="icon">
-                <i class="fa fa-user"></i>
-                </span>
-                <span>Agenda</span>
-            </a>
-            
-        </div>
-        
-        <div class="conteudo">
-            <router-view></router-view>
-        </div>
-        
-        <!--<footer>
-            @ 2017. <a href="http://www.7virtual.com.br/" target="_blank" class="link">7Virtual</a>
-        </footer>-->
 
+<div class="conteudo">
+    <router-view></router-view>
+</div>
         
-            
-    </div>
+
 </template>
 <script>
 import store from './vuex/store'

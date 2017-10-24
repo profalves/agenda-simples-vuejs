@@ -3,6 +3,8 @@ import App from './App.vue'
 import VueRouter from 'vue-router'
 import RouterConfig from './routerconfig'
 import VueResource from 'vue-resource'
+import header from './content/header.vue'
+import footer from './content/footer.vue'
 /*import VueMask from 'v-mask'
 import VeeValidate from 'vee-validate'
 import money from 'v-money'*/
@@ -39,6 +41,9 @@ const config = {
   validity: true,
   aria: true
 };
+
+Vue.component('app-header',header)
+Vue.component('app-footer',footer)
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
