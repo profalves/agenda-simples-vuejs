@@ -844,7 +844,8 @@
                   confirmButtonText:
                     '<i class="fa fa-thumbs-up"></i> Ok!',
                 }) */ 
-                console.log(error);
+                
+                
              })
              .finally(function () {
                 this.loadCompromissos()

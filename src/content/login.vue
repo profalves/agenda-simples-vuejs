@@ -1,37 +1,68 @@
 <template>
+<div class="conteudo" id="principal">
+    <div class="box" id="login">
+        <center><h1>7Virtual</h1></center>
 
-<div class="box" id="login">
-    <center><h1>7Virtual</h1></center>
-    
-    <label class="label">Usuário</label>
-    <input class="input" type="text"> 
-    
-    <br><br>
-    <label class="label">Senha</label>
-    <input class="input" type="password"><br><br>
-    
-    <center>
-        <button class="button is-primary" v-link="{ path: '/ccompromissos' }">Login</button>
-    </center>
+        <label class="label">Usuário</label>
+        <input class="input" type="text" name="usuario"> 
+
+        <br><br>
+        <label class="label">Senha</label>
+        <input class="input" type="password" name="senha"><br><br>
+
+        <center>
+            <button class="button is-primary" @click="Login()">Login</button>
+        </center>
     
     
+    </div>
+    
+
 </div>
+
 
 </template>
 
-<script></script>
+<script>
+
+export default {
+    name: 'login',
+    
+    methods: {
+      Login() {
+          var done=0;
+          var usuario = document.getElementsByName('usuario')[0].value;
+          usuario=usuario.toLowerCase();
+          var senha= document.getElementsByName('senha')[0].value;
+          senha=senha.toLowerCase();
+          if (usuario=="admin" && senha=="admin") {
+            window.location="/#!/ccompromissos";
+            done=1;
+          }
+          if (done==0) { 
+              swal(
+                  'Não autenticado!',
+                  'Usuário ou senha incorreto!',
+                  'error'
+              );
+          }
+        }
+    }
+}
+
+</script>
 
 <style scoped>
+    .conteudo#principal{
+        
+    }
     #login{
+        width: 50%;
         position: fixed;
-        left:50%;
-        top:35%;
-        margin-left:-115px;
-        margin-top:-30px;
            
     }
-    button {
-        width: 100;
+    button{
+        width: 100px;
     }
 
 </style>
