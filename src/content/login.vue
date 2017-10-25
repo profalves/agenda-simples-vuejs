@@ -24,51 +24,68 @@
 </template>
 
 <script>
-    
+
 const ENDPOINT = 'http://192.168.0.200/helpdesk/'
 
 export default {
     name: 'login',
+    vuex: {  
+        getters: {
+            user: store => store.user
+        },
+        actions: {
+            setUser ({dispatch}, obj) {
+            dispatch('SET_USER', obj)
+            }
+        }
+    },
     data () {
       return {
-        usuario: 'kel',
-        senha: 1,
+        usuario: '',
+        senha: '',
         users: [],
-        message: ''
+        message: '',
+        
       }
     },
     methods: {
       Login() {
-          var acesso=0;
+          var tempo = new Date();
+          this.$http.get(ENDPOINT + '/api/usuario/obterUsuario?user=' + this.usuario + '&pass=' + this.senha).then(
+             response=>{
+                this.users = response.json()
+                localStorage.setItem('userId',this.users.idUsuario)
+                localStorage.setItem('name',this.users.nome)
+                tempo.setTime(tempo.getTime())
+                localStorage.setItem('incioSessao', tempo.toUTCString())
+                tempo.setTime(tempo.getTime() + 87600000)
+                localStorage.setItem('fimSessao', tempo.toUTCString())
+                this.$router.go({ name: 'compromissos'/*, 
+                    query: {
+                        id: this.users.idUsuario
+                    }*/
+                })
+                
+                
+             },
+             error=>{
+               e = error.json()
+               this.message = e.split(':').pop()
+             }
+          )
+          this.criaCookie()
           
-          if (this.usuario=="admin" && this.senha=="admin") {
-            window.location="/#!/ccompromissos";
-            acesso=1;
-          }
-          if (acesso==0) { 
-              swal(
-                  'Não autenticado!',
-                  'Usuário ou senha incorreto!',
-                  'error'
-              );
-          }
       },
-      listarUsers(){
-        
-        
-        this.$http.get(ENDPOINT + '/api/usuario/obterUsuario?user=' + this.usuario + '&pass=' + this.senha).then(
-         response=>{
-           this.users = response.json()
-         },
-         error=>{
-           e = error.json()
-           this.message = e.split(':').pop()
-         })
+      criaCookie() {
+         var expira = new Date();
+         expira.setTime(expira.getTime() + 87600000); //expira dentro de 24h
+         document.cookie = 'usuario=' + this.usuario+ ';expires=' + expira.toUTCString();
       },
       
+      
     },
-    created (){
-        this.listarUsers()
+    created(){
+        localStorage.clear();  
     }
     
 }

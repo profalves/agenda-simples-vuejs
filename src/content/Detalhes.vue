@@ -571,11 +571,11 @@ export default {
         url: 'http://192.168.0.200/helpdesk/files/',
         alterar: false,
         aJSZip: '',
-        
+        usuario: '',
         compDet: {
             "detalhes": '',
             "idComp": this.$route.query.q,
-            "idUsuario": 4,
+            "idUsuario": parseInt(localStorage.getItem('userId')),
             "idStatus": 1,
             "dataHoraAgend": '',
             "nivel": 1
@@ -1021,7 +1021,15 @@ export default {
              })
           
       },
-        
+      carregarUser(){
+        this.usuario = parseInt(localStorage.getItem('userId'))
+      },
+      verificarUsuario(){
+        var user = localStorage.getItem('userId')
+        if (user==null){
+            this.$router.go({ name: 'login'})
+        }
+      },
       
       
     },
@@ -1031,6 +1039,8 @@ export default {
       t.loadCompromissos()
       t.loadDetahes()
       t.selectStatus()
+      t.carregarUser()
+      t.verificarUsuario()
     }
 }
 </script>

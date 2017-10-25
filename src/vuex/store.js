@@ -6,10 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({  
     state: {
       user: {
-        username: '',
-        pass: ''
-      },
-      //isLoggedIn: !!localStorage.getItem(“token”)
+        usuario: {}
+      }
     },
     mutations: {
       SET_USER (store, obj) {

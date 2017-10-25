@@ -2,7 +2,7 @@
   <app-header></app-header>
   <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
   <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
-  
+  {{message}}
     <div id="compromissos">
       
       <div class="columns is-mobile">
@@ -139,13 +139,13 @@
                
                 <td 
                     @click="filtro = compromisso.idComp" 
-                    v-link="{ path: '/cdetalhe', query: {q:filtro}}"
+                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario}}"
                     style="cursor: pointer"
                     >{{compromisso.idComp}}
                 </td>
                   
                 <td @click="filtro = compromisso.idComp" 
-                    v-link="{ path: '/cdetalhe', query: {q:filtro}}"
+                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario}}"
                     style="cursor: pointer"
                     >{{compromisso.titulo}}
                 </td>
@@ -303,7 +303,7 @@
   
   // ao descomentar abaixo tem que comentar a const acima
   //debug:
-  // const ENDPOINT = 'http://192.168.0.115:32688/'
+  //const ENDPOINT = 'http://192.168.0.115:32688/'
 
   export default {
     name: 'Compromissos',
@@ -337,9 +337,7 @@
           { text: 'WEB'},
           { text: 'HIBRIDO'}
         ],
-        usuarios: [
-          { text: 'KEL', value: 4}
-        ],
+        usuario: '',
         projetos: [],
         comp: {
               
@@ -348,12 +346,13 @@
               "idProjeto": '',
               "titulo": '',
               "numPrioridade": '',
-              "idUsuario": 4,
+              "idUsuario": parseInt(localStorage.getItem('userId')),
               "compromissosDet": []
               
         },
         msg: '',
         filtro: '',
+        
         
         // datapicker
         startTime: {
@@ -713,7 +712,7 @@
           this.comp.numPrioridade.focus();
           return false
         }
-        if (this.comp.idUsuario==null || this.comp.idUsuario=='') {
+        /*if (this.comp.idUsuario==null || this.comp.idUsuario=='') {
           swal(
             'Por favor, selecione o usuário',
             'A pressa é inimiga da perfeição',
@@ -721,7 +720,7 @@
           )
           this.comp.idUsuario.focus();
           return false
-        }
+        }*/
         if (this.msg==null || this.msg=='') {
           swal(
             'Por favor, preencha o detalhamento',
@@ -815,7 +814,7 @@
        salvarCompromisso(){
         this.validar()
         
-        det = {detalhes: this.msg, dataHoraAgend: this.startTime.time}
+        det = {detalhes: this.msg, dataHoraAgend: this.startTime.time} 
         this.comp.compromissosDet.push(det)
         
            this.$http.post(ENDPOINT + 'api/comp/novoCab',this.comp)
@@ -838,8 +837,11 @@
                         html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
                         type: "error",  
                     })
+                e = error.json()
+                console.log(e)
+               
                 //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
-                /*this.err = JSON.stringify(error)
+                /*this.err = JSON.stringify(e)
                 swal({
                   html: '<strong>' + this.err + '</strong>',
                   confirmButtonText:
@@ -855,7 +857,25 @@
       },
       carregarComp(compromisso){
         this.filtro = compromisso.idComp
+      },
+      carregarUser(){
+        this.usuario = parseInt(localStorage.getItem('userId'))
+      },
+      verificarUsuario(){
+        var user = localStorage.getItem('userId')
+        if (user==null){
+            this.$router.go({ name: 'login'})
+        }
+      },
+      expSession(){
+        var data = new Date();
+        var ex = localStorage.getItem('userId')
+        if (data>ex){
+            this.$router.go({ name: 'login'})
+        }
       }
+      
+      
     },
     created(){
       let t = this
@@ -863,7 +883,11 @@
       t.selectTipo()
       t.selectStatus()
       t.selectProjetos()
-    },
+      t.carregarUser()
+      t.verificarUsuario()
+      t.expSession()
+      
+    }
   }
 </script>
 <style>

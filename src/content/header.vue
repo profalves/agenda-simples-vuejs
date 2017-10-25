@@ -8,7 +8,7 @@
                 </span>
                 <span>Agenda</span>
             </a>
-            <a v-link="{ path: '/' }" class="button is-primary">
+            <a @click="logout" class="button is-primary">
                 <span class="icon">
                 <i class="fa fa-home"></i>
                 </span>
@@ -27,11 +27,11 @@
       }
     },
     methods: {
-        logout:function() {
-           var app = this;
-         localStorage.removeItem("lbUser");
-         app.$router.push({ name: 'login'});
-         app.$store.state.isLoggedIn = false;
+        logout() {
+         var app = this;
+         localStorage.clear();
+         app.$router.go({ name: 'login'});
+         
         }
     },
     computed: {
