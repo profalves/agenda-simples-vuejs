@@ -81,11 +81,18 @@ export default {
          expira.setTime(expira.getTime() + 87600000); //expira dentro de 24h
          document.cookie = 'usuario=' + this.usuario+ ';expires=' + expira.toUTCString();
       },
-      
+      limparSessao(){
+        var user = localStorage.getItem('userId')
+        if(user!==null){
+            localStorage.clear();
+        }
+         
+      }
       
     },
     created(){
-        localStorage.clear();  
+        let t = this
+        t.limparSessao()
     }
     
 }

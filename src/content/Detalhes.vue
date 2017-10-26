@@ -1040,7 +1040,7 @@ export default {
       t.loadDetahes()
       t.selectStatus()
       t.carregarUser()
-      t.verificarUsuario()
+      //t.verificarUsuario()
     }
 }
 </script>

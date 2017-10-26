@@ -870,7 +870,7 @@
       expSession(){
         var data = new Date();
         var ex = localStorage.getItem('userId')
-        if (data>ex){
+        if (data<ex){
             this.$router.go({ name: 'login'})
         }
       }
@@ -884,8 +884,8 @@
       t.selectStatus()
       t.selectProjetos()
       t.carregarUser()
-      t.verificarUsuario()
-      t.expSession()
+      //t.verificarUsuario()
+      //t.expSession()
       
     }
   }
