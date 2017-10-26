@@ -414,7 +414,8 @@
               </div>
               <div class="level-right">
                   <div class="level-item">
-                  <a class="button is-primary" @click.prevent="salvarSubDet()">Enviar</a>
+                  <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
+                  <a class="button is-primary" @click.prevent="salvarSubDet()" v-else>Enviar</a>
                   </div>
               </div>
           </div>
@@ -446,7 +447,8 @@
                     <center>
                         <button class="button is-danger" @click="removeImage">Remover</button>
                         <!--<button class="button" @click="zipar">Zipar</button>-->
-                        <button class="button is-primary" @click="enviarImg()">Enviar</button><br><br>
+                        <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
+                        <button class="button is-primary" @click="enviarImg()" v-else>Enviar</button><br><br>
                         
                     </center>
 
@@ -516,8 +518,9 @@
                       </div>
                       <!-- <span>{{ compDet.idStatus }}</span> --
                     </div> -->
-                    <div class="column is-1">    
-                        <a class="button is-primary enviar" @click.prevent="salvarDet()">Enviar</a>
+                    <div class="column is-1">
+                        <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
+                        <a class="button is-primary enviar" @click.prevent="salvarDet()" v-else>Enviar</a>
                     </div>
                 </div>
 
@@ -804,12 +807,13 @@ export default {
         })
       },
       salvarDet(){
+          
           this.validar()
-          let t = this
-          t.compDet.dataHoraAgend = t.startTime.time
-          t.compDet.idUsuario = this.usuario
-          t.compDet.nivel = t.ultimoDet.nivel
-          t.compDet.nivel++
+          this.showLoading()
+          this.compDet.dataHoraAgend = this.startTime.time
+          this.compDet.idUsuario = this.usuario
+          this.compDet.nivel = this.ultimoDet.nivel
+          this.compDet.nivel++
              this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
              .then((response) => {
                 
@@ -840,6 +844,7 @@ export default {
                 console.log(response.json)
              })
              .finally(function () {
+                this.hideLoading()
                 this.loadDetahes()
              }) 
           if(this.image!=''){
@@ -849,7 +854,7 @@ export default {
       },
       salvarSubDet(){
           this.validar()
-          
+          this.showLoading()
           this.compDet.dataHoraAgend = this.startTime.time
           this.compDet.idUsuario = this.usuario
           this.compDet.nivel = this.nivelResposta
@@ -881,6 +886,7 @@ export default {
                 console.log(response.json)
              })
              .finally(function () {
+                this.hideLoading()
                 this.loadDetahes()
              })
           
@@ -1016,6 +1022,7 @@ export default {
                 console.log(response.body)
              })
              .finally(function () {
+                this.hideLoading()
                 this.loadDetahes()
              })
           

@@ -2,7 +2,7 @@
   <app-header></app-header>
   <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
   <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
-  {{message}}
+  
     <div id="compromissos">
       
       <div class="columns is-mobile">
@@ -268,7 +268,9 @@
           
         </section>
         <footer class="modal-card-foot">
-          <a class="button is-primary" @click.prevent="salvarCompromisso">Salvar</a>
+          <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
+          <a class="button is-primary" @click.prevent="salvarCompromisso" v-else>Salvar</a>
+            
           <a class="button" @click.prevent="showModalNew=false">Cancelar</a>
         </footer>
       </div>
@@ -776,7 +778,7 @@
        
        salvarCompromisso(){
         this.validar()
-        
+        this.showLoading()
         det = {detalhes: this.msg, dataHoraAgend: this.startTime.time} 
         this.comp.compromissosDet.push(det)
         
@@ -815,6 +817,7 @@
              })
              .finally(function () {
                 this.loadCompromissos()
+                this.hideLoading();
              })
           
       },
