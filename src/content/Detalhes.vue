@@ -571,7 +571,7 @@ export default {
         url: 'http://192.168.0.200/helpdesk/files/',
         alterar: false,
         aJSZip: '',
-        usuario: '',
+        usuario: localStorage.getItem('userId'),
         compDet: {
             "detalhes": '',
             "idComp": this.$route.query.q,
@@ -807,7 +807,7 @@ export default {
           this.validar()
           let t = this
           t.compDet.dataHoraAgend = t.startTime.time
-          t.compDet.idUsuario = 4
+          t.compDet.idUsuario = this.usuario
           t.compDet.nivel = t.ultimoDet.nivel
           t.compDet.nivel++
              this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
@@ -851,15 +851,14 @@ export default {
           this.validar()
           
           this.compDet.dataHoraAgend = this.startTime.time
-          this.compDet.idUsuario = 4
+          this.compDet.idUsuario = this.usuario
           this.compDet.nivel = this.nivelResposta
              this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
              .then((response) => {
                 this.$set('compDet',{
                     "detalhes": '',
                     "idComp": this.$route.query.q,
-                    "idUsuario": 4,
-                    "idStatus": 1,
+                    "idStatus": this.compDet.idUsuario,
                     "nivel": this.compDet.nivel,
                     "dataHoraAgend": '',
                     "startTime.time": '',
@@ -1040,7 +1039,7 @@ export default {
       t.loadDetahes()
       t.selectStatus()
       t.carregarUser()
-      //t.verificarUsuario()
+      t.verificarUsuario()
     }
 }
 </script>

@@ -11,7 +11,7 @@
         <input class="input" type="password" name="senha" v-model="senha"><br><br>
 
         <center>
-            <button class="button is-primary" @click="Login()" @keyup.enter="Login()">Login</button>
+            <button class="button is-primary" @click="Login()" @keyup.enter="Login">Login</button>
         </center>
     </div>
     
@@ -57,9 +57,9 @@ export default {
                 localStorage.setItem('userId',this.users.idUsuario)
                 localStorage.setItem('name',this.users.nome)
                 tempo.setTime(tempo.getTime())
-                localStorage.setItem('incioSessao', tempo.toUTCString())
+                localStorage.setItem('incioSessao', tempo.toString())
                 tempo.setTime(tempo.getTime() + 87600000)
-                localStorage.setItem('fimSessao', tempo.toUTCString())
+                localStorage.setItem('fimSessao', tempo.toString())
                 this.$router.go({ name: 'compromissos'/*, 
                     query: {
                         id: this.users.idUsuario

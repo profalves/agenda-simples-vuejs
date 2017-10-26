@@ -53,10 +53,7 @@
               <span class="closebtn" @click="limparFiltroPlat()">&times;</span>
             </div>  
           
-            <div class="chip animated bounceInRight" v-if="chipUser">
-              {{ filtroUser }}
-              <span class="closebtn" @click="limparFiltroUser">&times;</span>
-            </div>  
+              
               
           </span>
           
@@ -71,39 +68,27 @@
         <table class="table is-narrow-mobile is-bordered tg">
             
               <thead>
-                <th>Cód<br>
-                  <input class="input" v-model="filtroId" id="id">
+                <th id="user">Criador<br>
+                 <!-- <div class="select">
+                      <select v-model="filtroUser" id="usuario">
+                          <option v-for="user in compFiltrados | filterBy 'user'">
+                            {{ user.usuario }}
+                          </option>
+                      </select>
+                  </div>-->
                 </th>
                 <th>Assunto<br>
-                    <div style="width: 200px"></div>
+                    <input class="input" v-model="filtroUser" id="titulo">
                 </th>
-                <th v-if="colUser">Criador<br>
-                  <div class="select">
-                      <select v-model="filtroUser" id="usuario">
-                          <option v-for="user in usuarios">
-                            {{ user.text }}
-                          </option>
-                      </select>
-                  </div>
-                </th>
-                <th>Ultima postagem
+                
+                <th>Ult. post.
                     <div style="width: 80px"></div>
                 </th>
-                <th>Respostas</th>
-                <!--<th v-if="colTipo">Tipo<br>
-                  <div class="select">
-                      <select v-model="filtroTipo" id="tipo">
-                          <option v-for="tipo in tipos">
-                            {{ tipo.nome }}
-                          </option>
-                      </select>
-                  </div>
-                </th>-->
-                <!--<th>Status</th>-->
+                
                   
-                <th v-if="colPriori">N.Prioridade<br>
+                <th v-if="colPriori">Prior.<br>
                   
-                  <div class="select">
+                  <div class="select" style="width: 40px;">
                       <select v-model="filtroPriori" id="priori">
                           <option v-for="prioridade in prioridades" :value="prioridade.value">
                             {{ prioridade.text }}
@@ -113,7 +98,7 @@
                 </th>
                   
                 <th v-if="colProj">Projeto<br>
-                  <div class="select">
+                  <div class="select" style="width: 100px;">
                       <select v-model="filtroProjeto" id="projeto">
                           <option v-for="projet in projetos">
                             {{ projet.nome }}
@@ -122,7 +107,7 @@
                   </div>
                 </th>
                 <th v-if="colPlat">Plataforma<br>
-                  <div class="select">
+                  <div class="select" style="width: 100px;">
                       <select v-model="filtroPlat" id="plataforma">
                           <option v-for="plataf in plataformas">
                             {{ plataf.text }}
@@ -130,18 +115,20 @@
                       </select>
                   </div>
                 </th>
-                
+                <th>Cód<br>
+                  <input class="input" v-model="filtroId" id="id">
+                </th>
                 <!-- <th>Ações</th> -->
 
             </thead>
             <tbody>
-              <tr v-for="compromisso in compFiltrados | orderBy 'idComp'">
+              <tr v-for="compromisso in compFiltrados">
                
                 <td 
                     @click="filtro = compromisso.idComp" 
                     v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario}}"
-                    style="cursor: pointer"
-                    >{{compromisso.idComp}}
+                    style="cursor: pointer; text-align: center;"
+                    ><strong style="color:#4774bc">{{compromisso.usuario}}</strong>
                 </td>
                   
                 <td @click="filtro = compromisso.idComp" 
@@ -149,15 +136,19 @@
                     style="cursor: pointer"
                     >{{compromisso.titulo}}
                 </td>
-                <td v-if="colUser">
-                    <strong style="color:#4774bc">{{compromisso.usuario}}</strong></td>
+                
                 <td>
-                    <strong style="color:orange">{{compromisso.ultResp}}</strong><br>
-                    {{compromisso.dataHoraUltResp | dataFormat}}</td>
-                <td>{{compromisso.qtdRespostas}}</td>
-                <td v-if="colPriori">{{compromisso.numPrioridade}}</td>
+                    <center>
+                        <strong style="color:orange">{{compromisso.ultResp}}</strong><br>
+                        {{compromisso.dataHoraUltResp | dataFormat}}<br>
+                        <i>Resp.:</i> {{compromisso.qtdRespostas}}
+                    </center>
+                    
+                </td>
+                <td v-if="colPriori" style="text-align: center;">{{compromisso.numPrioridade}}</td>
                 <td v-if="colProj">{{compromisso.projeto}}</td>
                 <td v-if="colPlat">{{compromisso.plataforma}}</td>
+                <td>{{compromisso.idComp}}</td>
                 
                 
               </tr>
@@ -298,7 +289,7 @@
   //Calendário
   import myDatepicker from 'vue-datepicker'
     
-  //produção:
+  //dev:
   const ENDPOINT = 'http://192.168.0.200/helpdesk/'
   
   // ao descomentar abaixo tem que comentar a const acima
@@ -423,6 +414,7 @@
         filtroPlat: '',
         filtroUser: '',
         filtroBtn: false,
+        filtroTitulo: '',
           
         // chips 
         
@@ -451,9 +443,14 @@
     computed: {
       compFiltrados(){
         
+        if (this.filtroTitulo != ''){
+            return response = this.compromissos.filter(this.filtrarPorAssunto());                        
+        }  
+        
         if (this.filtroId != ''){
             return response = this.compromissos.filter(this.filtrarPorCod());                        
         }
+        
         
         if (this.filtroTipo != ''){
             this.chipTipo = true
@@ -479,21 +476,6 @@
                             this.chipPlat = true
                             this.colPlat = false
                             this.filtroBtn = true
-
-                            if (this.filtroUser != '' ){
-                                this.chipUser = true
-                                this.colUser = false
-                                this.filtroBtn = true
-
-                                return response = this.compromissos.filter(this.filtrarPorStatus())
-                                                                   .filter(this.filtrarPorTipo())
-                                                                   .filter(this.filtrarPorUsuario())
-                                                                   .filter(this.filtrarPorPrioridade())
-                                                                   .filter(this.filtrarPorProJeto())
-                                                                   .filter(this.filtrarPorPlataforma())
-                                                                   .filter(this.filtrarPorUsuario())
-
-                            }
 
                             return response = this.compromissos.filter(this.filtrarPorStatus())
                                                                .filter(this.filtrarPorTipo())
@@ -589,26 +571,26 @@
     // METODOS ======================================
       
     methods: {
-        
-      onFileChange: function(e) {
-        var files = e.target.files || e.dataTransfer.files;
-      },
-      
+            
       // filtros GERAL
       filtrarPorStatus(compromisso){      
         return compromisso => compromisso.status ==  this.filtroStatus     
       },
       
+      filtrarPorTipo(compromisso){
+        return compromisso => compromisso.tipoComp == this.filtroTipo
+      },
+
       
       // filtros TABELA
       filtrarPorCod(compromisso){
         return compromisso => compromisso.idComp == this.filtroId     
       },
-      filtrarPorTipo(compromisso){
-        return compromisso => compromisso.tipoComp == this.filtroTipo
+      filtrarPorAssunto(compromisso){
+        return compromisso => compromisso.titulo = this.filtroTitulo
       },
       filtrarPorPrioridade(compromisso){
-        return compromisso => compromisso.numPrioridade ==  this.filtroPriori
+        return compromisso => compromisso.numPrioridade == this.filtroPriori
       },
       filtrarPorProJeto(compromisso){
         return compromisso => compromisso.projeto == this.filtroProjeto 
@@ -661,6 +643,9 @@
         
       // fim filtros
         
+      onFileChange: function(e) {
+        var files = e.target.files || e.dataTransfer.files;
+      },  
       backtoTop(){
         let x = 0
         let y = -999999
@@ -868,8 +853,11 @@
         }
       },
       expSession(){
-        var data = new Date();
-        var ex = localStorage.getItem('userId')
+        console.log('INFORMAÇÕES DE SESSÃO:')
+        var data = new Date().toString();
+        console.log('Agora: ' + data)
+        var ex = localStorage.getItem('fimSessao')
+        console.log('Encerra: ' + ex)
         if (data<ex){
             this.$router.go({ name: 'login'})
         }
@@ -884,8 +872,8 @@
       t.selectStatus()
       t.selectProjetos()
       t.carregarUser()
-      //t.verificarUsuario()
-      //t.expSession()
+      t.verificarUsuario()
+      t.expSession()
       
     }
   }
@@ -1002,6 +990,7 @@
     td {
         cursor: default;
     }
+    
     span.column {
         margin-bottom: 5px;
     }
