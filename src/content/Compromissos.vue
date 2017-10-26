@@ -78,7 +78,7 @@
                   </div>-->
                 </th>
                 <th>Assunto<br>
-                    <input class="input" v-model="filtroUser" id="titulo">
+                    <input class="input" id="titulo" v-model="filtroTitulo">
                 </th>
                 
                 <th>Ult. post.
@@ -121,7 +121,7 @@
                 <!-- <th>Ações</th> -->
 
             </thead>
-            <tbody>
+            <tbody id="lista">
               <tr v-for="compromisso in compFiltrados">
                
                 <td 
@@ -295,7 +295,6 @@
   // ao descomentar abaixo tem que comentar a const acima
   //debug:
   //const ENDPOINT = 'http://192.168.0.115:32688/'
-
   export default {
     name: 'Compromissos',
     data () {
@@ -444,7 +443,8 @@
       compFiltrados(){
         
         if (this.filtroTitulo != ''){
-            return response = this.compromissos.filter(this.filtrarPorAssunto());                        
+            return response = this.compromissos.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorAssunto());                       
         }  
         
         if (this.filtroId != ''){
@@ -457,52 +457,38 @@
             this.colTipo = false
             this.filtroBtn = true
             
-            if (this.filtroUser != '' ){
-                this.chipUser = true
-                this.colUser = false
-                this.filtroBtn = true
-            
                 if (this.filtroPriori != ''){
                     this.chipPriori = true
                     this.colPriori = false
                     this.filtroBtn = true
-
+                    
                     if (this.filtroProjeto != ''){
                         this.chipProj = true
                         this.colProj = false
                         this.filtroBtn = true
-
                         if (this.filtroPlat != ''){
                             this.chipPlat = true
                             this.colPlat = false
                             this.filtroBtn = true
-
                             return response = this.compromissos.filter(this.filtrarPorStatus())
                                                                .filter(this.filtrarPorTipo())
-                                                               .filter(this.filtrarPorUsuario())
+                                                               
                                                                .filter(this.filtrarPorPrioridade())
                                                                .filter(this.filtrarPorProJeto())
                                                                .filter(this.filtrarPorPlataforma())
                         }
-
                         return response = this.compromissos.filter(this.filtrarPorStatus())
                                                            .filter(this.filtrarPorTipo())
-                                                           .filter(this.filtrarPorUsuario())
+                                                           
                                                            .filter(this.filtrarPorPrioridade())
                                                            .filter(this.filtrarPorProJeto())
                     }
-
-
                     return response = this.compromissos.filter(this.filtrarPorStatus())
                                                        .filter(this.filtrarPorTipo())
-                                                       .filter(this.filtrarPorUsuario())
                                                        .filter(this.filtrarPorPrioridade())
                   }
             
-                return response = this.compromissos.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorTipo())
-                                               .filter(this.filtrarPorUsuario())
-            }
+             
             return response = this.compromissos.filter(this.filtrarPorStatus())
                                                .filter(this.filtrarPorTipo())                                        
         }
@@ -548,7 +534,6 @@
             return response = this.compromissos.filter(this.filtrarPorStatus())
                 
         }
-
         
       }
       
@@ -576,18 +561,16 @@
       filtrarPorStatus(compromisso){      
         return compromisso => compromisso.status ==  this.filtroStatus     
       },
-      
       filtrarPorTipo(compromisso){
         return compromisso => compromisso.tipoComp == this.filtroTipo
       },
-
       
       // filtros TABELA
       filtrarPorCod(compromisso){
         return compromisso => compromisso.idComp == this.filtroId     
       },
       filtrarPorAssunto(compromisso){
-        return compromisso => compromisso.titulo = this.filtroTitulo
+        return compromisso => compromisso.titulo.toLowerCase().indexOf(this.filtroTitulo)>=0
       },
       filtrarPorPrioridade(compromisso){
         return compromisso => compromisso.numPrioridade == this.filtroPriori
@@ -757,18 +740,14 @@
         this.isLoading=false;
       },
       loadCompromissos(){
-
         let t = this
         this.showLoading()
-
         let start = (this.page * this.itensPerPage) - (this.itensPerPage)
         let end = this.page * this.itensPerPage
         let qString = '';
-
         if (this.search){
           qString = `&q=${this.search}`
         }
-
         this.$http.get(ENDPOINT + `api/comp/obterComp`).then(
          response=>{
            t.compromissos = response.json()
@@ -778,7 +757,6 @@
          }).finally(function () {
           t.hideLoading();
         })
-
        },
        searchCompromissos(){
         this.loadCompromissos()
@@ -886,7 +864,6 @@
     ul {
         padding: 0;
     }
-
     .user {
         height: 30px;
         line-height: 30px;
@@ -895,11 +872,9 @@
         overflow: hidden;
         transition: all .25s ease;
     }
-
     .user:last-child {
         border-bottom: 1px solid #eee;
     }
-
     .v-enter, .v-leave-active {
         height: 0;
         padding-top: 0;
@@ -919,7 +894,6 @@
         margin-left: 5px;
         /*width: 100%;*/
     }
-
     .chip img {
         float: left;
         margin: 0 10px 0 -25px;
@@ -927,7 +901,6 @@
         width: 50px;
         border-radius: 50%;
     }
-
     .closebtn {
         padding-left: 10px;
         color: #888;
@@ -936,7 +909,6 @@
         font-size: 20px;
         cursor: pointer;
     }
-
     .closebtn:hover {
         color: #000;
     }
