@@ -11,7 +11,8 @@
         <input class="input" type="password" name="senha" v-model="senha"><br><br>
 
         <center>
-            <button class="button is-primary" @click="Login()" @keyup.enter="Login">Login</button>
+            <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
+            <button class="button is-primary" @click="Login()" @keyup.enter="Login" v-else>Login</button>
         </center>
     </div>
     
@@ -45,11 +46,13 @@ export default {
         senha: '',
         users: [],
         message: '',
+        isLoading: false
         
       }
     },
     methods: {
       Login() {
+          this.isLoading = true;
           var tempo = new Date();
           this.$http.get(ENDPOINT + '/api/usuario/obterUsuario?user=' + this.usuario + '&pass=' + this.senha).then(
              response=>{
@@ -58,7 +61,7 @@ export default {
                 localStorage.setItem('name',this.users.nome)
                 tempo.setTime(tempo.getTime())
                 localStorage.setItem('incioSessao', tempo.toString())
-                tempo.setTime(tempo.getTime() + 87600000)
+                tempo.setTime(tempo.getTime() + 172800000)
                 localStorage.setItem('fimSessao', tempo.toString())
                 this.$router.go({ name: 'compromissos'/*, 
                     query: {

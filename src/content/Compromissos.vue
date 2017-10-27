@@ -835,11 +835,13 @@
       },
       expSession(){
         console.log('INFORMAÇÕES DE SESSÃO:')
+        var user = localStorage.getItem('name')
+        console.log('Usuário:' + user)
         var data = new Date().toString();
         console.log('Agora: ' + data)
         var ex = localStorage.getItem('fimSessao')
         console.log('Encerra: ' + ex)
-        if (data<ex){
+        if (data>ex){
             this.$router.go({ name: 'login'})
         }
       }
