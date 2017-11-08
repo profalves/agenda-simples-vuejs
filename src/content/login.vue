@@ -1,7 +1,8 @@
 <template>
 <div class="conteudo" id="principal">
     <div class="box" id="login">
-        <center><h1>7Virtual</h1></center>
+        <center><img src="../../dist/img/logo2.png" /></center>
+        <br><br>
 
         <label class="label">Usuário</label>
         <input class="input" type="text" name="usuario" v-model="usuario"> 
@@ -25,7 +26,6 @@
 </template>
 
 <script>
-
 const ENDPOINT = 'http://192.168.0.200/helpdesk/'
 
 export default {
@@ -74,6 +74,7 @@ export default {
              error=>{
                e = error.json()
                this.message = e.split(':').pop()
+               this.isLoading = false
              }
           )
           this.criaCookie()
@@ -106,12 +107,12 @@ export default {
     
     @media (min-width: 300px) {
       #login {
-            margin-top: 15%;
+            margin-top: 10%;
         }
     }
     @media (min-width: 500px) {
       #login {
-            margin: 15% 10%;
+            margin: 10% 10%;
         }
     }
     @media (min-width: 700px) {
@@ -125,7 +126,7 @@ export default {
             position: absolute;
             top: 30%;
             left: 35%;
-            margin-top: -30px;
+            margin-top: -10px;
             margin-left: -35px;
         }
     }

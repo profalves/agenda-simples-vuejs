@@ -337,7 +337,7 @@
               "idStatus": 1,
               "idProjeto": '',
               "titulo": '',
-              "numPrioridade": '',
+              "numPrioridade": 3,
               "idUsuario": parseInt(localStorage.getItem('userId')),
               "compromissosDet": []
               
@@ -710,7 +710,7 @@
           console.log()
         })
         .catch(e => {
-          this.errors.push(e)
+          console.log(e)
         })
       },
       selectStatus(){
@@ -856,7 +856,7 @@
       t.selectProjetos()
       t.carregarUser()
       t.verificarUsuario()
-      t.expSession()
+      //t.expSession()
       
     }
   }
