@@ -2,7 +2,7 @@
     <div id="app">
         <div class="topo">
             
-            <a v-link="{ path: '/ccompromissos' }" class="button is-dark">
+            <a @click="agenda" class="button is-dark">
                 <span class="icon">
                 <i class="fa fa-user"></i>
                 </span>
@@ -27,11 +27,15 @@
       }
     },
     methods: {
+        agenda() {
+         var app = this;
+         localStorage.setItem('status', 'EM ANDAMENTO');
+         app.$router.go({ name: 'compromissos'});
+        },
         logout() {
          var app = this;
          localStorage.clear();
          app.$router.go({ name: 'login'});
-         
         }
     },
     computed: {

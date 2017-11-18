@@ -1047,6 +1047,7 @@ export default {
       t.selectStatus()
       t.carregarUser()
       t.verificarUsuario()
+      localStorage.setItem('status', this.$route.query.status)
     }
 }
 </script>

@@ -126,13 +126,13 @@
                
                 <td 
                     @click="filtro = compromisso.idComp" 
-                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario}}"
+                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
                     style="cursor: pointer; text-align: center;"
                     ><strong style="color:#4774bc">{{compromisso.usuario}}</strong>
                 </td>
                   
                 <td @click="filtro = compromisso.idComp" 
-                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario}}"
+                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
                     style="cursor: pointer"
                     >{{compromisso.titulo}}
                 </td>
@@ -841,10 +841,15 @@
         if (data>ex){
             this.$router.go({ name: 'login'})
         }
+      },
+      getStatus(){
+        if(localStorage.getItem('status')){
+           this.filtroStatus = localStorage.getItem('status') 
+        }
       }
       
-      
     },
+    
     created(){
       let t = this
       t.loadCompromissos()
@@ -854,6 +859,8 @@
       t.carregarUser()
       t.verificarUsuario()
       //t.expSession()
+      t.getStatus()
+      
       
     }
   }
