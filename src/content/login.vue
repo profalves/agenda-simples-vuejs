@@ -3,18 +3,23 @@
     <div class="box" id="login">
         <center><img src="../../dist/img/logo2.png" /></center>
         <br><br>
+        <form @submit.prevent="Login()">
+            <label class="label">Usuário</label>
+            <input class="input" type="text" name="usuario" v-model="usuario" id="user"> 
 
-        <label class="label">Usuário</label>
-        <input class="input" type="text" name="usuario" v-model="usuario"> 
-
-        <br><br>
-        <label class="label">Senha</label>
-        <input class="input" type="password" name="senha" v-model="senha"><br><br>
-
-        <center>
-            <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
-            <button class="button is-primary" @click="Login()" @keyup.enter="Login" v-else>Login</button>
-        </center>
+            <label class="label">Senha</label>
+            <input class="input" type="password" name="senha" v-model="senha" id="senha"><br><br>
+            
+            <label class="checkbox" id="conectado">
+              <input type="checkbox" v-model="manter">
+              Mantenha-me conectado
+            </label>
+            
+            <center>
+                <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
+                <button class="button is-primary" @click="Login()" @keyup.enter="Login" v-else>Login</button>
+            </center>
+        </form>
     </div>
     
     <center>
@@ -30,23 +35,14 @@ const ENDPOINT = 'http://192.168.0.200/helpdesk/'
 
 export default {
     name: 'login',
-    vuex: {  
-        getters: {
-            user: store => store.user
-        },
-        actions: {
-            setUser ({dispatch}, obj) {
-            dispatch('SET_USER', obj)
-            }
-        }
-    },
     data () {
       return {
         usuario: '',
         senha: '',
         users: [],
         message: '',
-        isLoading: false
+        isLoading: false,
+        manter: false
         
       }
     },
@@ -63,6 +59,10 @@ export default {
                 localStorage.setItem('incioSessao', tempo.toString())
                 tempo.setTime(tempo.getTime() + 172800000)
                 localStorage.setItem('fimSessao', tempo.toString())
+                if(this.manter==true){
+                    localStorage.setItem('token', this.senha)    
+                    localStorage.setItem('conectado', this.manter)    
+                }
                 this.$router.go({ name: 'compromissos'/*, 
                     query: {
                         id: this.users.idUsuario
@@ -91,12 +91,24 @@ export default {
             localStorage.clear();
         }
          
+      },
+      manterConectado(){
+        var user = localStorage.getItem('userId')
+        if(user!==null){
+            var c = localStorage.getItem('conectado')
+            if(c == 'true'){
+                this.usuario = localStorage.getItem('name')
+                this.senha = localStorage.getItem('token')
+                this.Login()
+            }
+        }
       }
       
     },
     created(){
         let t = this
-        t.limparSessao()
+        //t.limparSessao()
+        t.manterConectado()
     }
     
 }
@@ -117,7 +129,7 @@ export default {
     }
     @media (min-width: 700px) {
       #login {
-            margin: 10% 25%;
+            margin: 5% 25%;
         }
     }
     @media (min-width: 1380px ) {
@@ -126,12 +138,20 @@ export default {
             position: absolute;
             top: 30%;
             left: 35%;
-            margin-top: -10px;
+            margin-top: -130px;
             margin-left: -35px;
         }
     }
     button{
         width: 100px;
+    }
+    
+    #user{
+        margin-bottom: 20px;
+    }
+
+    #conectado{
+        margin-bottom: 40px;
     }
 
 </style>

@@ -4,7 +4,7 @@
   <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   
     <div id="compromissos">
-      
+        <!-- botões -->
       <div class="columns is-mobile">
           <div class="column is-1-desktop is-1-tablet is-2-mobile">
               <label class="label">Novo</label>
@@ -158,10 +158,7 @@
       <!-- Paginação -- 
       <Pagination :total="total" :page="page" :itens-per-page="itensPerPage" @change-page="onChangePage"></Pagination> -->
       </div>
-    
-    
-
-    
+     
     <!-- novo compromisso -->
     <div id="modal_compromisso" class="modal" :class="{'is-active':showModalNew}">
       <div class="modal-background"></div>
@@ -586,7 +583,8 @@
       filtrarPorUsuario(compromisso){
         return compromisso => compromisso.usuario == this.filtroUser  
       },
-        
+       
+      // limpeza
       limparFiltros(){
         this.limparFiltroTipo()
         this.limparFiltroPriori()
@@ -760,23 +758,22 @@
           t.hideLoading();
         })
        },
-       searchCompromissos(){
+      searchCompromissos(){
         this.loadCompromissos()
        },
-       newDetalhes(){
+      newDetalhes(){
         this.selected={}
         this.showModalForum = true;
        },
-       newCompromissos(){
+      newCompromissos(){
         this.selected={}
         this.showModalNew = true;
        },
-       editarCompromisso(compromisso){
+      editarCompromisso(compromisso){
         this.selected=compromisso
         this.showModalNew = true;
        },
-       
-       salvarCompromisso(){
+      salvarCompromisso(){
         this.validar()
         this.showLoading()
         det = {detalhes: this.msg, dataHoraAgend: this.startTime.time} 

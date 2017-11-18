@@ -20,7 +20,7 @@ moment.locale('pt-br');
 console.log(moment.locale());
 
 //VeeValidate config
-const config = {
+/*const config = {
   errorBagName: 'errors', // change if property conflicts.
   fieldsBagName: 'fields', 
   delay: 0, 
@@ -40,7 +40,7 @@ const config = {
   inject: true,
   validity: true,
   aria: true
-};
+};*/
 
 Vue.component('app-header',header)
 Vue.component('app-footer',footer)
