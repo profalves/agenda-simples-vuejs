@@ -47,6 +47,14 @@ Vue.component('app-footer',footer)
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
+
+//Vue.http.headers.common['cache-control'] = 'no-cache'
+//Vue.http.headers.common['Content-Type'] = 'application/json'
+//Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'
+//Vue.http.headers.common['Accept'] = 'application/json, text/plain, */*'
+//Vue.http.headers.common['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, Authorization, Access-Control-Allow-Origin, X-HTTP-Method-Override, x-requested-with'
+//Vue.http.headers.common['Access-Control-Request-Method'] = 'PUT,GET,PUT,DELETE,OPTIONS'
+
 /*Vue.use(VueMask)
 Vue.use(VeeValidate, config)
 Vue.use(money, {

@@ -62,9 +62,12 @@
           </span>
       </div>
         
-    </div>     
+    </div> 
+
+    <button class="button is-info is-outlined" @click="mudarLista">{{ btnTable }}</button>
+
         <!-- tabela -->
-    <div id="table">
+    <div id="table" v-if="listaTodos">
         <table class="table is-narrow-mobile is-bordered tg">
             
               <thead>
@@ -145,8 +148,83 @@
                     </center>
                     
                 </td>
-                <td v-if="colPriori" style="text-align: center;">{{compromisso.numPrioridade}}</td>
+                <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
                 <td v-if="colProj">{{compromisso.projeto}}</td>
+                <td v-if="colPlat">{{compromisso.plataforma}}</td>
+                <td>{{compromisso.idComp}}</td>
+                
+                
+              </tr>
+            </tbody>
+        </table>
+      
+      <!-- Paginação -- 
+      <Pagination :total="total" :page="page" :itens-per-page="itensPerPage" @change-page="onChangePage"></Pagination> -->
+    </div>
+    
+
+    <!-- LISTA ESPECIFICADA -->
+    
+    <div id="table" v-if="listaEu">
+        <table class="table is-narrow-mobile is-bordered tg">
+            
+              <thead>
+                
+                <th>Assunto<br>
+                    <input class="input" id="titulo" v-model="filtroTitulo">
+                </th>
+                  
+                <th v-if="colPriori">Prior.<br>
+                  
+                  <div class="select" style="width: 40px;">
+                      <select v-model="filtroPriori" id="priori">
+                          <option v-for="prioridade in prioridades" :value="prioridade.value">
+                            {{ prioridade.text }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                
+                <th>Agendado para:</th>
+                
+                <th v-if="colProj">Projeto<br>
+                  <div class="select" style="width: 100px;">
+                      <select v-model="filtroProjeto" id="projeto">
+                          <option v-for="projet in projetos">
+                            {{ projet.nome }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                <th v-if="colPlat">Plataforma<br>
+                  <div class="select" style="width: 100px;">
+                      <select v-model="filtroPlat" id="plataforma">
+                          <option v-for="plataf in plataformas">
+                            {{ plataf.text }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                <th>Cód<br>
+                  <input class="input" v-model="filtroId" id="id">
+                </th>
+                <!-- <th>Ações</th> -->
+
+            </thead>
+            <tbody id="lista">
+              <tr v-for="compromisso in destFiltrados">
+               
+                
+                  
+                <td @click="filtro = compromisso.idComp" 
+                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
+                    style="cursor: pointer"
+                    >{{compromisso.titulo}}
+                </td>
+                
+                <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
+                <td>{{compromisso.dataHoraAgend | dataFormat}}</td>
+                <td v-if="colProj">{{compromisso.nome}}</td>
                 <td v-if="colPlat">{{compromisso.plataforma}}</td>
                 <td>{{compromisso.idComp}}</td>
                 
@@ -170,6 +248,19 @@
         <section class="modal-card-body">
             
           <div class="columns">
+            
+            
+            <div class="column">
+                <label class="label">Responsável</label>
+                <div class="select">
+                    <select v-model="userDest">
+                      <option v-for="user in listaUsuarios" :value="user.idUsuario">
+                        {{ user.nome }}
+                      </option>
+                    </select>
+                </div>
+                <!-- <span>{{ startTime.time }}</span> -->
+            </div>
               
             <div class="column">
                 <label class="label">Agendamento</label>
@@ -263,6 +354,20 @@
           
           <br>
           
+          <div class="column">
+              <div v-if="!image">
+                  <label class="label">Selecione uma imagem:</label>
+                  <input id="file2" type="file" @change="onFileChange">
+              </div>
+
+              <div v-else>
+                  <img :src="image">
+                  <center><button @click="removeImage">Remove image</button><br>
+                  <strong>Arquivo: {{ image | extensao }}</strong></center>
+              </div>
+
+          </div>  
+          
         </section>
         <footer class="modal-card-foot">
           <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
@@ -287,13 +392,21 @@
     
   //Calendário
   import myDatepicker from 'vue-datepicker'
-    
+
+  //==========================================================
   //dev:
-  const ENDPOINT = 'http://192.168.0.200/helpdesk/'
+  //const ENDPOINT = 'http://192.168.0.200/helpdesk/'
+  
+  //WS:
+  //const ENDPOINT = 'http://localhost/helpdesk/'
+  
+  //produção
+  const ENDPOINT = 'http://191.252.64.6/helpdesk/'
   
   // ao descomentar abaixo tem que comentar a const acima
   //debug:
   //const ENDPOINT = 'http://192.168.0.115:32688/'
+  
   export default {
     name: 'Compromissos',
     data () {
@@ -304,8 +417,10 @@
         },
         isLoading: false,
         title: 'Compromissos',
+        btnTable: 'Mostrar interessados a mim',
         arquivo: [],
         compromissos: [],
+        compDestinados: [],
         selected: {},
         showModalNew: false,
         showModalForum: false,
@@ -341,7 +456,20 @@
         },
         msg: '',
         filtro: '',
-        
+        userDest: 1,
+        users: [],
+        image: '',
+        imgDet: {
+            
+            "idCompDet": '',
+            "imgFile": '',
+            "extFile": ''
+            
+        },
+        caminho: '',
+        ext: '',
+        listaTodos: true,
+        listaEu: false,
         
         // datapicker
         startTime: {
@@ -534,7 +662,151 @@
                 
         }
         
+      },
+    
+      destFiltrados(){
+        
+        if (this.filtroTitulo != ''){
+            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorAssunto());                       
+        }  
+        
+        if (this.filtroId != ''){
+            return response = this.compDestinados.filter(this.filtrarPorCod());                        
+        }
+        
+        
+        if (this.filtroTipo != ''){
+            this.chipTipo = true
+            this.colTipo = false
+            this.filtroBtn = true
+            
+                if (this.filtroPriori != ''){
+                    this.chipPriori = true
+                    this.colPriori = false
+                    this.filtroBtn = true
+                    
+                    if (this.filtroProjeto != ''){
+                        this.chipProj = true
+                        this.colProj = false
+                        this.filtroBtn = true
+                        if (this.filtroPlat != ''){
+                            this.chipPlat = true
+                            this.colPlat = false
+                            this.filtroBtn = true
+                            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                                               .filter(this.filtrarPorTipo())
+                                                               
+                                                               .filter(this.filtrarPorPrioridade())
+                                                               .filter(this.filtrarPorProJeto())
+                                                               .filter(this.filtrarPorPlataforma())
+                        }
+                        return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                                           .filter(this.filtrarPorTipo())
+                                                           
+                                                           .filter(this.filtrarPorPrioridade())
+                                                           .filter(this.filtrarPorProJeto())
+                    }
+                    return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                                       .filter(this.filtrarPorTipo())
+                                                       .filter(this.filtrarPorPrioridade())
+                  }
+            
+             
+            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorTipo())                                        
+        }
+        
+        if (this.filtroPriori != ''){
+            
+            this.chipPriori = true
+            this.colPriori = false
+            this.filtroBtn = true
+            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorPrioridade())
+                                               
+        } 
+        
+        if (this.filtroProjeto != ''){
+            this.chipProj = true
+            this.colProj = false
+            this.filtroBtn = true
+            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorProJeto())
+        }
+          
+        if (this.filtroPlat != ''){
+            this.chipPlat = true
+            this.colPlat = false
+            this.filtroBtn = true
+            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorPlataforma())
+        }
+          
+        if (this.filtroUser != ''){
+            this.chipUser = true
+            this.colUser = false
+            this.filtroBtn = true
+            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                                               .filter(this.filtrarPorUsuario())
+                             
+            
+        }
+          
+          
+        else {
+            return response = this.compDestinados.filter(this.filtrarPorStatus())
+                
+        }
+        
+      },
+      
+      /*listaUsuarios: function () {
+      var a = this.users
+      var lista = []
+      
+      for (let i=0; i < a.length; i++) {
+          let n = a[i].nome
+          lista.push(n)    
       }
+      //console.log(lista)
+      return lista
+    
+      },  */ 
+    
+      novaListaUsuarios(){
+        let a = this.users
+        let lista = []
+        for (let i=0; i < a.length; i++) {
+          let n = a[i].nome
+          lista.push(n)    
+        }
+        let user = localStorage.getItem('name')
+        let remUser = lista.indexOf(user);
+        if (remUser > -1) {
+           lista.splice(remUser, 1)
+        }
+        
+        return lista 
+      },
+      
+      listaUsuarios: function () {
+          var a = this.users
+          var lista = []
+
+          for (let i=0; i < a.length; i++) {
+              let n = a[i].nome
+              let c = a[i].idUsuario
+              if(n !== localStorage.getItem('name')){
+                lista.push({nome: n, idUsuario: c}) 
+              }
+          }
+          //console.log(lista)
+          return lista
+
+      },
+        
+        
       
     },
     
@@ -634,7 +906,7 @@
         let y = -999999
         window.scrollBy(x,y)
       },
-      validar() {     
+      validar() {    
         if (this.comp.idCompTipo==null || this.comp.idCompTipo=='') {
           swal(
             'Oopa...',
@@ -653,6 +925,24 @@
           this.comp.idStatus.focus();
           return false
         }*/
+        if (this.comp.titulo.length>100) {
+          swal(
+            'Este título está muito grande, resuma!',
+            'Este campo suporta até 50 caracteres. Por favor, escreva um titulo com quantidade menor',
+            'error'
+          )
+          this.comp.titulo.focus();
+          return false
+        }
+        if (this.msg.length>2500) {
+          swal(
+            'Este detalhamento está muito extenso, resuma!',
+            'Este campo suporta até 2500 caracteres. Por favor, escreva um titulo com quantidade menor',
+            'error'
+          )
+          this.comp.titulo.focus();
+          return false
+        }
         if (this.comp.titulo==null || this.comp.titulo=='') {
           swal(
             'Por favor, deixe de má vontade... preencher o assunto é imprescindível!',
@@ -733,6 +1023,17 @@
           console.log(e)
         })
       },
+      selectUsuarios(){
+        axios.get(ENDPOINT + 'api/usuario/todos')
+        .then(response => {
+          
+          this.users = response.data
+          //console.log(response)
+        })
+        .catch(e => {
+          console.log(e)
+        })
+      },
       showLoading(){
         this.isLoading=true;
       },
@@ -757,7 +1058,34 @@
          }).finally(function () {
           t.hideLoading();
         })
-       },
+      },
+      loadCompDestinados(){
+        let t = this
+        this.showLoading()
+        this.$http.get(ENDPOINT + `api/comp/obterCompDestina?idUserDestina=` + this.usuario + `&status=` + this.filtroStatus).then(
+         response=>{
+           t.compDestinados = response.json()
+           console.log(response.json())
+         },
+         error=>{
+           console.log(error)
+         }).finally(function () {
+          t.hideLoading();
+        })
+      },
+      mudarLista(){
+        if(this.listaTodos === true){
+            this.listaEu = true
+            this.listaTodos = false
+            this.btnTable = 'Mostrar interessados a TODOS'
+            this.loadCompDestinados()
+        }
+        else {
+            this.listaEu = false
+            this.listaTodos = true
+            this.btnTable = 'Mostrar interessados a MIM'
+        }
+      },
       searchCompromissos(){
         this.loadCompromissos()
        },
@@ -776,32 +1104,38 @@
       salvarCompromisso(){
         this.validar()
         this.showLoading()
-        det = {detalhes: this.msg, dataHoraAgend: this.startTime.time} 
+        this.comp.compromissosDet = []
+        det = {
+            detalhes: this.msg, 
+            dataHoraAgend: this.startTime.time,
+            idUsuarioDestina: this.userDest
+        } 
         this.comp.compromissosDet.push(det)
         
            this.$http.post(ENDPOINT + 'api/comp/novoCab',this.comp)
              .then((response) => {
                 this.$set('comp',{
                   "idCompTipo": '',
-                  "idStatus": '',
+                  "idStatus": 1,
                   "idProjeto": '',
                   "titulo": '',
-                  "numPrioridade": '',
-                  "idUsuario": '',
+                  "numPrioridade": 3,
+                  "idUsuario": parseInt(localStorage.getItem('userId')),
                   "compromissosDet": []
                 })
                 this.$set('msg','')
                 this.$set('showModalNew',false)
                 console.log(response.body)
+                
              })
              .catch((error) => {
                 swal({   title: `Falha ao enviar sua solicitação`,
                         html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
                         type: "error",  
                     })
-                e = error.json()
+                //e = error.json()
                 console.log(e)
-               
+                this.hideLoading()
                 //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
                 /*this.err = JSON.stringify(e)
                 swal({
@@ -821,6 +1155,134 @@
       carregarComp(compromisso){
         this.filtro = compromisso.idComp
       },
+      enviarAposSalvar(){
+        
+        ultimoDet = this.compromissosDet.slice(-1)[0] 
+        
+        this.imgDet.extFile = this.ext
+        this.imgDet.imgFile = this.image.split(',').pop()
+        this.imgDet.idCompDet = ultimoDet.idCompDet+1
+          
+        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
+          .then((response) => {
+                this.$set('showUpload',false)
+                this.$set('imgDet',{
+                    "idCompDet": '',
+                    "extFile": '',
+                    "imgFile": ''
+                })
+                this.$set('image','')
+                console.log(response.body)
+             })
+             .catch((error) => {
+                console.log(response.body)
+             })
+             .finally(function () {
+                this.loadDetahes()
+             })
+      
+      },  
+       
+      // envio de imagem
+      onFileChange(e) {
+          // pegar o caminho do arquivo e a extensão
+          caminho = document.getElementById('file').value || document.getElementById('file2').value || document.getElementById('file3').value
+          this.caminho = caminho
+          this.ext = this.caminho.split('.').pop()
+          
+          // começa a geração do base64 e renderiza uma miniatura se for uma imagem
+          var files = e.target.files || e.dataTransfer.files;
+          if (!files.length)
+            return;
+          this.createImage(files[0]);
+      },
+      createImage(file) {
+          var image = new Image();
+          var reader = new FileReader();
+          var vm = this;
+          
+          reader.onload = (e) => {
+            vm.image = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          
+      },
+      removeImage: function (e) {
+          this.image = '';
+      },
+      
+      //zipando arquivos
+      zipar(){
+        this.arquivo = this.image.split(',').pop()
+        
+        this.aJSZip = []
+        
+        /*x = zip.file("new." + this.ext, this.arquivo, { base64: true, compression: "STORE" });    
+        console.log(x)*/
+        
+        zip.file("new." + this.ext, this.arquivo, {base64: true, compression: "STORE"});
+                  
+        // Gerar o arquivo zip de forma assíncrona
+        zip.generateAsync({
+            type: "base64",
+            compression: "DEFLATE"
+            
+        }).then(
+            res => {
+            this.arqZip = res
+            this.$nextTick(function () {
+            this.imgDet.imgFile = this.arqZip // => 'atualizado'
+        })
+            console.log(this.imgDet.imgFile)
+        });
+          
+        
+            this.imgDet.imgFile = this.arqZip
+         
+      },  
+      enviarImg(){
+       /*
+       if(this.ext=='jpg' || this.ext=='png' || this.ext=='pdf'){
+           this.imgDet.imgFile = this.image.split(',').pop()
+       }
+       else{
+           this.zipar()
+           this.imgDet.extFile = this.arqZip  
+           this.ext = 'zip'
+           this.$nextTick(function () {
+            this.imgDet.extFile = this.arqZip  
+            console.log(this.imgDet.extFile) // => 'atualizado'
+            })
+       }*/
+          
+       this.imgDet.imgFile = this.image.split(',').pop()
+       this.imgDet.extFile = this.ext   
+       this.imgDet.idCompDet = this.idResposta
+          
+       
+       
+       this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
+          .then((response) => {
+                this.$set('showUpload',false)
+                this.$set('imgDet',{
+                    "idCompDet": '',
+                    "extFile": '',
+                    "imgFile": ''
+                })
+                this.$set('image','')
+                //this.$set('arqZip','')
+                console.log(response.body)
+             })
+             .catch((error) => {
+                console.log(response.body)
+             })
+             .finally(function () {
+                this.hideLoading()
+                this.loadDetahes()
+             })
+          
+      },
+      
       carregarUser(){
         this.usuario = parseInt(localStorage.getItem('userId'))
       },
@@ -856,10 +1318,12 @@
       t.selectTipo()
       t.selectStatus()
       t.selectProjetos()
+      t.selectUsuarios()
       t.carregarUser()
       t.verificarUsuario()
       //t.expSession()
       t.getStatus()
+      t.loadCompDestinados()
       
       
     }
@@ -925,7 +1389,7 @@
       #table {
         margin-top: 10px;
         max-width: 100%;
-        max-height: 400px;
+        max-height: 300px;
         line-height: 100%;
         overflow: scroll;
         }
@@ -943,7 +1407,7 @@
       #table {
         margin-top: 10px;
         max-width: 100%;
-        max-height: 600px;
+        max-height: 590px;
         line-height: 100%;
         overflow: scroll;
         }
@@ -975,9 +1439,17 @@
     span.column {
         margin-bottom: 5px;
     }
+    
     #btn-limpFiltros {
         margin: 0 10px
     }
+    
+    #dataPriori {
+        text-align: center; 
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
     .fixo{float: right; margin-right: 10px; margin-top: 0px; z-index: 1000;}
     
 </style>

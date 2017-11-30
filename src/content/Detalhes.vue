@@ -10,9 +10,9 @@
         
         <section>
 
-          <div class="columns is-mobile">
+          <div class="columns is-mobile is-multiline">
 
-            <div class="column is-3-mobile">
+            <div class="column is-6-mobile">
               <label class="label">Data/Hora:</label>
                 {{compromissos.dataHora | dataFormat}}
             </div>
@@ -29,7 +29,7 @@
 
           </div>
 
-          <div class="columns">
+          <div class="columns is-mobile">
             <div class="column">
               <label class="label">Assunto:</label>
                 {{compromissos.titulo | uppercase}}
@@ -38,12 +38,12 @@
           </div>
 
 
-          <div class="columns is-mobile">
-            <div class="column is-4-desktop is-4-tablet is-4-mobile">
+          <div class="columns is-mobile is-multiline">
+            <div class="column is-4-desktop is-4-tablet is-6-mobile">
               <label class="label">Projeto:</label>
                 {{compromissos.projeto}}
             </div>
-            <div class="column is-4-tablet">
+            <div class="column is-4-tablet is-6-mobile">
               <label class="label">Plataforma:</label>
                 {{compromissos.plataforma}}
             </div>
@@ -60,11 +60,11 @@
         </section>
       </div>
 
-      <div class="card-footer">
+      <!--<div class="card-footer">
         <p class="card-footer-item">
         <a @click="responder" class="button is-primary">Responder</a>
         </p>
-      </div>
+      </div>-->
 
     </div>
 
@@ -92,8 +92,8 @@
                         <div v-if="compromisso.botao == true" class="columns is-mobile" id="barraNivel">
                             
                             <div class="column is-4">
-                                
                                 {{compromisso.dataHoraAgend | dataFormat}}
+                                / Prazo: {{compromisso.dataHoraAtend | dataFormat}}
                             </div>    
                             <!--<div class="column is-4">
                                 <strong>Atendimento:</strong><br>
@@ -103,11 +103,14 @@
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                             </div>
                             
+                            <div class="column" id="btns">
+                                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
+                            </div>
                                 
                             
 
                             <div class="column" id="btns">
-
+                                
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
                                     <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
@@ -116,7 +119,7 @@
                                 <span class="span">
                                     <a 
                                        class="button"
-                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                       href="http://191.252.64.6/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
                                        target="_blank"
                                        v-if="compromisso.extensao!=null"
                                        >
@@ -133,6 +136,10 @@
                                 <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
                             </div>
                             
+                        </div>
+                        
+                        <div v-if="compromisso.botao == true" class="columns is-mobile" id="barraStatus">
+                            <strong style="color:aliceblue; margin-right: 5px">Status:</strong>{{compromisso.status}}
                         </div>
                         
                         <div v-else class="columns is-mobile" id="barraTit">
@@ -160,7 +167,7 @@
                                 <span class="span">
                                     <a 
                                        class="button"
-                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                       href="http://191.252.64.6/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
                                        target="_blank"
                                        v-if="compromisso.extensao!=null"
                                        >
@@ -199,11 +206,14 @@
                 <div class="alinE">
 
                     <div class="box" id="coment">
+                        
                         <div v-if="compromisso.botao == true" class="columns is-mobile" id="barraNivel">
                             
                             <div class="column is-4">
                                 
                                 {{compromisso.dataHoraAgend | dataFormat}}
+                                / Prazo: {{compromisso.dataHoraAtend | dataFormat}}
+                                
                             </div>    
                             <!--<div class="column is-4">
                                 <strong>Atendimento:</strong><br>
@@ -211,13 +221,16 @@
                             </div>-->
                             <div id="user" class="column is-6-desktop is-5-tablet is-3-mobile">
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
+                                  
                             </div>
                             
-                                
+                            <div class="column" id="btns">
+                                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
+                            </div>
                             
 
                             <div class="column" id="btns">
-
+                                
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
                                     <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
@@ -226,7 +239,7 @@
                                 <span class="span">
                                     <a 
                                        class="button"
-                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                       href="http://191.252.64.6/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
                                        target="_blank"
                                        v-if="compromisso.extensao!=null"
                                        >
@@ -243,6 +256,10 @@
                                 <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
                             </div>
                             
+                        </div>
+                        
+                        <div v-if="compromisso.botao == true" class="columns is-mobile" id="barraStatus">
+                            <strong style="color:aliceblue; margin-right: 5px">Status:</strong>{{compromisso.status}}   
                         </div>
                         
                         <div v-else class="columns is-mobile" id="barraTit">
@@ -270,7 +287,7 @@
                                 <span class="span">
                                     <a 
                                        class="button"
-                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                       href="http://191.252.64.6/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
                                        target="_blank"
                                        v-if="compromisso.extensao!=null"
                                        >
@@ -298,7 +315,7 @@
                     </div>
 
                 </div>
-
+            
         </div>
 
         <!-- box central-->
@@ -312,6 +329,7 @@
                             <div class="column is-4">
                                 
                                 {{compromisso.dataHoraAgend | dataFormat}}
+                                / Prazo: {{compromisso.dataHoraAtend | dataFormat}}
                             </div>    
                             <!--<div class="column is-4">
                                 <strong>Atendimento:</strong><br>
@@ -322,7 +340,11 @@
                             </div>
                             
                             <div class="column" id="btns">
-
+                                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
+                            </div>
+                            
+                            <div class="column" id="btns">
+                                
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
                                     <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
@@ -331,7 +353,7 @@
                                 <span class="span">
                                     <a 
                                        class="button"
-                                       href="http://192.168.0.200/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                       href="http://191.252.64.6/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
                                        target="_blank"
                                        v-if="compromisso.extensao!=null"
                                        >
@@ -351,7 +373,9 @@
                             
                         </div>
                         
-                        
+                        <div v-if="compromisso.botao == true" class="columns is-mobile" id="barraStatus">
+                            <strong style="color:aliceblue; margin-right: 5px">Status:</strong>{{compromisso.status}}
+                        </div>
                         <div class="columns">
                             <div class="column">
                                 <div id="det">{{compromisso.detalhes}}</div>
@@ -414,7 +438,7 @@
               </div>
               <div class="level-right">
                   <div class="level-item">
-                  <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
+                  <button v-if="isLoading" class="button is-primary is-loading">Loading</button>
                   <a class="button is-primary" @click.prevent="salvarSubDet()" v-else>Enviar</a>
                   </div>
               </div>
@@ -476,10 +500,63 @@
       
     <!-- fim modal -->
     
+    <!-- MODAL Painel de Ações -->
+      
+        <div class="modal" :class="{'is-active':showStatus}">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Painel de Ações</p>
+              <button class="delete" aria-label="close" @click.prevent="showStatus=false"></button>
+            </header>
+            <section class="modal-card-body">
+              <div style="text-align:center">
+                  <div class="columns">
+                      <div class="column" v-if="userDest===usuario || usuario===compromissos.idUsuarioCriador">
+                          <label class="label">Mudar Status para:</label>
+                          <div class="select">
+                              <select v-model="idStatus" @change="alterarStatus">
+                                  <option v-for="stat in status" :value="stat.idStatus">
+                                    {{ stat.nome }}
+                                  </option>
+                              </select>
+                          </div>
+                      </div>
+                      <div class="column" v-else>Não permitido alterar Status</div>
+                      
+                      <div class="column" v-if="userDest!==1 && prazo===null && userDest===usuario">
+                          <label class="label">Mudar prazo para:</label>
+                          <div class="select">
+                              <date-picker :date="startTime" 
+                                           :option="option" 
+                                           :limit="limit"
+                                           @change="alterarPrazo"
+                                           ></date-picker>
+                          </div>
+                          
+                      </div>
+                      <div class="column" v-else>Não permitido alterar Prazo</div>
+                  </div>
+              </div>
+            </section>
+            <!--<footer class="modal-card-foot">
+              <button class="button is-success">Salvar Mudanças</button>
+              <button class="button" @click.prevent="showStatus=false">Cancel</button>
+            </footer>-->
+          </div>
+          
+        </div>
+      
+    <!-- fim modal -->
+    
 
     <!-- RESPOSTA GERAL -->
+      <div class="content">
+          <button class="button is-primary" @click="novaConversa" style="margin-top: 20px;" v-if="btnNovaConversa">Nova Conversa</button>
+          <button class="button is-danger" @click="novaConversa" style="margin-top: 20px;" v-else>Cancelar</button>
+      </div>
       
-      <div id="resposta" class="box" style="margin-top: 20px;">
+      <div id="resposta" class="box" style="margin-top: 20px;" v-if="visivel">
           <label class="label">Resposta:</label>
                 <textarea @click="responder()" class="textarea" v-model.trim="compDet.detalhes" placeholder="Digite a sua resposta" style="width: 100%;"></textarea>
                 <br>
@@ -493,7 +570,6 @@
                         <!-- <span>{{ startTime.time }}</span> -->
                     </div>
                     <div class="column">
-                            <div class="column">
                         <div v-if="!image">
                             <label class="label">Selecione uma imagem:</label>
                             <input id="file2" type="file" @change="onFileChange">
@@ -504,7 +580,7 @@
                             <center><button @click="removeImage">Remove image</button><br>
                             <strong>Arquivo: {{ image | extensao }}</strong></center>
                         </div>
-                    </div>   
+                           
                     </div>
                     <span></span>
                     <!-- <div class="column">
@@ -547,11 +623,15 @@
     
   var zip = new JSZip()
   
+  //WS:
+  //const ENDPOINT = 'http://localhost/helpdesk/'
   //dev:
-  const ENDPOINT = 'http://192.168.0.200/helpdesk/'
+  //const ENDPOINT = 'http://192.168.0.200/helpdesk/'
   // ao descomentar abaixo tem que comentar a const acima
   //debug:
   //const ENDPOINT = 'http://192.168.0.115:32688/'
+  //produção
+  const ENDPOINT = 'http://191.252.64.6/helpdesk/'
   
 export default {
     name: 'CompromissosDet',
@@ -561,6 +641,7 @@ export default {
         showModal: false,
         showUpload: false,
         showImage: false,
+        showStatus: false,
         isLoading: false,
         selected: {},
         compromissos: [],
@@ -598,6 +679,11 @@ export default {
             "extFile": ''
             
         },  
+        idStatus: 1,
+        prazo: '',
+        userDest: '',
+        novaResp: '', 
+        btnNovaConversa: true,
         
         // datapicker
         startTime: {
@@ -675,8 +761,6 @@ export default {
       },
       extensao: function (ext) {
         return ext = this.ext
-         
-         
       }
     },
     // METODOS ======================================
@@ -701,7 +785,7 @@ export default {
             'error'
           )
           // this.detalhes.focus();
-          return false
+          return
         }
         if (this.startTime.time==null || this.startTime.time=='') {
           swal(
@@ -710,7 +794,7 @@ export default {
             'error'
           )
           // this.data.focus();
-          return false
+          return
         }
       },
       selectStatus(){
@@ -766,7 +850,12 @@ export default {
         }
         
       },
-      
+      showSelStatus(compromisso){
+        this.idResposta = compromisso.idCompDet.toString()
+        this.userDest = compromisso.idUsuarioDestina
+        this.prazo = compromisso.dataHoraAtend
+        this.showStatus = true  
+      },
       showExibir(compromisso){
         this.idResposta = compromisso.idCompDet.toString()
         this.ext = compromisso.extensao
@@ -807,7 +896,6 @@ export default {
         })
       },
       salvarDet(){
-          
           this.validar()
           this.showLoading()
           this.compDet.dataHoraAgend = this.startTime.time
@@ -921,8 +1009,53 @@ export default {
                 this.loadDetahes()
              })
       
-      },  
-     
+      }, 
+      alterarStatus(){
+        this.$http.get(ENDPOINT + 'api/comp/alterarStatus?idCompDet=' + this.idResposta + '&idStatus=' + this.idStatus)
+          .then((response) => {
+                console.log(response.body)
+                this.showStatus = false
+                this.$router.go({ name: 'compromissos'})
+             })
+             .catch((error) => {
+                console.log(response.body)
+             })
+             .finally(function () {
+                
+                this.loadDetahes()
+             })
+      
+      }, 
+      alterarPrazo(){
+        this.$http.get(ENDPOINT + 'api/comp/alterarDataEntrega?idCompDet=' + this.idResposta + '&novaData=' + this.startTime.time)
+          .then((response) => {
+                console.log(response.body)
+                this.showStatus = false
+                this.$router.go({ name: 'compromissos'})
+             })
+             .catch((error) => {
+                console.log(response.body)
+             })
+             .finally(function () {
+                
+                this.loadDetahes()
+             })
+      
+      }, 
+      novaConversa(){
+        if(this.visivel == false){
+            let x = 999999
+            let y = 999999
+            window.scrollBy(x,y)
+            this.visivel = true
+            this.btnNovaConversa = false
+            this.ultimoDet = this.compromissosDet.slice(-1)[0]
+        }
+        else{ 
+            this.visivel = false
+            this.btnNovaConversa = true
+        }
+      },
         
       // envio de imagem
       onFileChange(e) {
@@ -1027,6 +1160,7 @@ export default {
              })
           
       },
+      
       carregarUser(){
         this.usuario = parseInt(localStorage.getItem('userId'))
       },
@@ -1095,6 +1229,11 @@ export default {
         color: aliceblue;
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
+        padding: 10px 5px 10px;
+    }
+    #barraStatus {
+        background-color: #686868;
+        color: aliceblue;
         padding: 10px 5px 10px;
     }
     div#coment.box {

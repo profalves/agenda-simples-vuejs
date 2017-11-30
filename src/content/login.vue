@@ -1,7 +1,8 @@
 <template>
 <div class="conteudo" id="principal">
     <div class="box" id="login">
-        <center><img src="../../dist/img/logo2.png" /></center>
+        <!--<center><img src="../../dist/img/logo2.png" /></center>-->
+        <center><img src="logo2.png" /></center>
         <br><br>
         <form @submit.prevent="Login()">
             <label class="label">Usuário</label>
@@ -16,7 +17,7 @@
             </label>
             
             <center>
-                <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-if="isLoading"></i>
+                <button v-if="isLoading" class="button is-primary is-loading">Loading</button>
                 <button class="button is-primary" @click="Login()" @keyup.enter="Login" v-else>Login</button>
             </center>
         </form>
@@ -31,7 +32,14 @@
 </template>
 
 <script>
-const ENDPOINT = 'http://192.168.0.200/helpdesk/'
+//WS:
+//const ENDPOINT = 'http://localhost/helpdesk/'
+//dev
+//const ENDPOINT = 'http://192.168.0.200/helpdesk/'
+//produção
+const ENDPOINT = 'http://191.252.64.6/helpdesk/'
+//debug:
+//const ENDPOINT = 'http://192.168.0.115:32688/'
 
 export default {
     name: 'login',
@@ -50,8 +58,9 @@ export default {
       Login() {
           this.isLoading = true;
           var tempo = new Date();
-          this.$http.get(ENDPOINT + '/api/usuario/obterUsuario?user=' + this.usuario + '&pass=' + this.senha).then(
+          this.$http.get(ENDPOINT + 'api/usuario/obterUsuario?user=' + this.usuario + '&pass=' + this.senha).then(
              response=>{
+                console.log(response)
                 this.users = response.json()
                 localStorage.setItem('userId',this.users.idUsuario)
                 localStorage.setItem('name',this.users.nome)
@@ -72,17 +81,22 @@ export default {
                 
              },
              error=>{
+               this.isLoading = false
                e = error.json()
                this.message = e.split(':').pop()
-               this.isLoading = false
+               
              }
           )
+          .catch(e=>{
+            console.log(e)
+          })
+          
           this.criaCookie()
           
       },
       criaCookie() {
          var expira = new Date();
-         expira.setTime(expira.getTime() + 87600000); //expira dentro de 24h
+         expira.setTime(expira.getTime() + 172800000); //expira dentro de 48h
          document.cookie = 'usuario=' + this.usuario+ ';expires=' + expira.toUTCString();
       },
       limparSessao(){
@@ -119,10 +133,10 @@ export default {
     
     @media (min-width: 300px) {
       #login {
-            margin-top: 10%;
+            margin-top: -15%;
         }
     }
-    @media (min-width: 500px) {
+    @media (min-width: 400px) {
       #login {
             margin: 10% 10%;
         }

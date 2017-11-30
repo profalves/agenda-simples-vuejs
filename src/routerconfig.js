@@ -5,6 +5,7 @@ import Compromissos from './content/Compromissos.vue'
 import Detalhes from './content/Detalhes.vue'
 import Testes from './content/Test.vue'
 import Login from './content/login.vue'
+import AltPass from './content/pass.vue'
 
 const RouterConfig = {
     '/': {
@@ -26,6 +27,10 @@ const RouterConfig = {
     '/login': {
         name: 'login',
         component: Login
+    },
+    '/pass': {
+        name: 'altPass',
+        component: AltPass
     }
 }
 

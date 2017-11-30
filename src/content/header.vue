@@ -14,6 +14,12 @@
                 </span>
                 <span>Logout</span>
             </a>
+            <a @click="alterarSenha" class="button">
+                <span class="icon">
+                <i class="fa fa-key"></i>
+                </span>
+                <span>Alterar Senha</span>
+            </a>
             
         </div>
     </div>
@@ -36,6 +42,10 @@
          var app = this;
          localStorage.clear();
          app.$router.go({ name: 'login'});
+        },
+        alterarSenha() {
+         var app = this;
+         app.$router.go({ name: 'altPass'});
         }
     },
     computed: {
