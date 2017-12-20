@@ -248,8 +248,15 @@
         <section class="modal-card-body">
             
           <div class="columns">
-            
-            
+              
+            <div class="column">
+                <label class="label">Agendamento</label>
+                <div class="select">
+                  <date-picker :date="startTime" :option="option" :limit="limit"></date-picker>
+                </div>
+                <!-- <span>{{ startTime.time }}</span> -->
+            </div>
+             
             <div class="column">
                 <label class="label">Responsável</label>
                 <div class="select">
@@ -258,14 +265,6 @@
                         {{ user.nome }}
                       </option>
                     </select>
-                </div>
-                <!-- <span>{{ startTime.time }}</span> -->
-            </div>
-              
-            <div class="column">
-                <label class="label">Agendamento</label>
-                <div class="select">
-                  <date-picker :date="startTime" :option="option" :limit="limit"></date-picker>
                 </div>
                 <!-- <span>{{ startTime.time }}</span> -->
             </div>
@@ -1294,11 +1293,11 @@
       },
       expSession(){
         console.log('INFORMAÇÕES DE SESSÃO:')
-        var user = localStorage.getItem('name')
+        let user = localStorage.getItem('name')
         console.log('Usuário:' + user)
-        var data = new Date().toString();
+        let data = new Date();
         console.log('Agora: ' + data)
-        var ex = localStorage.getItem('fimSessao')
+        let ex = localStorage.getItem('fimSessao')
         console.log('Encerra: ' + ex)
         if (data>ex){
             this.$router.go({ name: 'login'})
