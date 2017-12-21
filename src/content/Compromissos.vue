@@ -1310,6 +1310,9 @@
       }
       
     },
+    mounted(){
+      this.loadCompDestinados()
+    },
     
     created(){
       let t = this
@@ -1322,7 +1325,6 @@
       t.verificarUsuario()
       //t.expSession()
       t.getStatus()
-      t.loadCompDestinados()
       
       
     }

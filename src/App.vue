@@ -68,9 +68,20 @@ export default {
     }
 	.topo {
 		box-shadow: 0 0 5px 2px rgba(0,0,0,0.6);
-		padding: 10px 0;
+		padding: 10px;
 		width: 100%; 
 		position: fixed;
+		top: 0; 
+        left: 0;
+		background: #fff;
+		text-align: left;
+        z-index: 4;
+	}
+    .tile {
+        font-size: 30px;
+		padding: 10px;
+		position: fixed;
+        margin-left: 50px;
 		top: 0; 
         left: 0;
 		background: #fff;
@@ -80,4 +91,6 @@ export default {
     .conteudo {
         margin: 10px;
     }
+    
+    
 </style>
