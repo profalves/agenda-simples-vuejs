@@ -13,14 +13,14 @@
           <div class="column is-2-desktop is-3-tablet is-5-mobile">
               <label class="label">Status</label>
               <div class="select" id="status">
-                  <select v-model="filtroStatus">
+                  <select v-model="filtroStatus" @change="loadCompDestinados">
                       <option v-for="stat in status" :value="stat.nome">
                         {{ stat.nome }}
                       </option>
                   </select>
               </div>
           </div>
-          <div class="column is-2-desktop is-5-mobile">
+          <div class="column is-2-desktop is-5-mobile" v-if="listaTodos">
               <label class="label">Tipo</label>
               <div class="select" id="tipo">
                   <select v-model="filtroTipo">
@@ -118,15 +118,14 @@
                       </select>
                   </div>
                 </th>
-                <th>Cód<br>
+                <!--<th>Cód<br>
                   <input class="input" v-model="filtroId" id="id">
-                </th>
+                </th>-->
                 <!-- <th>Ações</th> -->
 
             </thead>
             <tbody id="lista">
               <tr v-for="compromisso in compFiltrados">
-               
                 <td 
                     @click="filtro = compromisso.idComp" 
                     v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
@@ -151,7 +150,7 @@
                 <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
                 <td v-if="colProj">{{compromisso.projeto}}</td>
                 <td v-if="colPlat">{{compromisso.plataforma}}</td>
-                <td>{{compromisso.idComp}}</td>
+                <!--<td>{{compromisso.idComp}}</td>-->
                 
                 
               </tr>
@@ -170,9 +169,23 @@
             
               <thead>
                 
+                <th v-if="colProj">Projeto<br>
+                  <div class="select" style="width: 100px;">
+                      <select v-model="filtroProjeto" id="projeto">
+                          <option v-for="projet in projetos">
+                            {{ projet.nome }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                
                 <th>Assunto<br>
                     <input class="input" id="titulo" v-model="filtroTitulo">
                 </th>
+                
+                <th>Prazo de Entrega:</th>
+                
+                
                   
                 <th v-if="colPriori">Prior.<br>
                   
@@ -184,50 +197,19 @@
                       </select>
                   </div>
                 </th>
-                
-                <th>Agendado para:</th>
-                
-                <th v-if="colProj">Projeto<br>
-                  <div class="select" style="width: 100px;">
-                      <select v-model="filtroProjeto" id="projeto">
-                          <option v-for="projet in projetos">
-                            {{ projet.nome }}
-                          </option>
-                      </select>
-                  </div>
-                </th>
-                <th v-if="colPlat">Plataforma<br>
-                  <div class="select" style="width: 100px;">
-                      <select v-model="filtroPlat" id="plataforma">
-                          <option v-for="plataf in plataformas">
-                            {{ plataf.text }}
-                          </option>
-                      </select>
-                  </div>
-                </th>
-                <th>Cód<br>
-                  <input class="input" v-model="filtroId" id="id">
-                </th>
-                <!-- <th>Ações</th> -->
 
             </thead>
+          
             <tbody id="lista">
               <tr v-for="compromisso in destFiltrados">
-               
-                
-                  
+                <td v-if="colProj">{{compromisso.nome}}</td>
                 <td @click="filtro = compromisso.idComp" 
                     v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
                     style="cursor: pointer"
                     >{{compromisso.titulo}}
                 </td>
-                
-                <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
                 <td>{{compromisso.dataHoraAgend | dataFormat}}</td>
-                <td v-if="colProj">{{compromisso.nome}}</td>
-                <td v-if="colPlat">{{compromisso.plataforma}}</td>
-                <td>{{compromisso.idComp}}</td>
-                
+                <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
                 
               </tr>
             </tbody>
@@ -248,6 +230,18 @@
         <section class="modal-card-body">
             
           <div class="columns">
+            
+            <div class="column">
+              <label class="label">Tipo</label>
+              <div class="select">
+                  <select v-model="comp.idCompTipo">
+                      <option v-for="tipo in tipos" :value="tipo.idCompTipo">
+                        {{ tipo.nome }}
+                      </option>
+                  </select>
+                  
+              </div>
+            </div>
               
             <div class="column">
                 <label class="label">Agendamento</label>
@@ -280,18 +274,7 @@
                   
               </div>
             </div>-->
-              
-            <div class="column">
-              <label class="label">Tipo</label>
-              <div class="select">
-                  <select v-model="comp.idCompTipo">
-                      <option v-for="tipo in tipos" :value="tipo.idCompTipo">
-                        {{ tipo.nome }}
-                      </option>
-                  </select>
-                  
-              </div>
-            </div>
+            
               
           </div>
           
@@ -353,7 +336,7 @@
           
           <br>
           
-          <div class="column">
+          <!--<div class="column">
               <div v-if="!image">
                   <label class="label">Selecione uma imagem:</label>
                   <input id="file2" type="file" @change="onFileChange">
@@ -365,7 +348,7 @@
                   <strong>Arquivo: {{ image | extensao }}</strong></center>
               </div>
 
-          </div>  
+          </div>  -->
           
         </section>
         <footer class="modal-card-foot">
@@ -416,7 +399,7 @@
         },
         isLoading: false,
         title: 'Compromissos',
-        btnTable: 'Mostrar interessados a mim',
+        btnTable: 'Mostrar interessados a TODOS',
         arquivo: [],
         compromissos: [],
         compDestinados: [],
@@ -467,8 +450,8 @@
         },
         caminho: '',
         ext: '',
-        listaTodos: true,
-        listaEu: false,
+        listaTodos: false,
+        listaEu: true,
         
         // datapicker
         startTime: {
@@ -733,26 +716,7 @@
             return response = this.compDestinados.filter(this.filtrarPorStatus())
                                                .filter(this.filtrarPorProJeto())
         }
-          
-        if (this.filtroPlat != ''){
-            this.chipPlat = true
-            this.colPlat = false
-            this.filtroBtn = true
-            return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorPlataforma())
-        }
-          
-        if (this.filtroUser != ''){
-            this.chipUser = true
-            this.colUser = false
-            this.filtroBtn = true
-            return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorUsuario())
-                             
-            
-        }
-          
-          
+         
         else {
             return response = this.compDestinados.filter(this.filtrarPorStatus())
                 
@@ -760,18 +724,6 @@
         
       },
       
-      /*listaUsuarios: function () {
-      var a = this.users
-      var lista = []
-      
-      for (let i=0; i < a.length; i++) {
-          let n = a[i].nome
-          lista.push(n)    
-      }
-      //console.log(lista)
-      return lista
-    
-      },  */ 
     
       novaListaUsuarios(){
         let a = this.users
@@ -789,7 +741,7 @@
         return lista 
       },
       
-      listaUsuarios: function () {
+      listaUsuarios() {
           var a = this.users
           var lista = []
 
@@ -846,7 +798,7 @@
         return compromisso => compromisso.numPrioridade == this.filtroPriori
       },
       filtrarPorProJeto(compromisso){
-        return compromisso => compromisso.projeto == this.filtroProjeto 
+        return compromisso => compromisso.projeto === this.filtroProjeto 
       },
       filtrarPorPlataforma(compromisso){
         return compromisso => compromisso.plataforma == this.filtroPlat  
@@ -1450,7 +1402,7 @@
         font-size: 20px;
         font-weight: bold;
     }
-    
+  
     .fixo{float: right; margin-right: 10px; margin-top: 0px; z-index: 1000;}
     
 </style>

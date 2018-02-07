@@ -23,10 +23,12 @@
             </div>
 
             <div class="column is-4">
-              <label class="label">Status:</label>
+              <label class="label">Status: 
+                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
+              </label>
                 {{compromissos.status}}
             </div>
-
+            
           </div>
 
           <div class="columns is-mobile">
@@ -102,11 +104,6 @@
                             <div id="user" class="column is-6-desktop is-5-tablet is-3-mobile">
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                             </div>
-                            
-                            <div class="column" id="btns">
-                                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
-                            </div>
-                                
                             
 
                             <div class="column" id="btns">
@@ -225,11 +222,6 @@
                             </div>
                             
                             <div class="column" id="btns">
-                                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
-                            </div>
-                            
-
-                            <div class="column" id="btns">
                                 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
@@ -337,12 +329,8 @@
                             </div>-->
                             <div id="user" class="column is-6-desktop is-6-tablet is-4-mobile">
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
-                            </div>
-                            
-                            <div class="column" id="btns">
-                                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
-                            </div>
-                            
+                            </div>                            
+                          
                             <div class="column" id="btns">
                                 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
@@ -450,39 +438,39 @@
 
     <!-- MODAL Add IMAGEM -->
       
-        <div class="modal" :class="{'is-active':showUpload}">
-          <div class="modal-background"></div>
-          <div class="modal-content">
-            <div class="box is-narrow">
-                
-                
-                
-                <div v-if="!image">
-                    <center>
-                        <label class="label">Selecione uma imagem:</label>
-                        <input id="file" type="file" @change="onFileChange">
-                    </center>
-                </div>
-                
-                <div v-else>
-                    <img :src="image" />
-                    <center><strong>Arquivo: {{ image | extensao }}</strong></center>
-                    <br>
-                    <center>
-                        <button class="button is-danger" @click="removeImage">Remover</button>
-                        <!--<button class="button" @click="zipar">Zipar</button>-->
-                        <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
-                        <button class="button is-primary" @click="enviarImg()" v-else>Enviar</button><br><br>
-                        
-                    </center>
+    <div class="modal" :class="{'is-active':showUpload}">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box is-narrow">
 
-                </div>
-                
-                
+
+
+            <div v-if="!image">
+                <center>
+                    <label class="label">Selecione uma imagem:</label>
+                    <input id="file" type="file" @change="onFileChange">
+                </center>
             </div>
-          </div>
-          <button class="modal-close is-large" aria-label="close" @click.prevent="showUpload=false"></button>
+
+            <div v-else>
+                <img :src="image" />
+                <center><strong>Arquivo: {{ image | extensao }}</strong></center>
+                <br>
+                <center>
+                    <button class="button is-danger" @click="removeImage">Remover</button>
+                    <!--<button class="button" @click="zipar">Zipar</button>-->
+                    <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
+                    <button class="button is-primary" @click="enviarImg()" v-else>Enviar</button><br><br>
+
+                </center>
+
+            </div>
+
+
         </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close" @click.prevent="showUpload=false"></button>
+    </div>
       
     <!-- fim modal -->
       
@@ -502,50 +490,50 @@
     
     <!-- MODAL Painel de Ações -->
       
-        <div class="modal" :class="{'is-active':showStatus}">
-          <div class="modal-background"></div>
-          <div class="modal-card">
-            <header class="modal-card-head">
-              <p class="modal-card-title">Painel de Ações</p>
-              <button class="delete" aria-label="close" @click.prevent="showStatus=false"></button>
-            </header>
-            <section class="modal-card-body">
-              <div style="text-align:center">
-                  <div class="columns">
-                      <div class="column" v-if="userDest===usuario || usuario===compromissos.idUsuarioCriador">
-                          <label class="label">Mudar Status para:</label>
-                          <div class="select">
-                              <select v-model="idStatus" @change="alterarStatus">
-                                  <option v-for="stat in status" :value="stat.idStatus">
-                                    {{ stat.nome }}
-                                  </option>
-                              </select>
-                          </div>
+    <div class="modal" :class="{'is-active':showStatus}">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Painel de Ações</p>
+          <button class="delete" aria-label="close" @click.prevent="showStatus=false"></button>
+        </header>
+        <section class="modal-card-body">
+          <div style="text-align:center">
+              <div class="columns">
+                  <div class="column" v-if="usuario===userDest || usuario===compromissos.idUsuarioCriador">
+                      <label class="label">Mudar Status para:</label>
+                      <div class="select">
+                          <select v-model="idStatus" @change="alterarStatus">
+                              <option v-for="stat in status" :value="stat.idStatus">
+                                {{ stat.nome }}
+                              </option>
+                          </select>
                       </div>
-                      <div class="column" v-else>Não permitido alterar Status</div>
-                      
-                      <div class="column" v-if="userDest!==1 && prazo===null && userDest===usuario">
-                          <label class="label">Mudar prazo para:</label>
-                          <div class="select">
-                              <date-picker :date="startTime" 
-                                           :option="option" 
-                                           :limit="limit"
-                                           @change="alterarPrazo"
-                                           ></date-picker>
-                          </div>
-                          
-                      </div>
-                      <div class="column" v-else>Não permitido alterar Prazo</div>
                   </div>
+                  <div class="column" v-else>Não permitido alterar Status</div>
+
+                  <div class="column" v-if="userDest!==1 && prazo===null && userDest===usuario">
+                      <label class="label">Mudar prazo para:</label>
+                      <div class="select">
+                          <date-picker :date="startTime" 
+                                       :option="option" 
+                                       :limit="limit"
+                                       @change="alterarPrazo"
+                                       ></date-picker>
+                      </div>
+
+                  </div>
+                  <div class="column" v-else>Não permitido alterar Prazo</div>
               </div>
-            </section>
-            <!--<footer class="modal-card-foot">
-              <button class="button is-success">Salvar Mudanças</button>
-              <button class="button" @click.prevent="showStatus=false">Cancel</button>
-            </footer>-->
           </div>
+        </section>
+        <!--<footer class="modal-card-foot">
+          <button class="button is-success">Salvar Mudanças</button>
+          <button class="button" @click.prevent="showStatus=false">Cancel</button>
+        </footer>-->
+      </div>
           
-        </div>
+    </div>
       
     <!-- fim modal -->
     
@@ -665,19 +653,15 @@ export default {
             "nivel": 1
         },
         status: [],  
-        usuarios: [
-          { text: 'KEL', value: 4}
-        ],
+        usuarios: [],
         nivelResposta: '',
         idResposta: '',
         ultimoDet: '',
         primeiroDet: '',
         imgDet: {
-            
             "idCompDet": '',
             "imgFile": '',
-            "extFile": ''
-            
+            "extFile": '' 
         },  
         idStatus: 1,
         prazo: '',
