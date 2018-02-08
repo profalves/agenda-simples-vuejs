@@ -140,8 +140,13 @@
                 </td>
                 
                 <td>
-                    <center>
-                        <strong style="color:orange">{{compromisso.ultResp}}</strong><br>
+                    <center v-if="compromisso.ultResp === usuarioNome">
+                        <strong style="color: orange">{{compromisso.ultResp}}</strong><br>
+                        {{compromisso.dataHoraUltResp | dataFormat}}<br>
+                        <i>Resp.:</i> {{compromisso.qtdRespostas}}
+                    </center>
+                    <center v-else>
+                        <strong style="color: red">{{compromisso.ultResp}}</strong><br>
                         {{compromisso.dataHoraUltResp | dataFormat}}<br>
                         <i>Resp.:</i> {{compromisso.qtdRespostas}}
                     </center>
@@ -423,7 +428,8 @@
           { text: 'WEB'},
           { text: 'HIBRIDO'}
         ],
-        usuario: '',
+        usuario: localStorage.getItem('userId'),
+        usuarioNome: localStorage.getItem('name'),
         projetos: [],
         comp: {
               
@@ -645,7 +651,6 @@
         }
         
       },
-    
       destFiltrados(){
         
         if (this.filtroTitulo != ''){
@@ -723,8 +728,6 @@
         }
         
       },
-      
-    
       novaListaUsuarios(){
         let a = this.users
         let lista = []
@@ -740,7 +743,6 @@
         
         return lista 
       },
-      
       listaUsuarios() {
           var a = this.users
           var lista = []
@@ -756,9 +758,6 @@
           return lista
 
       },
-        
-        
-      
     },
     
     filters: {
@@ -1056,7 +1055,7 @@
         this.validar()
         this.showLoading()
         this.comp.compromissosDet = []
-        det = {
+        let det = {
             detalhes: this.msg, 
             dataHoraAgend: this.startTime.time,
             idUsuarioDestina: this.userDest
@@ -1262,13 +1261,12 @@
       }
       
     },
-    mounted(){
-      this.loadCompDestinados()
-    },
+    
     
     created(){
       let t = this
       t.loadCompromissos()
+      t.loadCompDestinados()
       t.selectTipo()
       t.selectStatus()
       t.selectProjetos()

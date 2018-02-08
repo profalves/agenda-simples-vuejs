@@ -23,9 +23,9 @@
             </div>
 
             <div class="column is-4">
-              <label class="label">Status: 
-                <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>
-              </label>
+              <label class="label">Status: </label>
+                <!--<i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>-->
+              
                 {{compromissos.status}}
             </div>
             
@@ -105,6 +105,9 @@
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                             </div>
                             
+                            <div class="column" id="btns">		
+                              <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>		
+                            </div>
 
                             <div class="column" id="btns">
                                 
@@ -220,6 +223,10 @@
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                                   
                             </div>
+                          
+                            <div class="column" id="btns">		
+                              <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>		
+                            </div>
                             
                             <div class="column" id="btns">
                                 
@@ -329,7 +336,11 @@
                             </div>-->
                             <div id="user" class="column is-6-desktop is-6-tablet is-4-mobile">
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
-                            </div>                            
+                            </div> 
+                          
+                            <div class="column" id="btns">		
+                              <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>		
+                            </div>
                           
                             <div class="column" id="btns">
                                 
