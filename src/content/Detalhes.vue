@@ -24,8 +24,7 @@
 
             <div class="column is-4">
               <label class="label">Status: </label>
-                <!--<i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>-->
-              
+                <i class="fa fa-edit is-primary" @click.prevent="showSelStatus(compromissos)"></i>
                 {{compromissos.status}}
             </div>
             
@@ -352,7 +351,7 @@
                                 <span class="span">
                                     <a 
                                        class="button"
-                                       href="http://191.252.64.6/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}" 
+                                       href="http://191.252.64.6/helpdesk/files/{{ compromisso.idCompDet }}.{{ compromisso.extensao }}"
                                        target="_blank"
                                        v-if="compromisso.extensao!=null"
                                        >
@@ -636,6 +635,7 @@ export default {
     name: 'CompromissosDet',
     data () {
       return {
+        api: '',
         title: 'Tópico',
         showModal: false,
         showUpload: false,
@@ -651,7 +651,7 @@ export default {
         arquivo: '',
         arqZip: '',
         caminho: '',
-        url: 'http://192.168.0.200/helpdesk/files/',
+        url: ENDPOINT,
         alterar: false,
         aJSZip: '',
         usuario: localStorage.getItem('userId'),
@@ -845,10 +845,13 @@ export default {
         }
         
       },
-      showSelStatus(compromisso){
-        this.idResposta = compromisso.idCompDet.toString()
-        this.userDest = compromisso.idUsuarioDestina
-        this.prazo = compromisso.dataHoraAtend
+      showSelStatus(compromissos){ //showSelStatus
+        this.ultimoDet = this.compromissosDet.slice(-1)[0]
+        console.log('ultimoDet', compromissos);
+        
+        this.idResposta = this.ultimoDet.idCompDet.toString()
+        this.userDest = this.ultimoDet.idUsuarioDestina
+        this.prazo = this.ultimoDet.dataHoraAtend
         this.showStatus = true  
       },
       showExibir(compromisso){
@@ -1177,6 +1180,10 @@ export default {
       t.carregarUser()
       t.verificarUsuario()
       localStorage.setItem('status', this.$route.query.status)
+      
+      console.log('Usuario logado: ', this.usuario)
+      console.log('userDest atual: ', this.userDest)
+      console.log('Usuario Criador: ', this.compromissos.idUsuarioCriador)
     }
 }
 </script>

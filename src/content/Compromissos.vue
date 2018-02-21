@@ -4,7 +4,7 @@
   <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   
     <div id="compromissos">
-        <!-- botões -->
+      <!-- botões -->
       <div class="columns is-mobile">
           <div class="column is-1-desktop is-1-tablet is-2-mobile">
               <label class="label">Novo</label>
@@ -63,23 +63,23 @@
       </div>
         
     </div> 
+    
+    
+    
+    <div class="columns comp">
+      <div class="column is-4-tablet is-3-desktop">
+        <button class="button is-info is-outlined" @click="mudarLista">{{ btnTable }}</button>
+      </div>
+      <div class="column" v-if="listaTodos">{{compFiltrados.length}} compromissos</div> 
+      <div class="column" v-if="listaEu">{{destFiltrados.length}} compromissos interessados a você</div> 
+    </div>
 
-    <button class="button is-info is-outlined" @click="mudarLista">{{ btnTable }}</button>
-
-        <!-- tabela -->
+    <!-- tabela -->
     <div id="table" v-if="listaTodos">
         <table class="table is-narrow-mobile is-bordered tg">
             
               <thead>
-                <th id="user">Criador<br>
-                 <!-- <div class="select">
-                      <select v-model="filtroUser" id="usuario">
-                          <option v-for="user in compFiltrados | filterBy 'user'">
-                            {{ user.usuario }}
-                          </option>
-                      </select>
-                  </div>-->
-                </th>
+                <th id="user">Criador</th>
                 <th>Assunto<br>
                     <input class="input" id="titulo" v-model="filtroTitulo">
                 </th>
@@ -173,7 +173,12 @@
         <table class="table is-narrow-mobile is-bordered tg">
             
               <thead>
-                
+                <th style="text-align: center">
+                  Todos<br>
+                  <label class="checkbox">
+                    <input type="checkbox" @change="marcarTodos()">
+                  </label>
+                </th>
                 <th v-if="colProj">Projeto<br>
                   <div class="select" style="width: 100px;">
                       <select v-model="filtroProjeto" id="projeto">
@@ -207,6 +212,12 @@
           
             <tbody id="lista">
               <tr v-for="compromisso in destFiltrados">
+                <td id="checkbox">
+                  {{compromisso.selected}}
+                  <label class="checkbox">
+                    <input type="checkbox" v-model="compromisso.selected" @change="marcarComp(compromisso)">
+                  </label>
+                </td>
                 <td v-if="colProj">{{compromisso.nome}}</td>
                 <td @click="filtro = compromisso.idComp" 
                     v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
@@ -353,7 +364,7 @@
                   <strong>Arquivo: {{ image | extensao }}</strong></center>
               </div>
 
-          </div>  -->
+          </div>-->
           
         </section>
         <footer class="modal-card-foot">
@@ -652,6 +663,10 @@
         
       },
       destFiltrados(){
+        for(let i in this.compDestinados){
+          Object.assign(this.compDestinados[i], {selected: false})
+        }
+        console.log('comps: ', this.compDestinados)
         
         if (this.filtroTitulo != ''){
             return response = this.compDestinados.filter(this.filtrarPorStatus())
@@ -718,8 +733,8 @@
             this.chipProj = true
             this.colProj = false
             this.filtroBtn = true
-            return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorProJeto())
+            return response = this.compDestinados//.filter(this.filtrarPorStatus())
+                                                .filter(this.filtrarPorProJeto())
         }
          
         else {
@@ -848,9 +863,6 @@
         
       // fim filtros
         
-      onFileChange: function(e) {
-        var files = e.target.files || e.dataTransfer.files;
-      },  
       backtoTop(){
         let x = 0
         let y = -999999
@@ -1015,13 +1027,32 @@
         this.$http.get(ENDPOINT + `api/comp/obterCompDestina?idUserDestina=` + this.usuario + `&status=` + this.filtroStatus).then(
          response=>{
            t.compDestinados = response.json()
-           console.log(response.json())
+           console.log(response)
          },
          error=>{
            console.log(error)
          }).finally(function () {
           t.hideLoading();
         })
+      },
+      marcarComp(compromisso){
+        console.log('Antes:', compromisso.selected)
+        if(compromisso.selected === false) {
+          compromisso.selected = true
+          console.log(compromisso.selected)
+        }
+        else {
+          compromisso.selected = false
+          console.log(compromisso.selected)
+        }
+        
+        
+      },
+      marcarTodos(){
+        /*for(let i in this.compDestinados){
+          Object.assign(this.compDestinados[i], {selected: true})
+        }*/
+        console.log('comps: ', this.compDestinados)
       },
       mudarLista(){
         if(this.listaTodos === true){
@@ -1262,11 +1293,14 @@
       
     },
     
+    ready(){
+      this.loadCompDestinados()
+    },
     
     created(){
       let t = this
       t.loadCompromissos()
-      t.loadCompDestinados()
+      //t.loadCompDestinados()
       t.selectTipo()
       t.selectStatus()
       t.selectProjetos()
@@ -1281,126 +1315,136 @@
   }
 </script>
 <style>
-    input#id {
-        width: 50px;
-    }
-    
-    ul {
-        padding: 0;
-    }
-    .user {
-        height: 30px;
-        line-height: 30px;
-        padding: 10px;
-        border-top: 1px solid #eee;
-        overflow: hidden;
-        transition: all .25s ease;
-    }
-    .user:last-child {
-        border-bottom: 1px solid #eee;
-    }
-    .v-enter, .v-leave-active {
-        height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-        border-top-width: 0;
-        border-bottom-width: 0;
-    }
-    
-    .chip {
-        display: inline-block;
-        padding: 0 10px;
-        height: 30px;
-        font-size: 12px;
-        line-height: 30px;
-        border-radius: 25px;
-        background-color: #d1d1d1;
-        margin-left: 5px;
-        /*width: 100%;*/
-    }
-    .chip img {
-        float: left;
-        margin: 0 10px 0 -25px;
-        height: 50px;
-        width: 50px;
-        border-radius: 50%;
-    }
-    .closebtn {
-        padding-left: 10px;
-        color: #888;
-        font-weight: bold;
-        float: right;
-        font-size: 20px;
-        cursor: pointer;
-    }
-    .closebtn:hover {
-        color: #000;
-    }
-    @media (max-height: 540px) {
-      #table {
-        margin-top: 10px;
-        max-width: 100%;
-        max-height: 300px;
-        line-height: 100%;
-        overflow: scroll;
-        }
-    }
-    @media (min-height: 550px ) {
-      #table {
-        margin-top: 10px;
-        max-width: 100%;
-        max-height: 420px;
-        line-height: 100%;
-        overflow: scroll;
-        }
-    }
-    @media (min-height: 730px) {
-      #table {
-        margin-top: 10px;
-        max-width: 100%;
-        max-height: 590px;
-        line-height: 100%;
-        overflow: scroll;
-        }
-    }
-    
+  input#id {
+      width: 50px;
+  }
+
+  ul {
+      padding: 0;
+  }
+  .user {
+      height: 30px;
+      line-height: 30px;
+      padding: 10px;
+      border-top: 1px solid #eee;
+      overflow: hidden;
+      transition: all .25s ease;
+  }
+  .user:last-child {
+      border-bottom: 1px solid #eee;
+  }
+  .v-enter, .v-leave-active {
+      height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-top-width: 0;
+      border-bottom-width: 0;
+  }
+
+  .chip {
+      display: inline-block;
+      padding: 0 10px;
+      height: 30px;
+      font-size: 12px;
+      line-height: 30px;
+      border-radius: 25px;
+      background-color: #d1d1d1;
+      margin-left: 5px;
+      /*width: 100%;*/
+  }
+  .chip img {
+      float: left;
+      margin: 0 10px 0 -25px;
+      height: 50px;
+      width: 50px;
+      border-radius: 50%;
+  }
+  .closebtn {
+      padding-left: 10px;
+      color: #888;
+      font-weight: bold;
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+  }
+  .closebtn:hover {
+      color: #000;
+  }
+  @media (max-height: 540px) {
     #table {
-        margin-top: 10px;
-        max-width: 100%;
-        max-height: auto;
-        line-height: 100%;
-        overflow: scroll;
-    }
-    
-    table {
-        border-collapse: collapse;
-        border: 1px solid #666;
-        width: 100%;    
-    }
-    tr:nth-child(even) {
-        background-color: #edf5ff;
-    }
-    th, td {
-        padding: 0.1em 1em;
-    }
-    td {
-        cursor: default;
-    }
-    
-    span.column {
-        margin-bottom: 5px;
-    }
-    
-    #btn-limpFiltros {
-        margin: 0 10px
-    }
-    
-    #dataPriori {
-        text-align: center; 
-        font-size: 20px;
-        font-weight: bold;
-    }
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 300px;
+      line-height: 100%;
+      overflow: scroll;
+      }
+  }
+  @media (min-height: 550px ) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 420px;
+      line-height: 100%;
+      overflow: scroll;
+      }
+  }
+  @media (min-height: 730px) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 590px;
+      line-height: 100%;
+      overflow: scroll;
+      }
+  }
+
+  #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: auto;
+      line-height: 100%;
+      overflow: scroll;
+  }
+
+  table {
+      border-collapse: collapse;
+      border: 1px solid #666;
+      width: 100%;    
+  }
+  tr:nth-child(even) {
+      background-color: #edf5ff;
+  }
+  th, td {
+      padding: 0.1em 1em;
+  }
+  td {
+      cursor: default;
+  }
+
+  span.column {
+      margin-bottom: 5px;
+  }
+
+  #btn-limpFiltros {
+      margin: 0 10px
+  }
+
+  #dataPriori {
+      text-align: center; 
+      font-size: 20px;
+      font-weight: bold;
+  }
+
+  .fixo{float: right; margin-right: 10px; margin-top: 0px; z-index: 1000;}
+
+  .comp{
+    font-size: 18px;
+    color: slategray;
+    margin-top: 0px;
+  }
   
-    .fixo{float: right; margin-right: 10px; margin-top: 0px; z-index: 1000;}
-    
+  #checkbox{
+    text-align: center;
+  }
+  
 </style>
