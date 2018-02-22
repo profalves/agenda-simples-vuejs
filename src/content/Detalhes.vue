@@ -24,7 +24,7 @@
 
             <div class="column is-4">
               <label class="label">Status: </label>
-                <i class="fa fa-edit is-primary" @click.prevent="showSelStatus(compromissos)"></i>
+                <i class="fa fa-edit is-primary" @click.prevent="showSelStatus()"></i>
                 {{compromissos.status}}
             </div>
             
@@ -104,9 +104,9 @@
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                             </div>
                             
-                            <div class="column" id="btns">		
+                            <!--<div class="column" id="btns">		
                               <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>		
-                            </div>
+                            </div>-->
 
                             <div class="column" id="btns">
                                 
@@ -223,9 +223,9 @@
                                   
                             </div>
                           
-                            <div class="column" id="btns">		
+                            <!--<div class="column" id="btns">		
                               <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>		
-                            </div>
+                            </div>-->
                             
                             <div class="column" id="btns">
                                 
@@ -337,9 +337,9 @@
                                 <div style="color: aliceblue">{{compromisso.usuario}}</div>
                             </div> 
                           
-                            <div class="column" id="btns">		
+                            <!--<div class="column" id="btns">		
                               <i class="fa fa-cog is-primary" @click.prevent="showSelStatus(compromisso)"></i>		
-                            </div>
+                            </div>-->
                           
                             <div class="column" id="btns">
                                 
@@ -845,14 +845,15 @@ export default {
         }
         
       },
-      showSelStatus(compromissos){ //showSelStatus
-        this.ultimoDet = this.compromissosDet.slice(-1)[0]
-        console.log('ultimoDet', compromissos);
+      showSelStatus(){
+        this.ultimoDet = this.compromissosDet.slice(0)[0]
+        console.log('ultimoDet:', this.ultimoDet);
+        console.log('compromisso:', this.compromissos);
         
         this.idResposta = this.ultimoDet.idCompDet.toString()
         this.userDest = this.ultimoDet.idUsuarioDestina
         this.prazo = this.ultimoDet.dataHoraAtend
-        this.showStatus = true  
+        this.showStatus = true
       },
       showExibir(compromisso){
         this.idResposta = compromisso.idCompDet.toString()
@@ -886,6 +887,7 @@ export default {
         this.$http.get(ENDPOINT + `api/comp/obterCompdet?idComp=${q}`).then(
          response=>{
            t.compromissosDet = response.json()
+           console.log('compromissosDet', t.compromissosDet);
          },
          error=>{
            console.log(error)

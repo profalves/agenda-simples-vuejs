@@ -67,6 +67,9 @@
     
     
     <div class="columns comp">
+      <div class="column is-3-tablet is-2-desktop" v-if="selected.length>0">
+        <button class="button is-danger" @click="showStatus=true">Alterar Status</button>
+      </div>
       <div class="column is-4-tablet is-3-desktop">
         <button class="button is-info is-outlined" @click="mudarLista">{{ btnTable }}</button>
       </div>
@@ -176,7 +179,7 @@
                 <th style="text-align: center">
                   Todos<br>
                   <label class="checkbox">
-                    <input type="checkbox" @change="marcarTodos()">
+                    <input type="checkbox" v-model="selectAll">
                   </label>
                 </th>
                 <th v-if="colProj">Projeto<br>
@@ -213,9 +216,8 @@
             <tbody id="lista">
               <tr v-for="compromisso in destFiltrados">
                 <td id="checkbox">
-                  {{compromisso.selected}}
                   <label class="checkbox">
-                    <input type="checkbox" v-model="compromisso.selected" @change="marcarComp(compromisso)">
+                    <input type="checkbox" v-model="selected" :value="compromisso" number>
                   </label>
                 </td>
                 <td v-if="colProj">{{compromisso.nome}}</td>
@@ -278,18 +280,6 @@
                 </div>
                 <!-- <span>{{ startTime.time }}</span> -->
             </div>
-              
-            <!--<div class="column">
-              <label class="label">Status</label>
-              <div class="select">
-                  <select v-model="comp.idStatus">
-                      <option v-for="stat in status" :value="stat.idStatus">
-                        {{ stat.nome }}
-                      </option>
-                  </select>
-                  
-              </div>
-            </div>-->
             
               
           </div>
@@ -375,6 +365,38 @@
         </footer>
       </div>
     </div>
+
+    <!-- MODAL Alterar Status -->
+      
+    <div class="modal" :class="{'is-active':showStatus}">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Painel de Ações</p>
+          <button class="delete" aria-label="close" @click.prevent="showStatus=false"></button>
+        </header>
+        <section class="modal-card-body">
+          <div style="text-align:center">
+              <label class="label">Mudar Status para:</label>
+              <div class="select">
+                  <select v-model="idStatus" @change="alterarStatus">
+                      <option v-for="stat in status" :value="stat.idStatus">
+                        {{ stat.nome }}
+                      </option>
+                  </select>
+              </div>
+              {{idStatus}}
+          </div>
+        </section>
+        <!--<footer class="modal-card-foot">
+          <button class="button is-success">Salvar Mudanças</button>
+          <button class="button" @click.prevent="showStatus=false">Cancel</button>
+        </footer>-->
+      </div>
+          
+    </div>
+      
+    <!-- fim modal -->
     
     
 </template>
@@ -419,7 +441,7 @@
         arquivo: [],
         compromissos: [],
         compDestinados: [],
-        selected: {},
+        selected: [],
         showModalNew: false,
         showModalForum: false,
         currentTime: moment().format('L'),
@@ -469,6 +491,8 @@
         ext: '',
         listaTodos: false,
         listaEu: true,
+        showStatus: false,
+        idStatus: '',
         
         // datapicker
         startTime: {
@@ -662,12 +686,7 @@
         }
         
       },
-      destFiltrados(){
-        for(let i in this.compDestinados){
-          Object.assign(this.compDestinados[i], {selected: false})
-        }
-        console.log('comps: ', this.compDestinados)
-        
+      destFiltrados(){        
         if (this.filtroTitulo != ''){
             return response = this.compDestinados.filter(this.filtrarPorStatus())
                                                .filter(this.filtrarPorAssunto());                       
@@ -773,6 +792,23 @@
           return lista
 
       },
+      selectAll: {
+        get: function () {
+            return this.destFiltrados ? this.selected.length == this.destFiltrados.length : false;
+        },
+        set: function (value) {
+            let selected = [];
+
+            if (value) {
+                this.destFiltrados.forEach(function (value) {
+                    selected.push(value);
+                    console.log('value', value);
+                });
+            }
+
+            this.selected = selected;
+        }
+      }
     },
     
     filters: {
@@ -1045,13 +1081,11 @@
           compromisso.selected = false
           console.log(compromisso.selected)
         }
-        
-        
       },
       marcarTodos(){
-        /*for(let i in this.compDestinados){
+        for(let i in this.compDestinados){
           Object.assign(this.compDestinados[i], {selected: true})
-        }*/
+        }
         console.log('comps: ', this.compDestinados)
       },
       mudarLista(){
@@ -1289,12 +1323,34 @@
         if(localStorage.getItem('status')){
            this.filtroStatus = localStorage.getItem('status') 
         }
-      }
+      },
+      alterarStatus(){
+        for(let i in this.selected){
+          let id = this.selected[i].idCompDet
+          console.log('sel' + i, this.selected[i].idCompDet)
+          this.$http.get(ENDPOINT + 'api/comp/alterarStatus?idCompDet=' + id + '&idStatus=' + this.idStatus)
+          .then((response) => {
+                console.log(response.body)
+                this.showStatus = false
+                this.selected = []
+                //this.$router.go({ name: 'compromissos'})
+             })
+             .catch((error) => {
+                console.log(response.body)
+             })
+             .finally(function () {
+                
+                this.loadCompDestinados()
+             })
+        }
+      },
       
     },
     
     ready(){
-      this.loadCompDestinados()
+      let t = this
+      t.selectStatus()
+      t.loadCompDestinados()
     },
     
     created(){
