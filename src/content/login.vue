@@ -102,7 +102,7 @@ export default {
       limparSessao(){
         var user = localStorage.getItem('userId')
         if(user!==null){
-            localStorage.clear();
+            localStorage.removeItem('userId');
         }
          
       },

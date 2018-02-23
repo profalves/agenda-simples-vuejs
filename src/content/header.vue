@@ -15,8 +15,7 @@
           <a href="javascript:void(0)" class="closebtn" @click="closeNav()">&times;</a>
           <a @click="agenda"><i class="fa fa-user linkIcon"></i>Agenda</a>
           <a @click="alterarSenha"><i class="fa fa-key linkIcon"></i>Alterar Senha</a>
-          <a @click="logout"><i class="fa fa-sign-out linkIcon"></i>Logout</a>
-          <div class="version">version: 1.3</div>
+          <a @click="logout"><i class="fa fa-sign-out linkIcon"></i>Sair</a>
         </div>
         
         

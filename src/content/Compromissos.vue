@@ -385,7 +385,6 @@
                       </option>
                   </select>
               </div>
-              {{idStatus}}
           </div>
         </section>
         <!--<footer class="modal-card-foot">
