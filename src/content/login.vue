@@ -6,7 +6,14 @@
         <br><br>
         <form @submit.prevent="Login()">
             <label class="label">Usuário</label>
-            <input class="input" type="text" name="usuario" v-model="usuario" id="user"> 
+            <div class="select" id="user">
+              <select v-model="usuario">
+                <option></option>
+                <option v-for="user in usuarios" :value="user.nome">
+                  {{ user.nome }}
+                </option>
+              </select>
+            </div>
 
             <label class="label">Senha</label>
             <input class="input" type="password" name="senha" v-model="senha" id="senha"><br><br>
@@ -45,6 +52,7 @@ export default {
     name: 'login',
     data () {
       return {
+        usuarios: [],
         usuario: '',
         senha: '',
         users: [],
@@ -94,12 +102,32 @@ export default {
           this.criaCookie()
           
       },
+      todosUsuarios(){ //api/usuario/todos
+          this.$http.get(ENDPOINT + 'api/usuario/todos').then(
+             response=>{
+               console.log(response)
+               this.usuarios = response.json()
+               this.usuarios.shift()
+               this.isLoading = false
+             },
+             error=>{
+               this.isLoading = false
+               e = error.json()
+               this.message = e.split(':').pop()
+               
+             }
+          )
+          .catch(e=>{
+            console.log(e)
+          })
+      },
       criaCookie() {
          var expira = new Date();
          expira.setTime(expira.getTime() + 172800000); //expira dentro de 48h
          document.cookie = 'usuario=' + this.usuario+ ';expires=' + expira.toUTCString();
       },
       limparSessao(){
+        if(localStorage.getItem('conectado') === true) return
         var user = localStorage.getItem('userId')
         if(user!==null){
             localStorage.removeItem('userId');
@@ -107,21 +135,22 @@ export default {
          
       },
       manterConectado(){
-        var user = localStorage.getItem('userId')
-        if(user!==null){
-            var c = localStorage.getItem('conectado')
-            if(c == 'true'){
-                this.usuario = localStorage.getItem('name')
-                this.senha = localStorage.getItem('token')
-                this.Login()
-            }
+        var c = localStorage.getItem('conectado')
+        if(c == 'true'){
+            this.usuario = localStorage.getItem('name')
+            this.senha = localStorage.getItem('token')
+            this.Login()
         }
+        
       }
       
     },
+    ready(){
+        this.todosUsuarios()
+    },
     created(){
         let t = this
-        //t.limparSessao()
+        t.limparSessao()
         t.manterConectado()
     }
     
@@ -138,12 +167,12 @@ export default {
     }
     @media (min-width: 400px) {
       #login {
-            margin: 10% 10%;
+            margin: -5% 10%;
         }
     }
     @media (min-width: 700px) {
       #login {
-            margin: 5% 25%;
+            margin: 0 25%;
         }
     }
     @media (min-width: 1380px ) {
@@ -152,7 +181,7 @@ export default {
             position: absolute;
             top: 30%;
             left: 35%;
-            margin-top: -130px;
+            margin-top: -180px;
             margin-left: -35px;
         }
     }
@@ -162,8 +191,13 @@ export default {
     
     #user{
         margin-bottom: 20px;
+        width: 100%;
     }
-
+    select{
+        width: 100%;
+    }
+  
+    
     #conectado{
         margin-bottom: 40px;
     }

@@ -30,26 +30,30 @@
       }
     },
     methods: {
-        agenda() {
-         var app = this;
-         localStorage.setItem('status', 'EM ANDAMENTO');
-         app.$router.go({ name: 'compromissos'});
-        },
-        logout() {
-         var app = this;
-         localStorage.clear();
-         app.$router.go({ name: 'login'});
-        },
-        alterarSenha() {
-         var app = this;
-         app.$router.go({ name: 'altPass'});
-        },
-        openNav() {
-         document.getElementById("mySidenav").style.width = "250px";
-        },
-        closeNav() {
-         document.getElementById("mySidenav").style.width = "0";
-        }
+      agenda() {
+       var app = this;
+       localStorage.setItem('status', 'EM ANDAMENTO');
+       app.$router.go({ name: 'compromissos'});
+      },
+      logout() {
+       var app = this;
+       localStorage.setItem('conectado', false);
+       app.$router.go({ name: 'login'});
+       localStorage.setItem('tipo', '')
+       localStorage.setItem('priori', '')
+       localStorage.setItem('projeto', '')
+       localStorage.setItem('plataforma', '')
+      },
+      alterarSenha() {
+       var app = this;
+       app.$router.go({ name: 'altPass'});
+      },
+      openNav() {
+       document.getElementById("mySidenav").style.width = "250px";
+      },
+      closeNav() {
+       document.getElementById("mySidenav").style.width = "0";
+      }
     },
     computed: {
       checkLogin() {

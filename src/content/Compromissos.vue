@@ -1,6 +1,6 @@
 ﻿<template>
   <app-header></app-header>
-  <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
+  <i class="fixo fa fa-spinner fa-pulse fa-4x fa-fw" v-show="isLoading"></i>
   <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   
     <div id="compromissos">
@@ -13,7 +13,7 @@
           <div class="column is-2-desktop is-3-tablet is-5-mobile">
               <label class="label">Status</label>
               <div class="select" id="status">
-                  <select v-model="filtroStatus" @change="loadCompDestinados">
+                  <select v-model="filtroStatus" @change="loadLists">
                       <option v-for="stat in status" :value="stat.nome">
                         {{ stat.nome }}
                       </option>
@@ -23,7 +23,7 @@
           <div class="column is-2-desktop is-5-mobile" v-if="listaTodos">
               <label class="label">Tipo</label>
               <div class="select" id="tipo">
-                  <select v-model="filtroTipo">
+                  <select v-model="filtroTipo" @change="setTipo">
                       <option v-for="tipo in tipos | orderBy 'nome'">
                         {{ tipo.nome }}
                       </option>
@@ -53,8 +53,11 @@
               <span class="closebtn" @click="limparFiltroPlat()">&times;</span>
             </div>  
           
-              
-              
+            <div class="chip animated bounceInRight" v-if="chipUser">
+              {{ filtroUser }}
+              <span class="closebtn" @click="limparFiltroUser()">&times;</span>
+            </div>  
+             
           </span>
           
           <span class="column">
@@ -64,17 +67,28 @@
         
     </div> 
     
-    
-    
     <div class="columns comp">
       <div class="column is-3-tablet is-2-desktop" v-if="selected.length>0">
         <button class="button is-danger" @click="showStatus=true">Alterar Status</button>
       </div>
-      <div class="column is-4-tablet is-3-desktop">
-        <button class="button is-info is-outlined" @click="mudarLista">{{ btnTable }}</button>
+      <div class="column is-4-mobile is-2-tablet is-1-desktop">
+        <div class="onoffswitch">
+          <input type="checkbox"
+                 @click="mudarLista"
+                 name="onoffswitch" 
+                 class="onoffswitch-checkbox" 
+                 id="myonoffswitch"
+                 v-model="listaEu"
+                 :checked="listaEu"
+                 >
+          <label class="onoffswitch-label" for="myonoffswitch">
+              <span class="onoffswitch-inner"></span>
+              <span class="onoffswitch-switch"></span>
+          </label>
+        </div>
       </div>
       <div class="column" v-if="listaTodos">{{compFiltrados.length}} compromissos</div> 
-      <div class="column" v-if="listaEu">{{destFiltrados.length}} compromissos interessados a você</div> 
+      <div class="column" v-else>{{destFiltrados.length}} compromissos interessados a você</div> 
     </div>
 
     <!-- tabela -->
@@ -82,9 +96,19 @@
         <table class="table is-narrow-mobile is-bordered tg">
             
               <thead>
-                <th id="user">Criador</th>
+                
+                <th id="user">Criador<br>
+                  <div class="select">
+                      <select v-model="filtroUser">
+                        <option v-for="user in filtroUsuarios" :value="user.nome">
+                          {{ user.nome }}
+                        </option>
+                      </select>
+                  </div>
+                  
+                </th>
                 <th>Assunto<br>
-                    <input class="input" id="titulo" v-model="filtroTitulo">
+                    <input class="input" id="titulo" v-model="filtroTitulo" >
                 </th>
                 
                 <th>Ult. post.
@@ -92,10 +116,10 @@
                 </th>
                 
                   
-                <th v-if="colPriori">Prior.<br>
+                <th v-if="colPriori">Ordem<br>
                   
                   <div class="select" style="width: 40px;">
-                      <select v-model="filtroPriori" id="priori">
+                      <select v-model="filtroPriori" id="priori" @change="setPriori">
                           <option v-for="prioridade in prioridades" :value="prioridade.value">
                             {{ prioridade.text }}
                           </option>
@@ -105,7 +129,7 @@
                   
                 <th v-if="colProj">Projeto<br>
                   <div class="select" style="width: 100px;">
-                      <select v-model="filtroProjeto" id="projeto">
+                      <select v-model="filtroProjeto" id="projeto" @change="setProj">
                           <option v-for="projet in projetos">
                             {{ projet.nome }}
                           </option>
@@ -114,21 +138,22 @@
                 </th>
                 <th v-if="colPlat">Plataforma<br>
                   <div class="select" style="width: 100px;">
-                      <select v-model="filtroPlat" id="plataforma">
+                      <select v-model="filtroPlat" id="plataforma" @change="setPlat">
                           <option v-for="plataf in plataformas">
                             {{ plataf.text }}
                           </option>
                       </select>
                   </div>
                 </th>
-                <!--<th>Cód<br>
+                <th>Cód<br>
                   <input class="input" v-model="filtroId" id="id">
-                </th>-->
+                </th>
                 <!-- <th>Ações</th> -->
 
             </thead>
             <tbody id="lista">
-              <tr v-for="compromisso in compFiltrados">
+              <tr v-for="compromisso in compFiltrados | orderBy 'numPrioridade' 'idComp'">
+                <!--<td style="font-size: 10px;">{{compromisso.tipoComp}}</td>-->
                 <td 
                     @click="filtro = compromisso.idComp" 
                     v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
@@ -158,7 +183,7 @@
                 <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
                 <td v-if="colProj">{{compromisso.projeto}}</td>
                 <td v-if="colPlat">{{compromisso.plataforma}}</td>
-                <!--<td>{{compromisso.idComp}}</td>-->
+                <td>{{compromisso.idComp}}</td>
                 
                 
               </tr>
@@ -210,6 +235,10 @@
                       </select>
                   </div>
                 </th>
+                
+                <th>Cód<br>
+                  <input class="input" v-model="filtroId" id="id">
+                </th>
 
             </thead>
           
@@ -228,6 +257,7 @@
                 </td>
                 <td>{{compromisso.dataHoraAgend | dataFormat}}</td>
                 <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
+                <td>{{compromisso.idComp}}</td>
                 
               </tr>
             </tbody>
@@ -273,7 +303,7 @@
                 <label class="label">Responsável</label>
                 <div class="select">
                     <select v-model="userDest">
-                      <option v-for="user in listaUsuarios" :value="user.idUsuario">
+                      <option v-for="user in users" :value="user.idUsuario">
                         {{ user.nome }}
                       </option>
                     </select>
@@ -295,7 +325,7 @@
           
           </div>
           <div class="columns">
-            <div class="column is-6">
+            <div class="column is-5">
               <label class="label">Projeto</label>
                 <div class="select">
                   <select v-model="comp.idProjeto">
@@ -306,8 +336,8 @@
                 </div>
                 <p></p>
             </div>
-            <div class="column is-4">
-              <label class="label">Prioridade</label>
+            <div class="column">
+              <label class="label">Ordem Proritária</label>
               <div class="select">
                   <select v-model="comp.numPrioridade">
                       <option v-for="prioridade in prioridades" :value="prioridade.value">
@@ -316,16 +346,16 @@
                   </select>
               </div>
             </div>
-            <!--<div class="column">
-              <label class="label">Usuário</label>
+            <div class="column">
+              <label class="label">Status</label>
               <div class="select">
-                  <select v-model="comp.idUsuario">
-                      <option v-for="usuario in usuarios" :value="usuario.value">
-                        {{ usuario.text }}
+                  <select v-model="comp.idStatus">
+                      <option v-for="status in status" :value="status.idStatus">
+                        {{ status.nome }}
                       </option>
                   </select>
               </div>
-            </div>-->
+            </div>
             
             
             
@@ -488,8 +518,8 @@
         },
         caminho: '',
         ext: '',
-        listaTodos: false,
-        listaEu: true,
+        listaTodos: (sessionStorage.getItem('listaTodos') === 'true'), 
+        listaEu: (sessionStorage.getItem('listaEu') === 'true'),
         showStatus: false,
         idStatus: '',
         
@@ -556,13 +586,17 @@
         
         filtroId: '',
         filtroStatus: 'EM ANDAMENTO',
-        filtroPriori: '',
-        filtroTipo: '',
-        filtroProjeto: '',
-        filtroPlat: '',
+        filtroPriori: localStorage.getItem('priori'),
+        filtroTipo: localStorage.getItem('tipo'),
+        filtroProjeto: localStorage.getItem('projeto'),
+        filtroPlat: localStorage.getItem('plataforma'),
         filtroUser: '',
         filtroBtn: false,
         filtroTitulo: '',
+        
+
+
+
           
         // chips 
         
@@ -591,205 +625,285 @@
     computed: {
       compFiltrados(){
         
-        if (this.filtroTitulo != ''){
-            return response = this.compromissos.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorAssunto());                       
+        if (this.filtroTitulo){
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorAssunto());                       
         }  
         
-        if (this.filtroId != ''){
-            return response = this.compromissos.filter(this.filtrarPorCod());                        
+        if (this.filtroId){
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorCod());                        
         }
         
-        
-        if (this.filtroTipo != ''){
-            this.chipTipo = true
-            this.colTipo = false
-            this.filtroBtn = true
-            
-                if (this.filtroPriori != ''){
-                    this.chipPriori = true
-                    this.colPriori = false
-                    this.filtroBtn = true
-                    
-                    if (this.filtroProjeto != ''){
-                        this.chipProj = true
-                        this.colProj = false
-                        this.filtroBtn = true
-                        if (this.filtroPlat != ''){
-                            this.chipPlat = true
-                            this.colPlat = false
-                            this.filtroBtn = true
-                            return response = this.compromissos.filter(this.filtrarPorStatus())
-                                                               .filter(this.filtrarPorTipo())
-                                                               
-                                                               .filter(this.filtrarPorPrioridade())
-                                                               .filter(this.filtrarPorProJeto())
-                                                               .filter(this.filtrarPorPlataforma())
-                        }
-                        return response = this.compromissos.filter(this.filtrarPorStatus())
-                                                           .filter(this.filtrarPorTipo())
-                                                           
-                                                           .filter(this.filtrarPorPrioridade())
-                                                           .filter(this.filtrarPorProJeto())
-                    }
-                    return response = this.compromissos.filter(this.filtrarPorStatus())
-                                                       .filter(this.filtrarPorTipo())
-                                                       .filter(this.filtrarPorPrioridade())
-                  }
-            
-             
-            return response = this.compromissos.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorTipo())                                        
-        }
-        
-        if (this.filtroPriori != ''){
-            
-            this.chipPriori = true
-            this.colPriori = false
-            this.filtroBtn = true
-            return response = this.compromissos.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorPrioridade())
-                                               
-        } 
-        
-        if (this.filtroProjeto != ''){
-            this.chipProj = true
-            this.colProj = false
-            this.filtroBtn = true
-            return response = this.compromissos.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorProJeto())
-        }
-          
-        if (this.filtroPlat != ''){
-            this.chipPlat = true
-            this.colPlat = false
-            this.filtroBtn = true
-            return response = this.compromissos.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorPlataforma())
-        }
-          
-        if (this.filtroUser != ''){
+        if (this.filtroUser){
             this.chipUser = true
             this.colUser = false
             this.filtroBtn = true
-            return response = this.compromissos.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorUsuario())
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorUsuario())
                              
             
         }
+        
+        if(this.filtroPriori && this.filtroProjeto && this.filtroPlat){
+            this.chipProj = true
+            this.colProj = false
+            this.chipPriori = true
+            this.colPriori = false
+            this.chipPlat = true
+            this.colPlat = false
+            this.filtroBtn = true
+            console.log('filtros: priori e proj e plat')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorPrioridade())
+                                    .filter(this.filtrarPorProjeto())
+                                    .filter(this.filtrarPorPlataforma())
+        }
+        
+        if(this.filtroPriori && this.filtroProjeto){
+            this.chipProj = true
+            this.colProj = false
+            this.chipPriori = true
+            this.colPriori = false
+            this.filtroBtn = true
+            console.log('filtros: priori e proj')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorPrioridade())
+                                    .filter(this.filtrarPorProjeto())
+        }
+        
+        if(this.filtroPriori && this.filtroPlat){
+            this.chipPlat = true
+            this.colPlat = false
+            this.chipPriori = true
+            this.colPriori = false
+            this.filtroBtn = true
+            console.log('filtros: priori e plat')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorPrioridade())
+                                    .filter(this.filtrarPorPlataforma())
+        }
+        
+        if(this.filtroPriori && this.filtroProjeto){
+        
+        }
+        
+        if (this.filtroProjeto && this.filtroPlat && this.filtroTipo){
+            this.chipPlat = true
+            this.chipTipo = true
+            this.colPlat = false
+            this.colTipo = false
+            this.colProj = false
+            this.chipProj = true
+            this.filtroBtn = true
+            console.log('filtros: proj, plat e tipo')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorTipo())
+                                    .filter(this.filtrarPorProjeto())
+                                    .filter(this.filtrarPorPlataforma())
+        }
+        
+        if (this.filtroPlat && this.filtroTipo){
+            this.chipPlat = true
+            this.chipTipo = true
+            this.colPlat = false
+            this.colTipo = false
+            this.filtroBtn = true
+            console.log('filtros: plat e tipo')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorTipo())
+                                    .filter(this.filtrarPorPlataforma())
+        }
+        
+        
+        
+        if (this.filtroPlat){
+            this.chipPlat = true
+            this.colPlat = false
+            this.filtroBtn = true
           
-          
-        else {
-            return response = this.compromissos.filter(this.filtrarPorStatus())
+            if (this.filtroProjeto){
+                this.chipProj = true
+                this.colProj = false
+                this.filtroBtn = true
                 
+                if (this.filtroPriori){
+                    this.chipPriori = true
+                    this.colPriori = false
+                    this.filtroBtn = true
+                  
+                    if (this.filtroTipo){
+                        this.chipTipo = true
+                        this.colTipo = false
+                        this.filtroBtn = true
+                        console.log('filtros: plat, projeto, priori, tipo')
+                        return this.compromissos.filter(this.filtrarPorStatus())
+                                                .filter(this.filtrarPorPlataforma())
+                                                .filter(this.filtrarPorProjeto())
+                                                .filter(this.filtrarPorPrioridade())
+                                                .filter(this.filtrarPorTipo())  
+                    }
+                    console.log('filtros: plat, projeto, priori')
+                    return this.compromissos.filter(this.filtrarPorStatus())
+                                        .filter(this.filtrarPorPlataforma())
+                                        .filter(this.filtrarPorProjeto())
+                                        .filter(this.filtrarPorPrioridade()) 
+                }
+                console.log('filtros: plat, projeto')
+                return this.compromissos.filter(this.filtrarPorStatus())
+                                        .filter(this.filtrarPorPlataforma())
+                                        .filter(this.filtrarPorProjeto())
+            }
+            console.log('filtros: plataforma')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorPlataforma())
         }
         
-      },
-      destFiltrados(){        
-        if (this.filtroTitulo != ''){
-            return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorAssunto());                       
-        }  
         
-        if (this.filtroId != ''){
-            return response = this.compDestinados.filter(this.filtrarPorCod());                        
+        
+        
+        if (this.filtroProjeto && this.filtroTipo){
+            this.chipProj = true
+            this.colProj = false
+            this.chipTipo = true
+            this.colTipo = false
+            this.filtroBtn = true
+            console.log('filtros: tipo e proj')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorTipo())
+                                    .filter(this.filtrarPorProjeto())
         }
+         
         
-        
-        if (this.filtroTipo != ''){
+        if (this.filtroTipo){
             this.chipTipo = true
             this.colTipo = false
             this.filtroBtn = true
             
-                if (this.filtroPriori != ''){
+                if (this.filtroPriori){
                     this.chipPriori = true
                     this.colPriori = false
                     this.filtroBtn = true
                     
-                    if (this.filtroProjeto != ''){
+                    if (this.filtroProjeto){
                         this.chipProj = true
                         this.colProj = false
                         this.filtroBtn = true
-                        if (this.filtroPlat != ''){
+                      
+                        if (this.filtroPlat){
                             this.chipPlat = true
                             this.colPlat = false
                             this.filtroBtn = true
-                            return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                                               .filter(this.filtrarPorTipo())
-                                                               
-                                                               .filter(this.filtrarPorPrioridade())
-                                                               .filter(this.filtrarPorProJeto())
-                                                               .filter(this.filtrarPorPlataforma())
+                            console.log('filtros: tipo, priori, proj, plat')
+                            return this.compromissos.filter(this.filtrarPorStatus())
+                                                    .filter(this.filtrarPorTipo())
+                                                    .filter(this.filtrarPorPrioridade())
+                                                    .filter(this.filtrarPorProjeto())
+                                                    .filter(this.filtrarPorPlataforma())
                         }
-                        return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                                           .filter(this.filtrarPorTipo())
-                                                           
-                                                           .filter(this.filtrarPorPrioridade())
-                                                           .filter(this.filtrarPorProJeto())
+                        console.log('filtros: tipo, priori, proj')
+                        return this.compromissos.filter(this.filtrarPorStatus())
+                                                .filter(this.filtrarPorTipo())
+                                                .filter(this.filtrarPorPrioridade())
+                                                .filter(this.filtrarPorProjeto())
                     }
-                    return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                                       .filter(this.filtrarPorTipo())
-                                                       .filter(this.filtrarPorPrioridade())
+                    console.log('filtros: tipo, priori')
+                    return this.compromissos.filter(this.filtrarPorStatus())
+                                            .filter(this.filtrarPorTipo())
+                                            .filter(this.filtrarPorPrioridade())
                   }
             
-             
-            return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorTipo())                                        
+            console.log('filtros: tipo')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorTipo())                                        
         }
         
-        if (this.filtroPriori != ''){
+        if (this.filtroPriori){
             
             this.chipPriori = true
             this.colPriori = false
             this.filtroBtn = true
-            return response = this.compDestinados.filter(this.filtrarPorStatus())
-                                               .filter(this.filtrarPorPrioridade())
+            console.log('filtros: priori')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorPrioridade())
                                                
         } 
         
-        if (this.filtroProjeto != ''){
+        
+          
+        if (this.filtroProjeto){
             this.chipProj = true
             this.colProj = false
             this.filtroBtn = true
-            return response = this.compDestinados//.filter(this.filtrarPorStatus())
-                                                .filter(this.filtrarPorProJeto())
+            console.log('filtros: projeto')
+            return this.compromissos.filter(this.filtrarPorStatus())
+                                    .filter(this.filtrarPorProjeto())
         }
-         
+                      
         else {
-            return response = this.compDestinados.filter(this.filtrarPorStatus())
+            console.log('filtros: todos do status')
+            return this.compromissos.filter(this.filtrarPorStatus())
                 
         }
         
       },
-      novaListaUsuarios(){
-        let a = this.users
-        let lista = []
-        for (let i=0; i < a.length; i++) {
-          let n = a[i].nome
-          lista.push(n)    
-        }
-        let user = localStorage.getItem('name')
-        let remUser = lista.indexOf(user);
-        if (remUser > -1) {
-           lista.splice(remUser, 1)
+      destFiltrados(){
+        if (this.filtroId){
+            return this.compDestinados.filter(this.filtrarPorStatus())
+                                      .filter(this.filtrarPorCod());                        
         }
         
-        return lista 
+        if (this.filtroPriori && this.filtroProjeto){
+            this.chipProj = true
+            this.colProj = false
+            this.chipPriori = true
+            this.colPriori = false
+            this.filtroBtn = true
+            return this.compDestinados.filter(this.filtrarPorStatus())
+                                      .filter(compromisso => compromisso.nome === this.filtroProjeto )
+                                      .filter(this.filtrarPorPrioridade())
+                                               
+        }
+        
+        if (this.filtroProjeto){
+            this.chipProj = true
+            this.colProj = false
+            this.filtroBtn = true
+          
+            
+            console.log(this.compDestinados)
+        
+            return this.compDestinados.filter(this.filtrarPorStatus())
+                                      .filter(compromisso => compromisso.nome === this.filtroProjeto )
+        }
+        
+        if (this.filtroTitulo){
+            return this.compDestinados.filter(this.filtrarPorStatus())
+                                      .filter(this.filtrarPorAssunto());                       
+        } 
+        
+        
+        if (this.filtroPriori){
+            
+            this.chipPriori = true
+            this.colPriori = false
+            this.filtroBtn = true
+            return this.compDestinados.filter(this.filtrarPorStatus())
+                                      .filter(this.filtrarPorPrioridade())
+                                               
+        } 
+        
+         
+        else {
+            return this.compDestinados.filter(this.filtrarPorStatus())
+        }
+        
       },
-      listaUsuarios() {
-          var a = this.users
-          var lista = []
-
-          for (let i=0; i < a.length; i++) {
-              let n = a[i].nome
-              let c = a[i].idUsuario
-              if(n !== localStorage.getItem('name')){
-                lista.push({nome: n, idUsuario: c}) 
-              }
-          }
-          //console.log(lista)
-          return lista
-
+      filtroUsuarios(){ // para o select de filtro de criadores na lista todos
+        let users = this.users
+        this.users.shift()
+        
+        return users
       },
       selectAll: {
         get: function () {
@@ -830,7 +944,7 @@
             
       // filtros GERAL
       filtrarPorStatus(compromisso){      
-        return compromisso => compromisso.status ==  this.filtroStatus     
+        return compromisso => compromisso.status ===  this.filtroStatus     
       },
       filtrarPorTipo(compromisso){
         return compromisso => compromisso.tipoComp == this.filtroTipo
@@ -838,7 +952,7 @@
       
       // filtros TABELA
       filtrarPorCod(compromisso){
-        return compromisso => compromisso.idComp == this.filtroId     
+        return compromisso => compromisso.idComp.toString().indexOf(this.filtroId)>=0      
       },
       filtrarPorAssunto(compromisso){
         return compromisso => compromisso.titulo.toLowerCase().indexOf(this.filtroTitulo)>=0
@@ -846,7 +960,7 @@
       filtrarPorPrioridade(compromisso){
         return compromisso => compromisso.numPrioridade == this.filtroPriori
       },
-      filtrarPorProJeto(compromisso){
+      filtrarPorProjeto(compromisso){
         return compromisso => compromisso.projeto === this.filtroProjeto 
       },
       filtrarPorPlataforma(compromisso){
@@ -870,24 +984,28 @@
         this.colTipo = true
         this.chipTipo = false
         this.filtroBtn = false
+        localStorage.setItem('tipo', '')
       },
       limparFiltroPriori(){
         this.filtroPriori = ''
         this.colPriori = true
         this.chipPriori = false
         this.filtroBtn = false
+        localStorage.setItem('priori', '')
       },
       limparFiltroProj(){
         this.filtroProjeto = ''
         this.colProj = true
         this.chipProj = false
         this.filtroBtn = false
+        localStorage.setItem('projeto', '')
       },
       limparFiltroPlat(){
         this.filtroPlat = ''
         this.colPlat = true
         this.chipPlat = false
         this.filtroBtn = false
+        localStorage.setItem('plataforma', '')
       },
       limparFiltroUser(){
         this.filtroUser = ''
@@ -1049,6 +1167,7 @@
         this.$http.get(ENDPOINT + `api/comp/obterComp`).then(
          response=>{
            t.compromissos = response.json()
+           console.log('load todos')
          },
          error=>{
            console.log(error)
@@ -1062,7 +1181,7 @@
         this.$http.get(ENDPOINT + `api/comp/obterCompDestina?idUserDestina=` + this.usuario + `&status=` + this.filtroStatus).then(
          response=>{
            t.compDestinados = response.json()
-           console.log(response)
+           console.log('load dest')
          },
          error=>{
            console.log(error)
@@ -1070,15 +1189,34 @@
           t.hideLoading();
         })
       },
+      loadLists(){
+        let t = this
+        t.loadCompromissos()
+        t.loadCompDestinados()
+        
+        
+        if(this.filtroStatus !== 'EM ANDAMENTO') localStorage.setItem('status', this.filtroStatus)
+        
+        
+        /*if(this.filtroProjeto: '',
+        if(this.filtroPlat: '',
+        if(this.filtroUser: '',
+        
+        localStorage.setItem('status', this.filtroStatus)*/
+      },
+      setTipo(){ if(this.filtroTipo) localStorage.setItem('tipo', this.filtroTipo) },
+      setPriori(){ if(this.filtroPriori) localStorage.setItem('priori', this.filtroPriori) },
+      setProj(){ if(this.filtroProjeto) localStorage.setItem('projeto', this.filtroProjeto) },
+      setPlat(){ if(this.filtroPlat) localStorage.setItem('plataforma', this.filtroPlat) },
       marcarComp(compromisso){
         console.log('Antes:', compromisso.selected)
         if(compromisso.selected === false) {
           compromisso.selected = true
-          console.log(compromisso.selected)
+          console.log('Depois:',compromisso.selected)
         }
         else {
           compromisso.selected = false
-          console.log(compromisso.selected)
+          console.log('Depois:',compromisso.selected)
         }
       },
       marcarTodos(){
@@ -1091,13 +1229,18 @@
         if(this.listaTodos === true){
             this.listaEu = true
             this.listaTodos = false
-            this.btnTable = 'Mostrar interessados a TODOS'
+            sessionStorage.setItem('listaTodos', false)
+            sessionStorage.setItem('listaEu', true)
+            //this.btnTable = 'Mostrar interessados a TODOS'
             this.loadCompDestinados()
         }
         else {
             this.listaEu = false
             this.listaTodos = true
-            this.btnTable = 'Mostrar interessados a MIM'
+            sessionStorage.setItem('listaTodos', true)
+            sessionStorage.setItem('listaEu', false)
+            //this.btnTable = 'Mostrar interessados a MIM'
+            this.loadCompromissos()
         }
       },
       searchCompromissos(){
@@ -1221,7 +1364,7 @@
           reader.readAsDataURL(file);
           
       },
-      removeImage: function (e) {
+      removeImage(e) {
           this.image = '';
       },
       
@@ -1350,6 +1493,15 @@
       let t = this
       t.selectStatus()
       t.loadCompDestinados()
+      
+      if(localStorage.getItem('userId') === 6){
+        sessionStorage.setItem('listaTodos', true)
+        sessionStorage.setItem('listaEu', false)  
+      }
+      
+      this.listaTodos = (sessionStorage.getItem('listaTodos') === 'true')
+      this.listaEu = (sessionStorage.getItem('listaEu') === 'true')
+      
     },
     
     created(){
@@ -1364,6 +1516,11 @@
       t.verificarUsuario()
       //t.expSession()
       t.getStatus()
+      
+      if(!sessionStorage.getItem('listaEu')){
+        sessionStorage.setItem('listaTodos', false)
+        sessionStorage.setItem('listaEu', true)
+      }
       
       
     }
@@ -1425,32 +1582,60 @@
   .closebtn:hover {
       color: #000;
   }
-  @media (max-height: 540px) {
+  
+  @media (min-height: 440px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 300px;
+      max-height: 140px;
       line-height: 100%;
       overflow: scroll;
-      }
+    }
   }
-  @media (min-height: 550px ) {
+  @media (min-height: 520px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 420px;
+      max-height: 200px;
       line-height: 100%;
       overflow: scroll;
-      }
+    }
+  }
+  @media (min-height: 600px ) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 270px;
+      line-height: 100%;
+      overflow: scroll;
+    }
+  }
+  @media (min-height: 600px ) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 330px;
+      line-height: 100%;
+      overflow: scroll;
+    }
   }
   @media (min-height: 730px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 590px;
+      max-height: 500px;
       line-height: 100%;
       overflow: scroll;
-      }
+    }
+  }
+  @media (min-height: 770px) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 610px;
+      line-height: 100%;
+      overflow: scroll;
+    }
   }
 
   #table {
@@ -1463,8 +1648,7 @@
 
   table {
       border-collapse: collapse;
-      border: 1px solid #666;
-      width: 100%;    
+      border: 1px solid #666;   
   }
   tr:nth-child(even) {
       background-color: #edf5ff;
@@ -1475,7 +1659,7 @@
   td {
       cursor: default;
   }
-
+  
   span.column {
       margin-bottom: 5px;
   }
@@ -1490,7 +1674,12 @@
       font-weight: bold;
   }
 
-  .fixo{float: right; margin-right: 10px; margin-top: 0px; z-index: 1000;}
+  .fixo{
+    float: right; 
+    margin-right: 10px; 
+    margin-top: 0px; 
+    z-index: 1000;
+  }
 
   .comp{
     font-size: 18px;
@@ -1500,6 +1689,56 @@
   
   #checkbox{
     text-align: center;
+  }
+
+  /* btn switch on/off */
+  .onoffswitch {
+      position: relative; 
+      width: 90px;
+      -webkit-user-select:none; 
+      -moz-user-select:none; 
+      -ms-user-select: none;
+  }
+  .onoffswitch-checkbox {
+      display: none;
+  }
+  .onoffswitch-label {
+      display: block; overflow: hidden; cursor: pointer;
+      border: 0; border-radius: 20px;
+  }
+  .onoffswitch-inner {
+      display: block; width: 200%; margin-left: -100%;
+      transition: margin 0.3s ease-in 0s;
+  }
+  .onoffswitch-inner:before, .onoffswitch-inner:after {
+      display: block; float: left; width: 50%; height: 30px; padding: 0; line-height: 30px;
+      font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+      box-sizing: border-box;
+  }
+  .onoffswitch-inner:before {
+      content: "MEUS";
+      padding-left: 10px;
+      background-color: #209CEE; color: #FFFFFF;
+  }
+  .onoffswitch-inner:after {
+      content: "TODOS";
+      padding-right: 10px;
+      background-color: #EEEEEE; color: #999999;
+      text-align: right;
+  }
+  .onoffswitch-switch {
+      display: block; width: 18px; margin: 6px;
+      background: #FFF;
+      position: absolute; top: 0; bottom: 0;
+      right: 56px;
+      border: 1px solid #999999; border-radius: 20px;
+      transition: all 0.3s ease-in 0s; 
+  }
+  .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+      margin-left: 0;
+  }
+  .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+      right: 0px; 
   }
   
 </style>

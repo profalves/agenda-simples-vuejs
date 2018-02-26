@@ -73,24 +73,24 @@ export default {
   .topo {
     box-shadow: 0 0 5px 2px rgba(0,0,0,0.6);
     padding: 10px;
-    width: 100%; 
+    width: 100%;
+    height: 55px;
     position: fixed;
     top: 0; 
     left: 0;
-    background: #fff;
     text-align: left;
     z-index: 4;
     background-color: lightslategray;
     color: #fff;
   }
   .tile {
-    font-size: 30px;
+    font-size: 25px;
     padding: 10px;
+    height: 45px;
     position: fixed;
     margin-left: 50px;
     top: 0; 
     left: 0;
-    background: #fff;
     text-align: center;
     z-index: 5;
     background-color: lightslategray;

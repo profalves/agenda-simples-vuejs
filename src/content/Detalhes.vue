@@ -4,7 +4,7 @@
     <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   <div>
       <!-- cabeçario -->
-    <div class="card" style="width: 100%;">
+    <div class="card" style="width: 100%; margin-top: 25px;">
       
       <div class="card-content">
         
@@ -12,7 +12,7 @@
 
           <div class="columns is-mobile is-multiline">
 
-            <div class="column is-6-mobile">
+            <div class="column is-4-desktop is-4-tablet is-6-mobile">
               <label class="label">Data/Hora:</label>
                 {{compromissos.dataHora | dataFormat}}
             </div>
@@ -22,10 +22,13 @@
                 {{compromissos.tipoComp}}
             </div>
 
-            <div class="column is-4">
+            <div class="column">
               <label class="label">Status: </label>
-                <i class="fa fa-edit is-primary" @click.prevent="showSelStatus()"></i>
                 {{compromissos.status}}
+            </div>
+            <div class="column">
+              <label class="label">Responsável:</label>
+              <div class="resp">{{responsavel.nome}}</div>
             </div>
             
           </div>
@@ -44,7 +47,7 @@
               <label class="label">Projeto:</label>
                 {{compromissos.projeto}}
             </div>
-            <div class="column is-4-tablet is-6-mobile">
+            <div class="column">
               <label class="label">Plataforma:</label>
                 {{compromissos.plataforma}}
             </div>
@@ -53,7 +56,7 @@
                 {{compromissos.numPrioridade}}
             </div>
             <div class="column">
-              <label class="label">Usuário:</label>
+              <label class="label">Criador:</label>
                 {{compromissos.usuario}}
             </div>  
           </div>
@@ -61,11 +64,11 @@
         </section>
       </div>
 
-      <!--<div class="card-footer">
+      <div class="card-footer">
         <p class="card-footer-item">
-        <a @click="responder" class="button is-primary">Responder</a>
+        <a @click="showSelStatus" class="button is-primary">Alterar Status/Prazo</a>
         </p>
-      </div>-->
+      </div>
 
     </div>
 
@@ -185,9 +188,9 @@
                         </div>
                         
                         <div class="columns">
-                            <div class="column">
-                                <div id="det">{{compromisso.detalhes}}</div>
-                            </div>
+                          <div class="column">
+                            <div id="det" v-for="line in compromisso.detalhes.split('\n')">{{line}}</div>
+                          </div>
                         </div>
                         
                        
@@ -304,9 +307,9 @@
                         </div>
                         
                         <div class="columns">
-                            <div class="column">
-                                <div id="det">{{compromisso.detalhes}}</div>
-                            </div>
+                          <div class="column">
+                            <div id="det" v-for="line in compromisso.detalhes.split('\n')">{{line}}</div>
+                          </div>
                         </div>
                         
                        
@@ -375,9 +378,9 @@
                             <strong style="color:aliceblue; margin-right: 5px">Status:</strong>{{compromisso.status}}
                         </div>
                         <div class="columns">
-                            <div class="column">
-                                <div id="det">{{compromisso.detalhes}}</div>
-                            </div>
+                          <div class="column">
+                            <div id="det" v-for="line in compromisso.detalhes.split('\n')">{{line}}</div>
+                          </div>
                         </div>
                         
                        
@@ -510,7 +513,8 @@
         <section class="modal-card-body">
           <div style="text-align:center">
               <div class="columns">
-                  <div class="column" v-if="usuario===userDest || usuario===compromissos.idUsuarioCriador">
+                <div class="column">
+                  <div v-if="userDest===1 || usuario===userDest || usuario===compromissos.idUsuarioCriador">
                       <label class="label">Mudar Status para:</label>
                       <div class="select">
                           <select v-model="idStatus" @change="alterarStatus">
@@ -520,9 +524,12 @@
                           </select>
                       </div>
                   </div>
-                  <div class="column" v-else>Não permitido alterar Status</div>
-
-                  <div class="column" v-if="userDest!==1 && prazo===null && userDest===usuario">
+                  
+                  <div v-else>Não permitido alterar Status</div>
+                  
+                </div>
+                <div class="column vertical-align">
+                  <div v-if="userDest!==1 && prazo===null && userDest===usuario">
                       <label class="label">Mudar prazo para:</label>
                       <div class="select">
                           <date-picker :date="startTime" 
@@ -533,7 +540,8 @@
                       </div>
 
                   </div>
-                  <div class="column" v-else>Não permitido alterar Prazo</div>
+                  <div v-else>Não permitido alterar Prazo</div>
+                </div>
               </div>
           </div>
         </section>
@@ -679,6 +687,7 @@ export default {
         userDest: '',
         novaResp: '', 
         btnNovaConversa: true,
+        responsavel: '',
         
         // datapicker
         startTime: {
@@ -902,39 +911,40 @@ export default {
           this.compDet.idUsuario = this.usuario
           this.compDet.nivel = this.ultimoDet.nivel
           this.compDet.nivel++
-             this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
-             .then((response) => {
-                
-                this.$set('compDet',{
-                    "detalhes": '',
-                    "idComp": this.$route.query.q,
-                    "idUsuario": 4,
-                    "idStatus": 1,
-                    "nivel": this.compDet.nivel,
-                    "dataHoraAgend": '',
-                    "startTime.time": ''
-                })
-                this.$set('showModal',false)
-                console.log(response.body)
-             })
-             .catch((error) => {
-                /*swal({   title: `Falha ao enviar sua solicitação`,
-                        html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
-                        type: "error",  
-                    })*/
-                //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
-                /*this.err = JSON.stringify(response.json)
-                swal({
-                  html: '<strong>' + this.err + '</strong>',
-                  confirmButtonText:
-                    '<i class="fa fa-thumbs-up"></i> Ok!',
-                }) */
-                console.log(response.json)
-             })
-             .finally(function () {
-                this.hideLoading()
-                this.loadDetahes()
-             }) 
+          this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
+          .then((response) => {
+            this.$set('compDet',{
+                "detalhes": '',
+                "idComp": this.$route.query.q,
+                "idUsuario": 4,
+                "idStatus": 1,
+                "nivel": this.compDet.nivel,
+                "dataHoraAgend": '',
+                "startTime.time": ''
+            })
+            this.$set('showModal',false)
+            this.$set('visivel',false)
+            this.$set('btnNovaConversa',true)
+            console.log(response.body)
+          })
+          .catch((error) => {
+            /*swal({   title: `Falha ao enviar sua solicitação`,
+                    html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
+                    type: "error",  
+                })*/
+            //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
+            /*this.err = JSON.stringify(response.json)
+            swal({
+              html: '<strong>' + this.err + '</strong>',
+              confirmButtonText:
+                '<i class="fa fa-thumbs-up"></i> Ok!',
+            }) */
+            console.log(response.json)
+          })
+          .finally(function () {
+            this.hideLoading()
+            this.loadDetahes()
+          }) 
           if(this.image!=''){
             this.enviarAposSalvar()
           }
@@ -957,6 +967,8 @@ export default {
                     "startTime.time": '',
                 })
                 this.$set('showModal',false)
+                this.$set('visivel',false)
+                this.$set('btnNovaConversa',true)
                 console.log(response.body)
              })
              .catch((error) => {
@@ -1044,9 +1056,6 @@ export default {
       }, 
       novaConversa(){
         if(this.visivel == false){
-            let x = 999999
-            let y = 999999
-            window.scrollBy(x,y)
             this.visivel = true
             this.btnNovaConversa = false
             this.ultimoDet = this.compromissosDet.slice(-1)[0]
@@ -1055,6 +1064,29 @@ export default {
             this.visivel = false
             this.btnNovaConversa = true
         }
+        
+        let x = 999999
+        let y = 0
+        window.scrollBy(x,y)
+      },
+      todosUsuarios(){ //api/usuario/todos
+          this.$http.get(ENDPOINT + 'api/usuario/todos').then(
+             response=>{
+               console.log(response)
+               let users = response.json().filter(row => row.idUsuario === this.compromissosDet[0].idUsuarioDestina)
+               this.responsavel = users[0]
+               this.isLoading = false
+             },
+             error=>{
+               this.isLoading = false
+               e = error.json()
+               this.message = e.split(':').pop()
+               
+             }
+          )
+          .catch(e=>{
+            console.log(e)
+          })
       },
         
       // envio de imagem
@@ -1081,7 +1113,7 @@ export default {
           reader.readAsDataURL(file);
           
       },
-      removeImage: function (e) {
+      removeImage(e) {
           this.image = '';
       },
       
@@ -1115,8 +1147,6 @@ export default {
         
         
       }, 
-      
-        
         
       enviarImg(){
        /*
@@ -1173,7 +1203,9 @@ export default {
       
       
     },
-    
+    ready(){
+      this.todosUsuarios()
+    },
     created(){
       let t = this
       t.loadCompromissos()
@@ -1181,6 +1213,7 @@ export default {
       t.selectStatus()
       t.carregarUser()
       t.verificarUsuario()
+      t.todosUsuarios()
       localStorage.setItem('status', this.$route.query.status)
       
       console.log('Usuario logado: ', this.usuario)
@@ -1191,7 +1224,6 @@ export default {
 </script>
 
 <style scoped>
-    
     h2 {
         font-size: 35px;
     }
@@ -1254,5 +1286,15 @@ export default {
     }
     #user {
         text-align: center;
-    }    
+    }
+    .mHover {
+        cursor: pointer;
+    }
+    .vertical-align {
+        vertical-align: middle;
+    }
+    .resp{
+        font-weight: bold;
+        margin-top: -9px;
+    }
 </style>
