@@ -6,12 +6,17 @@
     <div id="compromissos">
       <!-- botões -->
       <div class="columns is-mobile">
-          <div class="column is-1-desktop is-1-tablet is-2-mobile">
+          <div class="column is-1-tablet is-2-mobile">
               <label class="label">Novo</label>
               <a class="button is-info" @click.prevent="newCompromissos"><i class="fa fa-plus"></i></a>
           </div>
-          <div class="column is-2-desktop is-3-tablet is-5-mobile">
-              <label class="label">Status</label>
+          <div class="column is-2-tablet is-2-mobile" v-if="notificados.length>0">
+              <label class="label">Notificações</label>
+              <button class="button is-warning" @click="getNotificados" v-if="!notify">{{notificados.length}}</button>
+              <button class="button is-info" @click="getNotificados" v-else>Todas</button>
+          </div>
+          <div class="column is-2-desktop is-3-tablet is-4-mobile">
+              <label class="label" style="background-color: aliceblue">Status</label>
               <div class="select" id="status">
                   <select v-model="filtroStatus" @change="loadLists">
                       <option v-for="stat in status" :value="stat.nome">
@@ -20,7 +25,7 @@
                   </select>
               </div>
           </div>
-          <div class="column is-2-desktop is-5-mobile" v-if="listaTodos">
+          <div class="column is-2-desktop is-4-mobile" v-if="listaTodos">
               <label class="label">Tipo</label>
               <div class="select" id="tipo">
                   <select v-model="filtroTipo" @change="setTipo">
@@ -71,7 +76,7 @@
       <div class="column is-3-tablet is-2-desktop" v-if="selected.length>0">
         <button class="button is-danger" @click="showStatus=true">Alterar Status</button>
       </div>
-      <div class="column is-4-mobile is-2-tablet is-1-desktop">
+      <div class="column is-4-mobile is-2-tablet is-1-desktop" v-if="switch">
         <div class="onoffswitch">
           <input type="checkbox"
                  @click="mudarLista"
@@ -88,7 +93,8 @@
         </div>
       </div>
       <div class="column" v-if="listaTodos">{{compFiltrados.length}} compromissos</div> 
-      <div class="column" v-else>{{destFiltrados.length}} compromissos interessados a você</div> 
+      <div class="column" v-if="listaEu && destFiltrados.length===1">1 compromisso para você</div> 
+      <div class="column" v-if="listaEu && destFiltrados.length>1">{{destFiltrados.length}} compromissos para você</div> 
     </div>
 
     <!-- tabela -->
@@ -193,10 +199,110 @@
       <!-- Paginação -- 
       <Pagination :total="total" :page="page" :itens-per-page="itensPerPage" @change-page="onChangePage"></Pagination> -->
     </div>
-    
 
-    <!-- LISTA ESPECIFICADA -->
+    <!-- NOTIFICADOS -->
+    <div id="table" v-if="notify">
+        <table class="table is-narrow-mobile is-bordered tg">
+              <thead>
+                
+                <th id="user">Criador<br>
+                  <!--<div class="select">
+                      <select v-model="filtroUser">
+                        <option v-for="user in filtroUsuarios" :value="user.nome">
+                          {{ user.nome }}
+                        </option>
+                      </select>
+                  </div>-->
+                  
+                </th>
+                <th>Assunto<br>
+                    <input class="input" id="titulo" v-model="filtroTitulo" >
+                </th>
+                
+                <th>Ult. post.
+                    <div style="width: 80px"></div>
+                </th>
+                
+                  
+                <th v-if="colPriori">Ordem<br>
+                  
+                  <div class="select" style="width: 40px;">
+                      <select v-model="filtroPriori" id="priori" @change="setPriori">
+                          <option v-for="prioridade in prioridades" :value="prioridade.value">
+                            {{ prioridade.text }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                  
+                <th v-if="colProj">Projeto<br>
+                  <div class="select" style="width: 100px;">
+                      <select v-model="filtroProjeto" id="projeto" @change="setProj">
+                          <option v-for="projet in projetos">
+                            {{ projet.nome }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                <th v-if="colPlat">Plataforma<br>
+                  <div class="select" style="width: 100px;">
+                      <select v-model="filtroPlat" id="plataforma" @change="setPlat">
+                          <option v-for="plataf in plataformas">
+                            {{ plataf.text }}
+                          </option>
+                      </select>
+                  </div>
+                </th>
+                <th>Cód<br>
+                  <input class="input" v-model="filtroId" id="id">
+                </th>
+                <!-- <th>Ações</th> -->
+
+            </thead>
+            <tbody id="lista">
+              <tr v-for="compromisso in notificados">
+                <!--<td style="font-size: 10px;">{{compromisso.tipoComp}}</td>-->
+                <td 
+                    @click="filtro = compromisso.idComp" 
+                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
+                    style="cursor: pointer; text-align: center;"
+                    ><strong style="color:#4774bc">{{compromisso.usuario}}</strong>
+                </td>
+                  
+                <td @click="filtro = compromisso.idComp" 
+                    v-link="{ path: '/cdetalhe', query: {q:filtro, user:usuario, status:filtroStatus}}"
+                    style="cursor: pointer"
+                    >{{compromisso.titulo}}
+                </td>
+                
+                <td>
+                    <center v-if="compromisso.ultResp === usuarioNome">
+                        <strong style="color: orange">{{compromisso.ultResp}}</strong><br>
+                        {{compromisso.dataHoraUltResp | dataFormat}}<br>
+                        <i>Resp.:</i> {{compromisso.qtdRespostas}}
+                    </center>
+                    <center v-else>
+                        <strong style="color: red">{{compromisso.ultResp}}</strong><br>
+                        {{compromisso.dataHoraUltResp | dataFormat}}<br>
+                        <i>Resp.:</i> {{compromisso.qtdRespostas}}
+                    </center>
+                    
+                </td>
+                <td v-if="colPriori" id="dataPriori">{{compromisso.numPrioridade}}</td>
+                <td v-if="colProj">{{compromisso.projeto}}</td>
+                <td v-if="colPlat">{{compromisso.plataforma}}</td>
+                <td>{{compromisso.idComp}}</td>
+                
+                
+              </tr>
+            </tbody>
+        </table>
+      
+      <!-- Paginação -- 
+      <Pagination :total="total" :page="page" :itens-per-page="itensPerPage" @change-page="onChangePage"></Pagination> -->
+    </div>
     
+    <!-- LISTA ESPECIFICADA -->
     <div id="table" v-if="listaEu">
         <table class="table is-narrow-mobile is-bordered tg">
             
@@ -339,7 +445,7 @@
             <div class="column">
               <label class="label">Ordem Proritária</label>
               <div class="select">
-                  <select v-model="comp.numPrioridade">
+                  <select v-model="comp.numPrioridade" @change="avisoPriori">
                       <option v-for="prioridade in prioridades" :value="prioridade.value">
                         {{ prioridade.text }}
                       </option>
@@ -356,10 +462,35 @@
                   </select>
               </div>
             </div>
-            
-            
-            
           </div>
+          
+          <div class="box aviso">
+            <div v-if="comp.numPrioridade === 1">
+              <strong>Prioridade 1:</strong><br>
+              Remete ao responsável PARAR as suas tarefas para atender a esta solicitação<br>
+              <div style="color: red">ESCOLHA CRÍTICA</div>
+            </div>
+            <div v-if="comp.numPrioridade === 2">
+              <strong>Prioridade 2:</strong><br>
+              Entrará na lista de todos os compromissos com PRAZO DE ENTREGA determinado 
+            </div>
+            <div v-if="comp.numPrioridade === 3">
+              <strong>Prioridade 3:</strong><br>
+              Entrará na lista de todos os compromissos que podem ser realizados até o próximo PACKAGE (dia 01 de cada mês)
+            </div>
+            <div v-if="comp.numPrioridade === 4">
+              <strong>Prioridade 4:</strong><br>
+              Entrará na lista de todos os compromissos que podem aguardar a conclusão das listas anteriores
+            </div>
+            <div v-if="comp.numPrioridade === 5">
+              <strong>Prioridade 5:</strong><br>
+              Inclui na lista de solicitações em STAND BY
+            </div>
+          
+          </div>
+          
+          
+          
           <!-- upload de arquivos -->
             
            
@@ -478,11 +609,11 @@
         tipos: [],
         status: [],
         prioridades: [
-          { text: '1', value: '1' },
-          { text: '2', value: '2' },
-          { text: '3', value: '3' },
-          { text: '4', value: '4' },
-          { text: '5', value: '5' }
+          { text: '1', value: 1 },
+          { text: '2', value: 2 },
+          { text: '3', value: 3 },
+          { text: '4', value: 4 },
+          { text: '5', value: 5 }
         ],
         plataformas: [
           { text: 'DESKTOP'},
@@ -510,11 +641,9 @@
         users: [],
         image: '',
         imgDet: {
-            
             "idCompDet": '',
             "imgFile": '',
-            "extFile": ''
-            
+            "extFile": ''    
         },
         caminho: '',
         ext: '',
@@ -522,6 +651,9 @@
         listaEu: (sessionStorage.getItem('listaEu') === 'true'),
         showStatus: false,
         idStatus: '',
+        notify: false,
+        notified: false,
+        switch: true,
         
         // datapicker
         startTime: {
@@ -594,9 +726,6 @@
         filtroBtn: false,
         filtroTitulo: '',
         
-
-
-
           
         // chips 
         
@@ -898,6 +1027,33 @@
             return this.compDestinados.filter(this.filtrarPorStatus())
         }
         
+      },
+      notificados(){
+        let notify = this.compromissos.filter(compromisso => compromisso.status !== 'CANCELADO')
+                                      .filter(compromisso => compromisso.status !== 'FINALIZADO')
+                                      .filter(compromisso => compromisso.usuario === this.usuarioNome)
+                                      .filter(compromisso => compromisso.ultResp !== this.usuarioNome)
+                                      .filter(compromisso => compromisso.ultResp !== " - - -")
+        
+        if(notify.length>0 && !this.notified){
+          this.notified = true
+          console.log('ATENÇÃO: há notificações para você!')
+          let users = notify.map(row => ' ' + row.ultResp)
+          
+          let n = new Notification('Helpdesk - 7Virtual', {
+            body: 'Você possui interações de' + users.toString(),
+          })
+
+          n.vibrate
+          n.onclick = (event, close) => {
+            event.preventDefault(); // prevent the browser from focusing the Notification's tab
+            this.getNotificados()
+            n.close()
+          }
+          setTimeout(n.close.bind(n), 5000);
+        }
+        
+        return notify  
       },
       filtroUsuarios(){ // para o select de filtro de criadores na lista todos
         let users = this.users
@@ -1243,6 +1399,22 @@
             this.loadCompromissos()
         }
       },
+      getNotificados(){
+        Notification.requestPermission()
+        
+        if(this.notify === true){
+            this.notify = false
+            this.listaEu = (sessionStorage.getItem('listaEu') === 'true')
+            this.listaTodos = (sessionStorage.getItem('listaTodos') === 'true')
+            this.switch = true
+        }
+        else{
+            this.notify = true
+            this.listaEu = false
+            this.listaTodos = false
+            this.switch = false
+        }
+      },
       searchCompromissos(){
         this.loadCompromissos()
        },
@@ -1269,44 +1441,44 @@
         } 
         this.comp.compromissosDet.push(det)
         
-           this.$http.post(ENDPOINT + 'api/comp/novoCab',this.comp)
-             .then((response) => {
-                this.$set('comp',{
-                  "idCompTipo": '',
-                  "idStatus": 1,
-                  "idProjeto": '',
-                  "titulo": '',
-                  "numPrioridade": 3,
-                  "idUsuario": parseInt(localStorage.getItem('userId')),
-                  "compromissosDet": []
-                })
-                this.$set('msg','')
-                this.$set('showModalNew',false)
-                console.log(response.body)
-                
-             })
-             .catch((error) => {
-                swal({   title: `Falha ao enviar sua solicitação`,
-                        html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
-                        type: "error",  
-                    })
-                //e = error.json()
-                console.log(e)
-                this.hideLoading()
-                //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
-                /*this.err = JSON.stringify(e)
-                swal({
-                  html: '<strong>' + this.err + '</strong>',
-                  confirmButtonText:
-                    '<i class="fa fa-thumbs-up"></i> Ok!',
-                }) */ 
-                
-                
-             })
-             .finally(function () {
-                this.loadCompromissos()
-                this.hideLoading();
-             })
+          this.$http.post(ENDPOINT + 'api/comp/novoCab',this.comp)
+           .then((response) => {
+              this.$set('comp',{
+                "idCompTipo": '',
+                "idStatus": 1,
+                "idProjeto": '',
+                "titulo": '',
+                "numPrioridade": 3,
+                "idUsuario": parseInt(localStorage.getItem('userId')),
+                "compromissosDet": []
+              })
+              this.$set('msg','')
+              this.$set('showModalNew',false)
+              console.log(response.body)
+
+           })
+           .catch((error) => {
+              swal({   title: `Falha ao enviar sua solicitação`,
+                      html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
+                      type: "error",  
+                  })
+              //e = error.json()
+              console.log(e)
+              this.hideLoading()
+              //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
+              /*this.err = JSON.stringify(e)
+              swal({
+                html: '<strong>' + this.err + '</strong>',
+                confirmButtonText:
+                  '<i class="fa fa-thumbs-up"></i> Ok!',
+              }) */ 
+
+
+           })
+           .finally(function () {
+              this.loadCompromissos()
+              this.hideLoading();
+           })
           
       },
       carregarComp(compromisso){
@@ -1486,6 +1658,25 @@
              })
         }
       },
+      notifyMe(){
+        let p = localStorage.getItem('permitirNotificar')
+        console.log('p:', p)
+        if(p === 'granted') return
+        Notification.requestPermission((permission) => {
+          if (permission === "granted"){
+            let notification = new Notification("Obrigado! Agora você poderá ser notificado");
+            localStorage.setItem('permitirNotificar', permission)
+          }
+          else{
+            
+          }
+        });
+      },
+      avisoPriori(){
+        if(this.comp.numPrioridade === 1){
+          swal('Eepa...Para o seu caso a prioridade 1 será necessária?', 'Reveja os critérios para esta prioridade antes para que tenha a certeza que o responsável pare de fazer a lista de tarefas dele para atender esta solicitação', 'warning');
+        }
+      }
       
     },
     
@@ -1522,8 +1713,9 @@
         sessionStorage.setItem('listaEu', true)
       }
       
+      t.notifyMe()
       
-    }
+    },
   }
 </script>
 <style>
@@ -1610,7 +1802,7 @@
       overflow: scroll;
     }
   }
-  @media (min-height: 600px ) {
+  @media (min-height: 650px ) {
     #table {
       margin-top: 10px;
       max-width: 100%;
@@ -1619,20 +1811,38 @@
       overflow: scroll;
     }
   }
-  @media (min-height: 730px) {
+  @media (min-height: 720px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 500px;
+      max-height: 460px;
       line-height: 100%;
       overflow: scroll;
     }
   }
-  @media (min-height: 770px) {
+  @media (min-height: 765px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 610px;
+      max-height: 510px;
+      line-height: 100%;
+      overflow: scroll;
+    }
+  }
+  @media (min-height: 800px) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 490px;
+      line-height: 100%;
+      overflow: scroll;
+    }
+  }
+  @media (min-height: 800px) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 600px;
       line-height: 100%;
       overflow: scroll;
     }
@@ -1740,5 +1950,7 @@
   .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
       right: 0px; 
   }
-  
+  .aviso{
+    background-color: #F5F5F5;
+  }
 </style>

@@ -1,7 +1,6 @@
 <template>
 <div class="conteudo" id="principal">
     <div class="box" id="login">
-        <!--<center><img src="../../dist/img/logo2.png" /></center>-->
         <center><img src="logo2.png" /></center>
         <br><br>
         <form @submit.prevent="Login()">

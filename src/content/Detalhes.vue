@@ -66,7 +66,11 @@
 
       <div class="card-footer">
         <p class="card-footer-item">
-        <a @click="showSelStatus" class="button is-primary">Alterar Status/Prazo</a>
+          <a @click="showSelStatus" class="button is-primary">Alterar Status/Prazo</a>
+        </p>
+        <p class="card-footer-item">
+          <button class="button is-info" @click="novaConversa" v-if="btnNovaConversa">Nova Conversa</button>
+          <button class="button is-danger" @click="novaConversa" v-else>Cancelar</button>
         </p>
       </div>
 
@@ -115,7 +119,8 @@
                                 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
-                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
+                                    <!--<i class="fa fa-paperclip is-primary" @click.prevent="showAnexo(compromisso)"></i>-->
+                                    <img src="dist/img/anexo.png" class="anexo" @click.prevent="showAnexo(compromisso)" />
 
                                 </span>
                                 <span class="span">
@@ -135,7 +140,7 @@
                                 </span>
                             </div>
                             <div class="column is-2-mobile" id="btns">
-                                <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
+                                <i class="fa fa-comment-o fa-2x mHover" @click="showResposta(compromisso)" id="btnSubResp"></i>
                             </div>
                             
                         </div>
@@ -163,7 +168,8 @@
 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
-                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
+                                    <!--<i class="fa fa-paperclip is-primary" @click.prevent="showAnexo(compromisso)"></i>-->
+                                    <img src="dist/img/anexo.png" class="anexo" @click.prevent="showAnexo(compromisso)" />
 
                                 </span>
                                 <span class="span">
@@ -202,7 +208,6 @@
         </div>
 
         <!-- sub-resposta esquerda -->
-
         <div v-if="compromisso.align=='E'">
             <div style="margin-top: 11px;"></div>
                 <div class="alinE">
@@ -234,7 +239,8 @@
                                 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
-                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
+                                    <!--<i class="fa fa-paperclip is-primary" @click.prevent="showAnexo(compromisso)"></i>-->
+                                    <img src="dist/img/anexo.png" class="anexo" @click.prevent="showAnexo(compromisso)" />
 
                                 </span>
                                 <span class="span">
@@ -254,7 +260,7 @@
                                 </span>
                             </div>
                             <div class="column is-2-mobile" id="btns">
-                                <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
+                                <i class="fa fa-comment-o fa-2x mHover" @click="showResposta(compromisso)" id="btnSubResp"></i>
                             </div>
                             
                         </div>
@@ -282,7 +288,8 @@
 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
-                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
+                                    <!--<i class="fa fa-paperclip is-primary" @click.prevent="showAnexo(compromisso)"></i>-->
+                                    <img src="dist/img/anexo.png" class="anexo" @click.prevent="showAnexo(compromisso)" />
 
                                 </span>
                                 <span class="span">
@@ -348,7 +355,8 @@
                                 
                                 <span v-if="compromisso.extensao==null" class="span" style="margin-top: 5px;">
                                     <!--<label class="label">Anexo</label>-->
-                                    <i class="fa fa-upload is-primary" @click.prevent="showAnexo(compromisso)"></i>
+                                    <!--<i class="fa fa-paperclip fa-2x is-primary" @click.prevent="showAnexo(compromisso)"></i>-->
+                                    <img src="dist/img/anexo.png" class="anexo" @click.prevent="showAnexo(compromisso)" />
 
                                 </span>
                                 <span class="span">
@@ -368,7 +376,7 @@
                                 </span>
                             </div>
                             <div class="column" id="btns">
-                                <i class="fa fa-comment-o" @click="showResposta(compromisso)" id="btnSubResp"></i>
+                                <i class="fa fa-comment-o fa-2x mHover" @click="showResposta(compromisso)" id="btnSubResp"></i>
                             </div>
                             
                             
@@ -387,7 +395,6 @@
                     </div>
                 </div>
         </div>
-        <!--fim box central-->
 
     </div>
 
@@ -557,10 +564,6 @@
     
 
     <!-- RESPOSTA GERAL -->
-      <div class="content">
-          <button class="button is-primary" @click="novaConversa" style="margin-top: 20px;" v-if="btnNovaConversa">Nova Conversa</button>
-          <button class="button is-danger" @click="novaConversa" style="margin-top: 20px;" v-else>Cancelar</button>
-      </div>
       
       <div id="resposta" class="box" style="margin-top: 20px;" v-if="visivel">
           <label class="label">Resposta:</label>
@@ -625,9 +628,9 @@
   
   //zipar Arquivos
   
-  import JSZip from 'jszip'
+  //import JSZip from 'jszip'
     
-  var zip = new JSZip()
+  var zip = '' //new JSZip()
   
   //WS:
   //const ENDPOINT = 'http://localhost/helpdesk/'
@@ -1055,19 +1058,22 @@ export default {
       
       }, 
       novaConversa(){
-        if(this.visivel == false){
-            this.visivel = true
-            this.btnNovaConversa = false
-            this.ultimoDet = this.compromissosDet.slice(-1)[0]
+        if(!this.visivel){
+          this.visivel = true
+          this.btnNovaConversa = false
+          this.ultimoDet = this.compromissosDet.slice(-1)[0]
+          if(this.visivel){
+          let x = 0
+          let y = 99999
+          window.scrollBy(x,y)
+          }
         }
         else{ 
-            this.visivel = false
-            this.btnNovaConversa = true
+          this.visivel = false
+          this.btnNovaConversa = true
         }
         
-        let x = 999999
-        let y = 0
-        window.scrollBy(x,y)
+        
       },
       todosUsuarios(){ //api/usuario/todos
           this.$http.get(ENDPOINT + 'api/usuario/todos').then(
@@ -1296,5 +1302,11 @@ export default {
     .resp{
         font-weight: bold;
         margin-top: -9px;
+    }
+    .anexo{
+      height:32; 
+      width: 12px; 
+      margin: 5px 0 0 20px;
+      cursor: pointer;
     }
 </style>
