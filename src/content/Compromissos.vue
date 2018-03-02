@@ -92,7 +92,8 @@
           </label>
         </div>
       </div>
-      <div class="column" v-if="listaTodos">{{compFiltrados.length}} compromissos</div> 
+      <div class="column" v-if="listaTodos && compFiltrados.length===1">{{compFiltrados.length}} compromisso</div> 
+      <div class="column" v-if="listaTodos && compFiltrados.length>1">{{compFiltrados.length}} compromissos</div> 
       <div class="column" v-if="listaEu && destFiltrados.length===1">1 compromisso para você</div> 
       <div class="column" v-if="listaEu && destFiltrados.length>1">{{destFiltrados.length}} compromissos para você</div> 
     </div>
@@ -106,8 +107,8 @@
                 <th id="user">Criador<br>
                   <div class="select">
                       <select v-model="filtroUser">
-                        <option v-for="user in filtroUsuarios" :value="user.nome">
-                          {{ user.nome }}
+                        <option v-for="usuario in usuarios" :value="usuario.nome">
+                          {{ usuario.nome }}
                         </option>
                       </select>
                   </div>
@@ -117,7 +118,7 @@
                     <input class="input" id="titulo" v-model="filtroTitulo" >
                 </th>
                 
-                <th>Ult. post.
+                <th v-if="colResp">Ult. post.
                     <div style="width: 80px"></div>
                 </th>
                 
@@ -173,7 +174,7 @@
                     >{{compromisso.titulo}}
                 </td>
                 
-                <td>
+                <td v-if="colResp">
                     <center v-if="compromisso.ultResp === usuarioNome">
                         <strong style="color: orange">{{compromisso.ultResp}}</strong><br>
                         {{compromisso.dataHoraUltResp | dataFormat}}<br>
@@ -378,7 +379,7 @@
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
-          <p class="modal-card-title">Compromisso: {{selected.id}}</p>
+          <p class="modal-card-title">Novo Compromisso: </p>
           <button class="delete" @click.prevent="showModalNew=false"></button>
         </header>
         <section class="modal-card-body">
@@ -466,9 +467,18 @@
           
           <div class="box aviso">
             <div v-if="comp.numPrioridade === 1">
-              <strong>Prioridade 1:</strong><br>
-              Remete ao responsável PARAR as suas tarefas para atender a esta solicitação<br>
-              <div style="color: red">ESCOLHA CRÍTICA</div>
+              <strong>Prioridade 1:</strong><font color="red"> CASO CRÍTICO</font><br>
+              Remete ao responsável PARAR as suas tarefas para resolver este caso, então segue abaixo os critérios para esta prioridade, para que tenha a certeza que o responsável possa atender esta solicitação com prioridade máxima:<br />
+              1 - O CLIENTE ESTÁ PARADO?<br />  
+              2 - A INFORMAÇÃO ESTÁ GRAVANDO ERRADA?<br /> 
+              3 - ESTÁ ATRAPALHANDO A AGILIDADE DO CLIENTE COM O USO DO SISTEMA?<br />
+              4 - O PROBLEMA OCASIONOU EM GRANDE INSATISFAÇÃO DO CLIENTE?<br />
+              LEMBRETE: Se nenhuma das perguntas acima corresponde ao seu caso, SÓ ESCOLHA ESTA PRIORIDADE SE TIVER ALGO PEGANDO FOGO!<br />
+              <br />
+              <p>
+              Obs: Esta solicitação seguirá a ordem da lista das solicitações com prioridades 1 já direcionada ao responsável
+              </p>
+              
             </div>
             <div v-if="comp.numPrioridade === 2">
               <strong>Prioridade 2:</strong><br>
@@ -527,8 +537,7 @@
       </div>
     </div>
 
-    <!-- MODAL Alterar Status -->
-      
+    <!-- MODAL Alterar Status -->  
     <div class="modal" :class="{'is-active':showStatus}">
       <div class="modal-background"></div>
       <div class="modal-card">
@@ -554,8 +563,7 @@
         </footer>-->
       </div>
           
-    </div>
-      
+    </div>  
     <!-- fim modal -->
     
     
@@ -586,6 +594,8 @@
   // ao descomentar abaixo tem que comentar a const acima
   //debug:
   //const ENDPOINT = 'http://192.168.0.115:32688/'
+  
+  import icon from './icones.js'
   
   export default {
     name: 'Compromissos',
@@ -624,16 +634,14 @@
         usuario: localStorage.getItem('userId'),
         usuarioNome: localStorage.getItem('name'),
         projetos: [],
-        comp: {
-              
-              "idCompTipo": '',
-              "idStatus": 1,
-              "idProjeto": '',
-              "titulo": '',
-              "numPrioridade": 3,
-              "idUsuario": parseInt(localStorage.getItem('userId')),
-              "compromissosDet": []
-              
+        comp: {   
+          "idCompTipo": '',
+          "idStatus": 1,
+          "idProjeto": '',
+          "titulo": '',
+          "numPrioridade": 3,
+          "idUsuario": parseInt(localStorage.getItem('userId')),
+          "compromissosDet": []
         },
         msg: '',
         filtro: '',
@@ -654,6 +662,7 @@
         notify: false,
         notified: false,
         switch: true,
+        urgentes: [],
         
         // datapicker
         startTime: {
@@ -740,6 +749,7 @@
         // colunas
           
         colTipo: true,
+        colResp: true,
         colPriori: true,
         colProj: true,
         colPlat: true,
@@ -998,10 +1008,6 @@
             this.chipProj = true
             this.colProj = false
             this.filtroBtn = true
-          
-            
-            console.log(this.compDestinados)
-        
             return this.compDestinados.filter(this.filtrarPorStatus())
                                       .filter(compromisso => compromisso.nome === this.filtroProjeto )
         }
@@ -1054,13 +1060,7 @@
         }
         
         return notify  
-      },
-      filtroUsuarios(){ // para o select de filtro de criadores na lista todos
-        let users = this.users
-        this.users.shift()
-        
-        return users
-      },
+      },  
       selectAll: {
         get: function () {
             return this.destFiltrados ? this.selected.length == this.destFiltrados.length : false;
@@ -1077,6 +1077,16 @@
 
             this.selected = selected;
         }
+      },
+      usuarios(){
+        let lista = []
+        for(let i in this.users){
+          if(this.users[i].idUsuario !== 1){
+            lista.push(this.users[i])
+          }  
+        }
+        
+        return lista
       }
     },
     
@@ -1297,9 +1307,8 @@
       selectUsuarios(){
         axios.get(ENDPOINT + 'api/usuario/todos')
         .then(response => {
-          
           this.users = response.data
-          //console.log(response)
+          console.log('users:', response.data)
         })
         .catch(e => {
           console.log(e)
@@ -1324,6 +1333,7 @@
          response=>{
            t.compromissos = response.json()
            console.log('load todos')
+           this.colResp = true
          },
          error=>{
            console.log(error)
@@ -1674,9 +1684,71 @@
       },
       avisoPriori(){
         if(this.comp.numPrioridade === 1){
-          swal('Eepa...Para o seu caso a prioridade 1 será necessária?', 'Reveja os critérios para esta prioridade antes para que tenha a certeza que o responsável pare de fazer a lista de tarefas dele para atender esta solicitação', 'warning');
+          swal({
+            title: 'Opa...A prioridade 1 será mesmo necessária?',
+            type: 'warning',
+            html:
+              'Reveja os critérios para esta prioridade antes:<br />' +
+              '1 - O cliente está parado?<br />' + 
+              '2 - A informação está gravando errada?<br />' +
+              '3 - Está atrapalhando a agilidade do cliente?<br />' +
+              '4 - O problema está acarretando em grande instisfação do cliente?<br />' +
+              'LEMBRETE: se nenhuma das perguntas acima corresponde ao seu caso, só escolha esta prioridade se tiver algo pegando fogo',
+          });
         }
-      }
+      },
+      getUrgencias(){
+        axios.get(ENDPOINT + 'api/comp/obterCompDestina?idUserDestina=1&status=AGUARDANDO')
+        .then(response => {
+          this.urgentes = response.data.filter(row => row.numPrioridade === 1)
+          
+          if(this.urgentes.length === 0) return
+          
+          let msg
+          
+          if(this.urgentes.length === 1){
+            msg = { haver: 'Existe ', quantas: ' urgencia'}
+          }
+          else{
+            msg = { haver: 'Existem ', quantas: ' urgencias'}
+          }
+          
+          let n = new Notification('Helpdesk - 7Virtual', {
+            body: msg.haver + this.urgentes.length + msg.quantas + ' para TODOS aguardando, clique aqui para vê-las',
+            vibrate: [200, 100, 200],
+            icon: icon.urgente
+          })
+
+          n.vibrate
+          n.onclick = (event, close) => {
+            event.preventDefault(); // prevent the browser from focusing the Notification's tab
+            this.listaTodos = true
+            this.listaEu = false
+            this.colResp = false
+            this.filtroStatus = 'AGUARDANDO'
+            this.compromissos = this.urgentes.map(row => ({
+              usuario: row.criador,
+              titulo: row.titulo,
+              ultResp: " - - -",
+              dataHoraUltResp: '',
+              qtdRespostas: '',
+              numPrioridade: row.numPrioridade,
+              projeto: row.nome,
+              plataforma: row.plataforma,
+              status: row.status,
+              idComp: row.idComp,
+            }))
+            
+            n.close()
+            
+          }
+          setTimeout(n.close.bind(n), 5000);
+          
+        })
+        .catch(e => {
+          console.log(e)
+        })
+      },
       
     },
     
@@ -1693,6 +1765,7 @@
       this.listaTodos = (sessionStorage.getItem('listaTodos') === 'true')
       this.listaEu = (sessionStorage.getItem('listaEu') === 'true')
       
+      t.notifyMe()
     },
     
     created(){
@@ -1707,6 +1780,7 @@
       t.verificarUsuario()
       //t.expSession()
       t.getStatus()
+      t.getUrgencias()
       
       if(!sessionStorage.getItem('listaEu')){
         sessionStorage.setItem('listaTodos', false)
@@ -1811,11 +1885,20 @@
       overflow: scroll;
     }
   }
+  @media (min-height: 700px ) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 380px;
+      line-height: 100%;
+      overflow: scroll;
+    }
+  }
   @media (min-height: 720px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 460px;
+      max-height: 400px;
       line-height: 100%;
       overflow: scroll;
     }
@@ -1838,11 +1921,11 @@
       overflow: scroll;
     }
   }
-  @media (min-height: 800px) {
+  @media (min-height: 900px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 600px;
+      max-height: 620px;
       line-height: 100%;
       overflow: scroll;
     }

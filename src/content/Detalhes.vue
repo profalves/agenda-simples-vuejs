@@ -3,7 +3,7 @@
   <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
     <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   <div>
-      <!-- cabeçario -->
+    <!-- cabeçario -->
     <div class="card" style="width: 100%; margin-top: 25px;">
       
       <div class="card-content">
@@ -75,7 +75,6 @@
       </div>
 
     </div>
-
     <!-- fim cabeçario --> 
 
     <br>
@@ -83,13 +82,17 @@
     <center><h2>{{ compromissos.titulo | uppercase }}</h2></center>
     
     <br>
-
-    <i class="fixo fa fa-spinner fa-pulse fa-5x fa-fw" v-show="isLoading"></i>
-    <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
-
+    
+    <div v-if="prazo" :style="colorPrazo">
+      <b>Prazo:</b> {{ prazo | dataFormat }}
+    </div>
+    
+    <input class="input" v-model="search" placeholder="Procurar entre as respostas...">
+    <br><br>
+    
      <!-- detalhes -->
 
-    <div v-for="compromisso in compromissosDet">
+    <div v-for="compromisso in listaDets">
 
         <!-- sub-resposta direita -->
         <div v-if="compromisso.align=='D'">
@@ -101,7 +104,7 @@
                             
                             <div class="column is-4">
                                 {{compromisso.dataHoraAgend | dataFormat}}
-                                / Prazo: {{compromisso.dataHoraAtend | dataFormat}}
+                                <!--/ Prazo: {{compromisso.dataHoraAtend | dataFormat}}-->
                             </div>    
                             <!--<div class="column is-4">
                                 <strong>Atendimento:</strong><br>
@@ -219,7 +222,7 @@
                             <div class="column is-4">
                                 
                                 {{compromisso.dataHoraAgend | dataFormat}}
-                                / Prazo: {{compromisso.dataHoraAtend | dataFormat}}
+                                <!--/ Prazo: {{compromisso.dataHoraAtend | dataFormat}}-->
                                 
                             </div>    
                             <!--<div class="column is-4">
@@ -337,7 +340,7 @@
                             <div class="column is-4">
                                 
                                 {{compromisso.dataHoraAgend | dataFormat}}
-                                / Prazo: {{compromisso.dataHoraAtend | dataFormat}}
+                                <!--/ Prazo: {{compromisso.dataHoraAtend | dataFormat}}-->
                             </div>    
                             <!--<div class="column is-4">
                                 <strong>Atendimento:</strong><br>
@@ -400,7 +403,6 @@
 
 
     <!-- MODAL -->    
-
     <div id="modal_compromisso" class="modal" :class="{'is-active':showModal}">
       <div class="modal-background"></div>
       <div class="modal-card">
@@ -462,9 +464,6 @@
       <div class="modal-background"></div>
       <div class="modal-content">
         <div class="box is-narrow">
-
-
-
             <div v-if="!image">
                 <center>
                     <label class="label">Selecione uma imagem:</label>
@@ -524,12 +523,19 @@
                   <div v-if="userDest===1 || usuario===userDest || usuario===compromissos.idUsuarioCriador">
                       <label class="label">Mudar Status para:</label>
                       <div class="select">
-                          <select v-model="idStatus" @change="alterarStatus">
+                          <select v-model="idStatus" @change="verificarStatus">
+                              <option></option>
                               <option v-for="stat in status" :value="stat.idStatus">
                                 {{ stat.nome }}
                               </option>
                           </select>
-                      </div>
+                      </div><br><br>
+                      <textarea v-if="idStatus == 7" 
+                                class="textarea is-info" 
+                                v-model.trim="compDet.detalhes" 
+                                placeholder="Digite a observação e depois aperte enter" 
+                                @keyup.enter="alterarStatus(salvarDet())">
+                      </textarea>
                   </div>
                   
                   <div v-else>Não permitido alterar Status</div>
@@ -563,10 +569,10 @@
     <!-- fim modal -->
     
 
-    <!-- RESPOSTA GERAL -->
+    <!-- NOVA CONVERSA -->
       
       <div id="resposta" class="box" style="margin-top: 20px;" v-if="visivel">
-          <label class="label">Resposta:</label>
+          <label class="label">Iniciando nova conversação dentro do tópico:</label>
                 <textarea @click="responder()" class="textarea" v-model.trim="compDet.detalhes" placeholder="Digite a sua resposta" style="width: 100%;"></textarea>
                 <br>
                 <div class="columns">
@@ -685,12 +691,13 @@ export default {
             "imgFile": '',
             "extFile": '' 
         },  
-        idStatus: 1,
+        idStatus: '',
         prazo: '',
         userDest: '',
         novaResp: '', 
         btnNovaConversa: true,
         responsavel: '',
+        search: '',
         
         // datapicker
         startTime: {
@@ -751,7 +758,23 @@ export default {
         ]
       }
     },
-    
+    computed:{
+      colorPrazo(){
+        let prazo = Date.parse(this.prazo)
+        if(prazo<new Date()){
+          return 'color: red'
+        }
+      },
+      listaDets(){
+        if(this.search){
+          return this.compromissosDet.filter(row => row.detalhes.toLowerCase().indexOf(this.search)>=0)
+        }
+        else{
+          return this.compromissosDet
+        } 
+      }
+    },  
+  
     components: {
       'date-picker': myDatepicker,
       JSZip
@@ -772,7 +795,6 @@ export default {
     },
     // METODOS ======================================
     methods: {
-      
       responder(){
         let x = 0
         let y = 999999
@@ -858,13 +880,13 @@ export default {
         
       },
       showSelStatus(){
-        this.ultimoDet = this.compromissosDet.slice(0)[0]
-        console.log('ultimoDet:', this.ultimoDet);
+        let det = this.compromissosDet.slice(0)[0]
+        console.log('ultimoDet:', det);
         console.log('compromisso:', this.compromissos);
         
-        this.idResposta = this.ultimoDet.idCompDet.toString()
-        this.userDest = this.ultimoDet.idUsuarioDestina
-        this.prazo = this.ultimoDet.dataHoraAtend
+        this.idResposta = det.idCompDet.toString()
+        this.userDest = det.idUsuarioDestina
+        this.prazo = det.dataHoraAtend
         this.showStatus = true
       },
       showExibir(compromisso){
@@ -899,6 +921,7 @@ export default {
         this.$http.get(ENDPOINT + `api/comp/obterCompdet?idComp=${q}`).then(
          response=>{
            t.compromissosDet = response.json()
+           t.prazo = t.compromissosDet[0].dataHoraAtend
            console.log('compromissosDet', t.compromissosDet);
          },
          error=>{
@@ -1024,7 +1047,15 @@ export default {
                 this.loadDetahes()
              })
       
-      }, 
+      },
+      verificarStatus(){
+        if(this.idStatus !== 7){
+          this.alterarStatus()
+        }
+        else{
+          this.ultimoDet = this.compromissosDet.slice(-1)[0]
+        }
+      },
       alterarStatus(){
         this.$http.get(ENDPOINT + 'api/comp/alterarStatus?idCompDet=' + this.idResposta + '&idStatus=' + this.idStatus)
           .then((response) => {
@@ -1222,9 +1253,6 @@ export default {
       t.todosUsuarios()
       localStorage.setItem('status', this.$route.query.status)
       
-      console.log('Usuario logado: ', this.usuario)
-      console.log('userDest atual: ', this.userDest)
-      console.log('Usuario Criador: ', this.compromissos.idUsuarioCriador)
     }
 }
 </script>

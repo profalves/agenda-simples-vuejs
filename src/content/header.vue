@@ -32,7 +32,7 @@
     methods: {
       agenda() {
        var app = this;
-       localStorage.setItem('status', 'EM ANDAMENTO');
+       //localStorage.setItem('status', 'EM ANDAMENTO');
        app.$router.go({ name: 'compromissos'});
       },
       logout() {
