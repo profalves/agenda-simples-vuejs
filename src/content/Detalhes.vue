@@ -4,7 +4,7 @@
     <span class="fixo sr-only" v-show="isLoading">Carregando...</span>
   <div>
     <!-- cabeçario -->
-    <div class="card" style="width: 100%; margin-top: 25px;">
+    <div class="card" style="width: 100%">
       
       <div class="card-content">
         

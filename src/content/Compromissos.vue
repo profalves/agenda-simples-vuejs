@@ -13,7 +13,7 @@
           <div class="column is-2-tablet is-2-mobile" v-if="notificados.length>0">
               <label class="label">Notificações</label>
               <button class="button is-warning" @click="getNotificados" v-if="!notify">{{notificados.length}}</button>
-              <button class="button is-info" @click="getNotificados" v-else>Todas</button>
+              <button class="button is-success" @click="getNotificados" v-else>Todas</button>
           </div>
           <div class="column is-2-desktop is-3-tablet is-4-mobile">
               <label class="label" style="background-color: aliceblue">Status</label>
@@ -502,10 +502,43 @@
           
           
           <!-- upload de arquivos -->
-            
+          <div class="box is-narrow">
+            <div v-if="!image">
+                <center>
+                    <div class="file">
+                      <label class="file-label">
+                        <input id="file" class="file-input" type="file" name="resume" @change="onFileChange">
+                        <span class="file-cta">
+                          <span class="file-icon">
+                            <i class="fa fa-upload"></i>
+                          </span>
+                          <span class="file-label">
+                            Selecione um arquivo…
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                </center>
+            </div>
+
+            <div v-else>
+                <img :src="image" />
+                <center><strong>Arquivo: {{ image | extensao }}</strong></center>
+                <br>
+                <center>
+                    <button class="button is-danger" @click="removeImage">Remover</button>
+
+                </center>
+
+            </div>
+
+
+          </div>  
            
             
-          <!----> 
+          <!---->
+          
+          
           <label class="label">Detalhamento</label>
           <p class="control">
             <textarea class="textarea" placeholder="Escreva a pergunta ou comentário..." v-model.trim="msg"></textarea>
@@ -655,6 +688,7 @@
         },
         caminho: '',
         ext: '',
+        idNovo: '',
         listaTodos: (sessionStorage.getItem('listaTodos') === 'true'), 
         listaEu: (sessionStorage.getItem('listaEu') === 'true'),
         showStatus: false,
@@ -1353,6 +1387,7 @@
            console.log(error)
          }).finally(function () {
           t.hideLoading();
+          t.getUrgenciasMinhas()
         })
       },
       loadLists(){
@@ -1451,7 +1486,7 @@
         } 
         this.comp.compromissosDet.push(det)
         
-          this.$http.post(ENDPOINT + 'api/comp/novoCab',this.comp)
+          this.$http.post(ENDPOINT + 'api/comp/novoCab', this.comp)
            .then((response) => {
               this.$set('comp',{
                 "idCompTipo": '',
@@ -1465,15 +1500,16 @@
               this.$set('msg','')
               this.$set('showModalNew',false)
               console.log(response.body)
+              this.$set('idNovo', JSON.parse(response.body))
 
            })
            .catch((error) => {
-              swal({   title: `Falha ao enviar sua solicitação`,
-                      html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
+              swal({  title: `Falha ao enviar sua solicitação`,
+                      html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o SUPORTE</strong>`,   
                       type: "error",  
                   })
               //e = error.json()
-              console.log(e)
+              console.log(error)
               this.hideLoading()
               //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
               /*this.err = JSON.stringify(e)
@@ -1487,7 +1523,10 @@
            })
            .finally(function () {
               this.loadCompromissos()
-              this.hideLoading();
+              this.hideLoading()
+              if(this.image){
+                this.enviarImg()
+              }
            })
           
       },
@@ -1525,7 +1564,7 @@
       // envio de imagem
       onFileChange(e) {
           // pegar o caminho do arquivo e a extensão
-          caminho = document.getElementById('file').value || document.getElementById('file2').value || document.getElementById('file3').value
+          caminho = document.getElementById('file').value
           this.caminho = caminho
           this.ext = this.caminho.split('.').pop()
           
@@ -1596,20 +1635,16 @@
           
        this.imgDet.imgFile = this.image.split(',').pop()
        this.imgDet.extFile = this.ext   
-       this.imgDet.idCompDet = this.idResposta
-          
-       
+       this.imgDet.idCompDet = this.idNovo.compromissosDet[0].idCompDet
        
        this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
-                this.$set('showUpload',false)
                 this.$set('imgDet',{
                     "idCompDet": '',
                     "extFile": '',
                     "imgFile": ''
                 })
                 this.$set('image','')
-                //this.$set('arqZip','')
                 console.log(response.body)
              })
              .catch((error) => {
@@ -1617,7 +1652,6 @@
              })
              .finally(function () {
                 this.hideLoading()
-                this.loadDetahes()
              })
           
       },
@@ -1742,12 +1776,44 @@
             n.close()
             
           }
-          setTimeout(n.close.bind(n), 5000);
+          //setTimeout(n.close.bind(n), 5000);
           
         })
         .catch(e => {
           console.log(e)
         })
+      },
+      getUrgenciasMinhas(){
+        let mylist = this.compDestinados.filter(row => row.status === 'AGUARDANDO')
+                                        .filter(row => row.numPrioridade === 1)
+        console.log('mylist:', mylist);
+        if(mylist.length === 0) return
+        
+        let quantas        
+        if(mylist.length>1){
+          quantas = ' URGENCIAS'
+        }
+        else{
+          quantas = ' URGENCIA'
+        }
+        
+        let n = new Notification('Helpdesk - 7Virtual', {
+          body: 'HÁ ' + mylist.length + quantas + ' AGUARDANDO POR VOCÊ! clique aqui',
+          vibrate: [200, 100, 200],
+          icon: icon.urgente2
+        })
+
+        n.vibrate
+        n.onclick = (event, close) => {
+          event.preventDefault(); // prevent the browser from focusing the Notification's tab
+          this.listaTodos = false
+          this.listaEu = true
+          this.filtroStatus = 'AGUARDANDO'
+          this.filtroPriori = 1
+
+          n.close()
+        }
+        //setTimeout(n.close.bind(n), 5000);
       },
       
     },
@@ -1766,6 +1832,7 @@
       this.listaEu = (sessionStorage.getItem('listaEu') === 'true')
       
       t.notifyMe()
+      
     },
     
     created(){
@@ -1794,59 +1861,59 @@
 </script>
 <style>
   input#id {
-      width: 50px;
+    width: 50px;
   }
 
   ul {
-      padding: 0;
+    padding: 0;
   }
   .user {
-      height: 30px;
-      line-height: 30px;
-      padding: 10px;
-      border-top: 1px solid #eee;
-      overflow: hidden;
-      transition: all .25s ease;
+    height: 30px;
+    line-height: 30px;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    overflow: hidden;
+    transition: all .25s ease;
   }
   .user:last-child {
-      border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #eee;
   }
   .v-enter, .v-leave-active {
-      height: 0;
-      padding-top: 0;
-      padding-bottom: 0;
-      border-top-width: 0;
-      border-bottom-width: 0;
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
   }
 
   .chip {
-      display: inline-block;
-      padding: 0 10px;
-      height: 30px;
-      font-size: 12px;
-      line-height: 30px;
-      border-radius: 25px;
-      background-color: #d1d1d1;
-      margin-left: 5px;
-      /*width: 100%;*/
+    display: inline-block;
+    padding: 0 10px;
+    height: 30px;
+    font-size: 12px;
+    line-height: 30px;
+    border-radius: 25px;
+    background-color: #d1d1d1;
+    margin-left: 5px;
+    /*width: 100%;*/
   }
   .chip img {
-      float: left;
-      margin: 0 10px 0 -25px;
-      height: 50px;
-      width: 50px;
-      border-radius: 50%;
+    float: left;
+    margin: 0 10px 0 -25px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
   }
   .closebtn {
-      padding-left: 10px;
-      color: #888;
-      font-weight: bold;
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
+    padding-left: 10px;
+    color: #888;
+    font-weight: bold;
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
   }
   .closebtn:hover {
-      color: #000;
+    color: #000;
   }
   
   @media (min-height: 440px) {
@@ -2033,6 +2100,7 @@
   .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
       right: 0px; 
   }
+  
   .aviso{
     background-color: #F5F5F5;
   }
