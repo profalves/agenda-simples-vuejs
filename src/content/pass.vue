@@ -45,7 +45,7 @@ export default {
             .finally(function(){
                 this.isLoading = false
             })
-      }, 
+      },
     },
 
 }

@@ -1,7 +1,7 @@
 <template>
 <div class="conteudo" id="principal">
     <div class="box" id="login">
-        <center><img src="logo2.png" /></center>
+        <center><img src="logo2.png" width="80%" /></center>
         <br><br>
         <form @submit.prevent="Login()">
             <label class="label">Usuário</label>

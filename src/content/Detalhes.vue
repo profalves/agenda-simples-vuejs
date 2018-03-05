@@ -571,7 +571,7 @@
 
     <!-- NOVA CONVERSA -->
       
-      <div id="resposta" class="box" style="margin-top: 20px;" v-if="visivel">
+      <div id="resposta" class="box" style="margin-top: 20px;" v-show="visivel">
           <label class="label">Iniciando nova conversação dentro do tópico:</label>
                 <textarea @click="responder()" class="textarea" v-model.trim="compDet.detalhes" placeholder="Digite a sua resposta" style="width: 100%;"></textarea>
                 <br>

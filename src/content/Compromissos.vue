@@ -486,7 +486,7 @@
             </div>
             <div v-if="comp.numPrioridade === 3">
               <strong>Prioridade 3:</strong><br>
-              Entrará na lista de todos os compromissos que podem ser realizados até o próximo PACKAGE (dia 01 de cada mês)
+              Entrará na lista de todos os compromissos que podem ser realizados até o próximo PACKAGE
             </div>
             <div v-if="comp.numPrioridade === 4">
               <strong>Prioridade 4:</strong><br>
@@ -498,8 +498,6 @@
             </div>
           
           </div>
-          
-          
           
           <!-- upload de arquivos -->
           <div class="box is-narrow">
@@ -532,10 +530,8 @@
 
             </div>
 
-
           </div>  
            
-            
           <!---->
           
           
@@ -1934,7 +1930,7 @@
       overflow: scroll;
     }
   }
-  @media (min-height: 600px ) {
+  @media (min-height: 600px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
@@ -1943,20 +1939,20 @@
       overflow: scroll;
     }
   }
-  @media (min-height: 650px ) {
+  @media (min-height: 650px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 330px;
+      max-height: 350px;
       line-height: 100%;
       overflow: scroll;
     }
   }
-  @media (min-height: 700px ) {
+  @media (min-height: 700px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 380px;
+      max-height: 390px;
       line-height: 100%;
       overflow: scroll;
     }
@@ -1965,7 +1961,7 @@
     #table {
       margin-top: 10px;
       max-width: 100%;
-      max-height: 400px;
+      max-height: 450px;
       line-height: 100%;
       overflow: scroll;
     }
@@ -1997,7 +1993,7 @@
       overflow: scroll;
     }
   }
-
+  
   #table {
       margin-top: 10px;
       max-width: 100%;
