@@ -530,12 +530,11 @@
                               </option>
                           </select>
                       </div><br><br>
-                      <textarea v-if="idStatus == 7" 
-                                class="textarea is-info" 
-                                v-model.trim="compDet.detalhes" 
-                                placeholder="Digite a observação e depois aperte enter" 
-                                @keyup.enter="alterarStatus(salvarDet())">
-                      </textarea>
+                      <div v-if="idStatus == 7">
+                        <textarea class="textarea is-info" v-model.trim="compDet.detalhes">
+                        </textarea><br><br>
+                        <button class="button is-primary" @click="alterarTestar">Enviar</button>
+                      </div>
                   </div>
                   
                   <div v-else>Não permitido alterar Status</div>
@@ -995,7 +994,8 @@ export default {
                 this.$set('showModal',false)
                 this.$set('visivel',false)
                 this.$set('btnNovaConversa',true)
-                console.log(response.body)
+                this.$set('ultimoDet',true)
+                this.ultimoDet = JSON.parse(response.body)
              })
              .catch((error) => {
                 /*swal({   title: `Falha ao enviar sua solicitação`,
@@ -1016,18 +1016,18 @@ export default {
                 this.loadDetahes()
              })
           
-          if(this.image!=''){
+          if(this.image){
             this.enviarAposSalvar()
           }
           
       },
       enviarAposSalvar(){
         
-        ultimoDet = this.compromissosDet.slice(-1)[0] 
+        //let ultimoDet = this.compromissosDet.slice(-1)[0] 
         
         this.imgDet.extFile = this.ext
         this.imgDet.imgFile = this.image.split(',').pop()
-        this.imgDet.idCompDet = ultimoDet.idCompDet+1
+        this.imgDet.idCompDet = this.ultimoDet.idCompDet+1
           
         this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
@@ -1059,17 +1059,34 @@ export default {
       alterarStatus(){
         this.$http.get(ENDPOINT + 'api/comp/alterarStatus?idCompDet=' + this.idResposta + '&idStatus=' + this.idStatus)
           .then((response) => {
-                console.log(response.body)
-                this.showStatus = false
-                this.$router.go({ name: 'compromissos'})
-             })
-             .catch((error) => {
-                console.log(response.body)
-             })
-             .finally(function () {
-                
-                this.loadDetahes()
-             })
+            console.log(response.body)
+            this.showStatus = false
+            this.$router.go({ name: 'compromissos'})
+          })
+          .catch((error) => {
+            console.log(response.body)
+          })
+          .finally(function(){
+            this.loadDetahes()
+          })
+      
+      }, 
+      alterarTestar(){
+        this.$http.get(ENDPOINT + 'api/comp/alterarStatus?idCompDet=' + this.idResposta + '&idStatus=' + this.idStatus)
+          .then((response) => {
+            console.log(response.body)
+            this.showStatus = false
+            if(this.compDet.detalhes){
+              this.salvarDet()
+            }
+            this.$router.go({ name: 'compromissos'})
+          })
+          .catch((error) => {
+            console.log(response.body)
+          })
+          .finally(function(){
+            this.loadDetahes()
+          })
       
       }, 
       alterarPrazo(){

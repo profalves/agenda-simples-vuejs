@@ -795,7 +795,7 @@
       compFiltrados(){
         
         if (this.filtroTitulo){
-            return this.compromissos.filter(this.filtrarPorStatus())
+            return this.compromissos//.filter(this.filtrarPorStatus())
                                     .filter(this.filtrarPorAssunto());                       
         }  
         
@@ -1018,7 +1018,7 @@
       },
       destFiltrados(){
         if (this.filtroId){
-            return this.compDestinados.filter(this.filtrarPorStatus())
+            return this.compDestinados//.filter(this.filtrarPorStatus())
                                       .filter(this.filtrarPorCod());                        
         }
         
@@ -1075,9 +1075,11 @@
           this.notified = true
           console.log('ATENÇÃO: há notificações para você!')
           let users = notify.map(row => ' ' + row.ultResp)
+          users.filter((v, i, a) => a.indexOf(v) === i);
           
           let n = new Notification('Helpdesk - 7Virtual', {
-            body: 'Você possui interações de' + users.toString(),
+            body: 'Você possui interações de' + users.filter((v, i, a) => a.indexOf(v) === i),
+            icon: icon.logo
           })
 
           n.vibrate
@@ -1754,6 +1756,7 @@
             event.preventDefault(); // prevent the browser from focusing the Notification's tab
             this.listaTodos = true
             this.listaEu = false
+            this.notify = false
             this.colResp = false
             this.filtroStatus = 'AGUARDANDO'
             this.compromissos = this.urgentes.map(row => ({
@@ -1803,6 +1806,7 @@
         n.onclick = (event, close) => {
           event.preventDefault(); // prevent the browser from focusing the Notification's tab
           this.listaTodos = false
+          this.notify = false
           this.listaEu = true
           this.filtroStatus = 'AGUARDANDO'
           this.filtroPriori = 1
