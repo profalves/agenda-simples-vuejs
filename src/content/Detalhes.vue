@@ -520,7 +520,7 @@
           <div style="text-align:center">
               <div class="columns">
                 <div class="column">
-                  <div v-if="userDest===1 || usuario===userDest || usuario===compromissos.idUsuarioCriador">
+                  <div v-if="compromissos.status==='TESTAR' || userDest===1 || usuario===userDest || usuario===compromissos.idUsuarioCriador">
                       <label class="label">Mudar Status para:</label>
                       <div class="select">
                           <select v-model="idStatus" @change="verificarStatus">
@@ -1132,6 +1132,7 @@ export default {
              response=>{
                console.log(response)
                let users = response.json().filter(row => row.idUsuario === this.compromissosDet[0].idUsuarioDestina)
+               console.log('users', users);
                this.responsavel = users[0]
                this.isLoading = false
              },

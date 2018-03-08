@@ -96,7 +96,7 @@
       <div class="column" v-if="listaTodos && compFiltrados.length>1">{{compFiltrados.length}} compromissos</div> 
       <div class="column" v-if="listaEu && destFiltrados.length===1">1 compromisso para você</div> 
       <div class="column" v-if="listaEu && destFiltrados.length>1">{{destFiltrados.length}} compromissos para você</div> 
-      <div class="column is-mobile" style="text-align: right">
+      <div class="column is-mobile" style="text-align: right" v-if="listaTodos">
         <label class="checkbox">
           Eliminar minhas interações
           <input type="checkbox" v-model="listaSemInteracoes" @change="filtrarSemInteracoes" />
@@ -491,7 +491,7 @@
             </div>
             <div v-if="comp.numPrioridade === 2">
               <strong>Prioridade 2:</strong><br>
-              Entrará na lista de todos os compromissos com PRAZO DE ENTREGA determinado 
+              Entrará na lista de todos os compromissos que necessitam ser realizados em um CURTO espaço de tempo ou que seja definido um PRAZO de entrega
             </div>
             <div v-if="comp.numPrioridade === 3">
               <strong>Prioridade 3:</strong><br>
@@ -704,7 +704,7 @@
         notified: false,
         switch: true,
         urgentes: [],
-        listaSemInteracoes: false,
+        listaSemInteracoes: (localStorage.getItem('listaSemInteracoes') === 'true'),
         
         // datapicker
         startTime: {
@@ -1378,11 +1378,18 @@
            t.compromissos = response.json()
            console.log('load todos')
            this.colResp = true
+           if(this.listaSemInteracoes){
+            let name = localStorage.getItem('name')
+            let lista = this.compFiltrados.filter(row => row.ultResp !== name)
+            this.compromissos = lista
+          }
          },
          error=>{
            console.log(error)
          }).finally(function () {
           t.hideLoading();
+          t.getUrgencias()
+          t.getUrgenciasMinhas()
         })
       },
       loadCompDestinados(){
@@ -1789,15 +1796,45 @@
           }
           //setTimeout(n.close.bind(n), 5000);
           
+          swal({
+            title: msg.haver + this.urgentes.length + msg.quantas + ' para TODOS aguardando',
+            text: "Clique em OK para visualizar ou cancela para continuar",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ok'
+          }).then((result) => {
+            if(result){
+              this.listaTodos = true
+              this.listaEu = false
+              this.notify = false
+              this.colResp = false
+              this.filtroStatus = 'AGUARDANDO'
+              this.compromissos = this.urgentes.map(row => ({
+                usuario: row.criador,
+                titulo: row.titulo,
+                ultResp: " - - -",
+                dataHoraUltResp: '',
+                qtdRespostas: '',
+                numPrioridade: row.numPrioridade,
+                projeto: row.nome,
+                plataforma: row.plataforma,
+                status: row.status,
+                idComp: row.idComp,
+              }))
+            }
+          })
+          
         })
         .catch(e => {
           console.log(e)
         })
       },
       getUrgenciasMinhas(){
-        let mylist = this.compDestinados.filter(row => row.status === 'AGUARDANDO')
-                                        .filter(row => row.numPrioridade === 1)
-        console.log('mylist:', mylist);
+        let mylist = this.compDestinados.filter(row => row.numPrioridade === 1)
+                                        .filter(row => row.status === 'AGUARDANDO')
+        //console.log('mylist:', mylist);
         if(mylist.length === 0) return
         
         let quantas        
@@ -1826,15 +1863,36 @@
           n.close()
         }
         //setTimeout(n.close.bind(n), 5000);
+        
+        swal({
+          title: 'HÁ ' + mylist.length + quantas + ' AGUARDANDO POR VOCÊ!',
+          text: "Clique em OK para visualizar ou cancela para continuar",
+          type: 'error',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'ok'
+        }).then((result) => {
+          if(result){
+            this.listaTodos = false
+            this.notify = false
+            this.listaEu = true
+            this.filtroStatus = 'AGUARDANDO'
+            this.filtroPriori = 1
+          }
+        })
+        
       },
       filtrarSemInteracoes(){
         if(this.listaSemInteracoes){
           let name = localStorage.getItem('name')
           let lista = this.compFiltrados.filter(row => row.ultResp !== name)
           this.compromissos = lista
+          localStorage.setItem('listaSemInteracoes', true)
         }
         else{
           this.loadCompromissos()
+          localStorage.setItem('listaSemInteracoes', false)
         }
         
       }
@@ -1860,7 +1918,6 @@
     created(){
       let t = this
       t.loadCompromissos()
-      //t.loadCompDestinados()
       t.selectTipo()
       //t.selectStatus()
       t.selectProjetos()
@@ -1869,7 +1926,8 @@
       t.verificarUsuario()
       //t.expSession()
       t.getStatus()
-      t.getUrgencias()
+      //t.getUrgencias()
+      
       
       if(!sessionStorage.getItem('listaEu')){
         sessionStorage.setItem('listaTodos', false)
@@ -2030,7 +2088,8 @@
 
   table {
       border-collapse: collapse;
-      border: 1px solid #666;   
+      border: 1px solid #666; 
+      width: 100%;
   }
   tr:nth-child(even) {
       background-color: #edf5ff;
