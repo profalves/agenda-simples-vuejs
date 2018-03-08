@@ -1150,8 +1150,7 @@
     
     // METODOS ======================================
       
-    methods: {
-            
+    methods: { 
       // filtros GERAL
       filtrarPorStatus(compromisso){      
         return compromisso => compromisso.status ===  this.filtroStatus     
@@ -1388,7 +1387,7 @@
            console.log(error)
          }).finally(function () {
           t.hideLoading();
-          t.getUrgencias()
+          //t.getUrgencias()
           t.getUrgenciasMinhas()
         })
       },
@@ -1806,6 +1805,7 @@
             confirmButtonText: 'ok'
           }).then((result) => {
             if(result){
+              this.limparFiltros()
               this.listaTodos = true
               this.listaEu = false
               this.notify = false
@@ -1926,7 +1926,7 @@
       t.verificarUsuario()
       //t.expSession()
       t.getStatus()
-      //t.getUrgencias()
+      t.getUrgencias()
       
       
       if(!sessionStorage.getItem('listaEu')){
