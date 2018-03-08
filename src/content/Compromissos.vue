@@ -96,7 +96,16 @@
       <div class="column" v-if="listaTodos && compFiltrados.length>1">{{compFiltrados.length}} compromissos</div> 
       <div class="column" v-if="listaEu && destFiltrados.length===1">1 compromisso para você</div> 
       <div class="column" v-if="listaEu && destFiltrados.length>1">{{destFiltrados.length}} compromissos para você</div> 
+      <div class="column is-mobile" style="text-align: right">
+        <label class="checkbox">
+          Eliminar minhas interações
+          <input type="checkbox" v-model="listaSemInteracoes" @change="filtrarSemInteracoes" />
+        </label>
+      </div>
+      
     </div>
+
+    
 
     <!-- tabela -->
     <div id="table" v-if="listaTodos">
@@ -625,6 +634,8 @@
   //const ENDPOINT = 'http://192.168.0.115:32688/'
   
   import icon from './icones.js'
+  import st from './status.js'
+  const status = st.status
   
   export default {
     name: 'Compromissos',
@@ -646,7 +657,7 @@
         currentTime: moment().format('L'),
         currentHour: moment().format('LT'),
         tipos: [],
-        status: [],
+        status,
         prioridades: [
           { text: '1', value: 1 },
           { text: '2', value: 2 },
@@ -693,6 +704,7 @@
         notified: false,
         switch: true,
         urgentes: [],
+        listaSemInteracoes: false,
         
         // datapicker
         startTime: {
@@ -1815,12 +1827,22 @@
         }
         //setTimeout(n.close.bind(n), 5000);
       },
+      filtrarSemInteracoes(){
+        if(this.listaSemInteracoes){
+          let name = localStorage.getItem('name')
+          let lista = this.compFiltrados.filter(row => row.ultResp !== name)
+          this.compromissos = lista
+        }
+        else{
+          this.loadCompromissos()
+        }
+        
+      }
       
     },
     
     ready(){
       let t = this
-      t.selectStatus()
       t.loadCompDestinados()
       
       if(localStorage.getItem('userId') === 6){
@@ -1840,7 +1862,7 @@
       t.loadCompromissos()
       //t.loadCompDestinados()
       t.selectTipo()
-      t.selectStatus()
+      //t.selectStatus()
       t.selectProjetos()
       t.selectUsuarios()
       t.carregarUser()

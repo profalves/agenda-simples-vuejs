@@ -647,6 +647,9 @@
   //produção
   const ENDPOINT = 'http://191.252.64.6/helpdesk/'
   
+  import st from './status.js'
+  const status = st.status
+  
 export default {
     name: 'CompromissosDet',
     data () {
@@ -679,7 +682,7 @@ export default {
             "dataHoraAgend": '',
             "nivel": 1
         },
-        status: [],  
+        status,  
         usuarios: [],
         nivelResposta: '',
         idResposta: '',
@@ -1054,6 +1057,7 @@ export default {
         }
         else{
           this.ultimoDet = this.compromissosDet.slice(-1)[0]
+          this.compDet.detalhes = 'Package_'
         }
       },
       alterarStatus(){
@@ -1070,9 +1074,9 @@ export default {
             this.loadDetahes()
           })
       
-      }, 
+      },
       alterarTestar(){
-        this.$http.get(ENDPOINT + 'api/comp/alterarStatus?idCompDet=' + this.idResposta + '&idStatus=' + this.idStatus)
+        this.$http.get(ENDPOINT + 'api/comp/alterarStatus?idCompDet=' + this.idResposta + '&idStatus=7')
           .then((response) => {
             console.log(response.body)
             this.showStatus = false
@@ -1264,7 +1268,7 @@ export default {
       let t = this
       t.loadCompromissos()
       t.loadDetahes()
-      t.selectStatus()
+      //t.selectStatus()
       t.carregarUser()
       t.verificarUsuario()
       t.todosUsuarios()
