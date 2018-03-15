@@ -953,6 +953,7 @@ export default {
             this.$set('showModal',false)
             this.$set('visivel',false)
             this.$set('btnNovaConversa',true)
+            this.$set('ultimoDet', JSON.parse(response.body))
             console.log(response.body)
           })
           .catch((error) => {
@@ -972,20 +973,30 @@ export default {
           .finally(function () {
             this.hideLoading()
             this.loadDetahes()
+            if(this.image!=''){
+              this.enviarAposSalvar()
+            }
           }) 
-          if(this.image!=''){
-            this.enviarAposSalvar()
-          }
+          
           
       },
       salvarSubDet(){
-          this.validar()
+          if (this.compDet.detalhes==null || this.compDet.detalhes=='') {
+            swal(
+              'Oopa...',
+              'Por favor, escreva  a ocorrência',
+              'error'
+            )
+            // this.detalhes.focus();
+            return
+          }
           this.showLoading()
           this.compDet.dataHoraAgend = this.startTime.time
           this.compDet.idUsuario = this.usuario
           this.compDet.nivel = this.nivelResposta
              this.$http.post(ENDPOINT + 'api/comp/novoDet', this.compDet)
              .then((response) => {
+               console.log('response:', response);
                 this.$set('compDet',{
                     "detalhes": '',
                     "idComp": this.$route.query.q,
@@ -997,43 +1008,30 @@ export default {
                 this.$set('showModal',false)
                 this.$set('visivel',false)
                 this.$set('btnNovaConversa',true)
-                this.$set('ultimoDet',true)
-                this.ultimoDet = JSON.parse(response.body)
+                this.$set('ultimoDet', JSON.parse(response.body))
+                console.log('ultimoDet:', ultimoDet);
+                
              })
              .catch((error) => {
-                /*swal({   title: `Falha ao enviar sua solicitação`,
-                        html: `<strong>É importante verificar se todos os campos estão preenchidos, caso contrário contate o admin</strong>`,   
-                        type: "error",  
-                    })*/
-                //=>CAPTURAR O RETORNO DO SERVIDOR NA MENSAGEM
-                /*this.err = JSON.stringify(response.json)
-                swal({
-                  html: '<strong>' + this.err + '</strong>',
-                  confirmButtonText:
-                    '<i class="fa fa-thumbs-up"></i> Ok!',
-                }) */
-                console.log(response.json)
+                console.log(error.json)
              })
              .finally(function () {
                 this.hideLoading()
                 this.loadDetahes()
-             })
-          
-          if(this.image){
-            this.enviarAposSalvar()
-          }
-          
+                if(this.image){
+                  this.enviarAposSalvar()
+                }
+             })  
       },
-      enviarAposSalvar(){
-        
-        //let ultimoDet = this.compromissosDet.slice(-1)[0] 
+      enviarAposSalvar(){ 
         
         this.imgDet.extFile = this.ext
         this.imgDet.imgFile = this.image.split(',').pop()
-        this.imgDet.idCompDet = this.ultimoDet.idCompDet+1
+        this.imgDet.idCompDet = this.ultimoDet.idCompDet
           
         this.$http.post(ENDPOINT + 'api/comp/imgDet', this.imgDet)
           .then((response) => {
+                console.log('sucesso')
                 this.$set('showUpload',false)
                 this.$set('imgDet',{
                     "idCompDet": '',
@@ -1044,7 +1042,8 @@ export default {
                 console.log(response.body)
              })
              .catch((error) => {
-                console.log(response.body)
+                console.log(error.json)
+                console.log(error.json)
              })
              .finally(function () {
                 this.loadDetahes()
@@ -1208,20 +1207,7 @@ export default {
       }, 
         
       enviarImg(){
-       /*
-       if(this.ext=='jpg' || this.ext=='png' || this.ext=='pdf'){
-           this.imgDet.imgFile = this.image.split(',').pop()
-       }
-       else{
-           this.zipar()
-           this.imgDet.extFile = this.arqZip  
-           this.ext = 'zip'
-           this.$nextTick(function () {
-            this.imgDet.extFile = this.arqZip  
-            console.log(this.imgDet.extFile) // => 'atualizado'
-            })
-       }*/
-          
+        
        this.imgDet.imgFile = this.image.split(',').pop()
        this.imgDet.extFile = this.ext   
        this.imgDet.idCompDet = this.idResposta
@@ -1241,7 +1227,7 @@ export default {
                 console.log(response.body)
              })
              .catch((error) => {
-                console.log(response.body)
+                console.log(error)
              })
              .finally(function () {
                 this.hideLoading()
