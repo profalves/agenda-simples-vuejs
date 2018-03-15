@@ -104,9 +104,7 @@
       </div>
       
     </div>
-
     
-
     <!-- tabela -->
     <div id="table" v-if="listaTodos">
         <table class="table is-narrow-mobile is-bordered tg">
@@ -213,61 +211,15 @@
     <!-- NOTIFICADOS -->
     <div id="table" v-if="notify">
         <table class="table is-narrow-mobile is-bordered tg">
-              <thead>
-                
-                <th id="user">Criador<br>
-                  <!--<div class="select">
-                      <select v-model="filtroUser">
-                        <option v-for="user in filtroUsuarios" :value="user.nome">
-                          {{ user.nome }}
-                        </option>
-                      </select>
-                  </div>-->
-                  
-                </th>
-                <th>Assunto<br>
-                    <input class="input" id="titulo" v-model="filtroTitulo" >
-                </th>
-                
-                <th>Ult. post.
-                    <div style="width: 80px"></div>
-                </th>
-                
-                  
-                <th v-if="colPriori">Ordem<br>
-                  
-                  <div class="select" style="width: 40px;">
-                      <select v-model="filtroPriori" id="priori" @change="setPriori">
-                          <option v-for="prioridade in prioridades" :value="prioridade.value">
-                            {{ prioridade.text }}
-                          </option>
-                      </select>
-                  </div>
-                </th>
-                  
-                <th v-if="colProj">Projeto<br>
-                  <div class="select" style="width: 100px;">
-                      <select v-model="filtroProjeto" id="projeto" @change="setProj">
-                          <option v-for="projet in projetos">
-                            {{ projet.nome }}
-                          </option>
-                      </select>
-                  </div>
-                </th>
-                <th v-if="colPlat">Plataforma<br>
-                  <div class="select" style="width: 100px;">
-                      <select v-model="filtroPlat" id="plataforma" @change="setPlat">
-                          <option v-for="plataf in plataformas">
-                            {{ plataf.text }}
-                          </option>
-                      </select>
-                  </div>
-                </th>
-                <th>Cód<br>
-                  <input class="input" v-model="filtroId" id="id">
-                </th>
+            <thead>   
+                <th>Criador</th>
+                <th>Assunto</th>
+                <th>Ult. post.</th>  
+                <th>Ordem</th>  
+                <th>Projeto</th>
+                <th>Plataforma</th>
+                <th>Cód</th>
                 <!-- <th>Ações</th> -->
-
             </thead>
             <tbody id="lista">
               <tr v-for="compromisso in notificados">
@@ -2023,11 +1975,20 @@
       overflow: scroll;
     }
   }
-  @media (min-height: 650px) {
+  @media (min-height: 630px) {
     #table {
       margin-top: 10px;
       max-width: 100%;
       max-height: 350px;
+      line-height: 100%;
+      overflow: scroll;
+    }
+  }
+  @media (min-height: 650px) {
+    #table {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 370px;
       line-height: 100%;
       overflow: scroll;
     }
